@@ -1,0 +1,32 @@
+{
+    "sources": [
+        "src/drawings-common.js",
+        "src/drawings-utils.js",
+
+        "src/model/drawings-shape.js",
+        "src/model/drawings-point.js",
+        "src/model/drawings-arc.js",
+        "src/model/drawings-edge.js",
+        "src/model/drawings-model.js",
+
+        "src/translator/drawings-jsonTranslator.js",
+        "src/translator/drawings-scTranslator.js",
+
+        "src/editor/component/drawings-contextMenu.js",
+
+        "src/editor/drawings-controller.js",
+        "src/editor/drawings-paintPanel.js",
+
+        "src/editor/renderer/drawings-vertexRenderer.js",
+        "src/editor/renderer/drawings-edgeRenderer.js",
+        "src/editor/renderer/drawings-arcRenderer.js",
+
+        "src/editor/controller/drawings-vertexController.js",
+        "src/editor/controller/drawings-arcController.js",
+        "src/editor/controller/drawings-edgeController.js"
+    ],
+
+    "component": "src/drawings-component.js",
+
+    "target": "static/components/js/drawings/drawings.js"
+}
