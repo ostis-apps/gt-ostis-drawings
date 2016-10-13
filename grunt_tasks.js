@@ -26,7 +26,9 @@ module.exports = function() {
 
        				"sc-web/components/drawings/src/editor/controller/drawings-vertexController.js",
         			"sc-web/components/drawings/src/editor/controller/drawings-arcController.js",
-        			"sc-web/components/drawings/src/editor/controller/drawings-edgeController.js"],
+        			"sc-web/components/drawings/src/editor/controller/drawings-edgeController.js",
+
+                    "sc-web/components/drawings/src/drawings-component.js"],
                 dest: '../sc-web/client/static/components/js/drawings/drawings.js'
             }
         }, 
