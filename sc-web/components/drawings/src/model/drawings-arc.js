@@ -4,6 +4,7 @@
 
 Drawings.Arc = function Arc(point1, point2) {
     Drawings.Arc.superclass.constructor.apply(this, [[point1, point2]]);
+    this.scType = sc_type_arc_common | sc_type_const;
 };
 
 extend(Drawings.Arc, Drawings.Shape);

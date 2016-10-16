@@ -7,6 +7,7 @@ Drawings.Shape = function Shape(points) {
     this.name = '';
     this.points = points;
     this.className = this.constructor.name;
+    this.scAddr = null;
 };
 
 Drawings.Shape.prototype.getId = function () {
@@ -31,4 +32,12 @@ Drawings.Shape.prototype.getPoints = function () {
 
 Drawings.Shape.prototype.getPoint = function (pointId) {
     return Drawings.Utils.getObjectById(this.points, pointId);
+};
+
+Drawings.Shape.prototype.getScAddr = function () {
+    return this.scAddr;
+};
+
+Drawings.Shape.prototype.setScAddr = function (scAddr) {
+    this.scAddr = scAddr;
 };

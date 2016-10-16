@@ -603,6 +603,172 @@ Drawings.ScTranslator = {
                     SCWeb.ui.Locker.hide();
                 });
         });
+    },
+
+    translateToSc: function(model) {
+        var mainName = prompt("Напишите основной идентификатор графа");
+        var addrStruct = null;
+
+        function fireCallback() {
+            console.log("fireCallback");
+            if (addrStruct != null){
+                SCWeb.core.Main.doDefaultCommand([addrStruct]);
+            } else {
+                console.log("ERROR - SCWeb.core.Main.doDefaultCommand([addrStruct]);")
+            }
+        }
+
+        var currentLanguage = SCWeb.core.Translation.getCurrentLanguage();
+        var translateIdentifier = function(objName, objAddr) {
+            var dfd = new jQuery.Deferred();
+            if (currentLanguage) {
+                window.sctpClient.create_link().done(function (link_addr) {
+                    window.sctpClient.set_link_content(link_addr, objName).done(function () {
+                        window.sctpClient.create_arc(sc_type_arc_common | sc_type_const, objAddr, link_addr).done(function (arc_addr) {
+                            window.sctpClient.create_arc(sc_type_arc_pos_const_perm, currentLanguage, link_addr).done(function () {
+                                window.sctpClient.create_arc(sc_type_arc_pos_const_perm, window.scKeynodes.nrel_main_idtf, arc_addr)
+                                    .done(dfd.resolve)
+                                    .fail(dfd.reject);
+                            }).fail(dfd.reject);
+                        }).fail(dfd.reject);
+                    }).fail(dfd.reject);
+                }).fail(dfd.reject);
+            }
+            return dfd.promise();
+        };
+
+        var translateStruct = function() {
+            console.log("translateStruct");
+            var dfd = new jQuery.Deferred();
+            var implFunc = function() {
+                var dfd = new jQuery.Deferred();
+                window.sctpClient.create_node(sc_type_node | sc_type_const | sc_type_node_struct).done(function (nodeNewGraph){
+                    addrStruct = nodeNewGraph;
+                    window.sctpClient.create_link().done(function (nodeNameGraph) {
+                        window.sctpClient.create_arc(sc_type_arc_common | sc_type_const, nodeNewGraph, nodeNameGraph).done(function (arcSystemIdentifier){
+                            window.sctpClient.create_arc(sc_type_arc_pos_const_perm, window.scKeynodes.nrel_system_identifier, arcSystemIdentifier).fail(dfd.reject);;
+                        }).fail(dfd.reject);
+                        var currentdate = new Date();
+                        var nameGraph = "newgraph"  + "_"
+                            + currentdate.getDate() + "."
+                            + (currentdate.getMonth()+1)  + "."
+                            + currentdate.getFullYear() + "_"
+                            + currentdate.getHours() + "."
+                            + currentdate.getMinutes() + "."
+                            + currentdate.getSeconds();
+                        window.sctpClient.set_link_content(nodeNameGraph, nameGraph).fail(dfd.reject);;
+                    }).fail(dfd.reject);;
+                    if (mainName !== ""){
+                        translateIdentifier(mainName, nodeNewGraph)
+                            .done(dfd.resolve)
+                            .fail(dfd.reject);
+                    } else {
+                        dfd.resolve();
+                    }
+                });
+                return dfd.promise();
+            };
+            var funcs = [];
+            funcs.push(fQueue.Func(implFunc));
+            fQueue.Queue.apply(this, funcs).done(dfd.resolve).fail(dfd.reject);
+            return dfd.promise();
+        };
+
+        var translateNodes = function() {
+            console.log("translateNodes");
+            var nodes = model.points;
+            var dfdNodes = new jQuery.Deferred();
+            var implFunc = function(node) {
+                var dfd = new jQuery.Deferred();
+                //if (!node.scAddr) {
+                    window.sctpClient.create_node(sc_type_node | sc_type_const).done(function (r) {
+                        node.setScAddr(r);
+                        if (addrStruct != null){
+                            window.sctpClient.create_arc(sc_type_arc_pos_const_perm, addrStruct, r).fail(function() {
+                                console.log('Error while create arc from struct ' + addrStruct + " - " + r);
+                            });
+                        }
+                        if (node.name !== '') {
+                            translateIdentifier(node.name, node.scAddr)
+                                .done(dfd.resolve)
+                                .fail(dfd.reject);
+                        } else {
+                            dfd.resolve();
+                        }
+                    });
+                //} else {
+                //    dfd.resolve();
+                //}
+                return dfd.promise();
+            };
+            var funcs = [];
+            for (var i = 0; i < nodes.length; ++i) {
+                funcs.push(fQueue.Func(implFunc, [ nodes[i] ]));
+            }
+            fQueue.Queue.apply(this, funcs).done(dfdNodes.resolve).fail(dfdNodes.reject);
+            return dfdNodes.promise();
+        };
+
+        var translateEdges = function() {
+            console.log("translateEdges");
+            var dfd = new jQuery.Deferred();
+            var edges = [];
+            model.shapes.map(function(e) {
+                //if (!e.scAddr)
+                    edges.push(e);
+            });
+            var edgesNew = [];
+            var translatedCount = 0;
+            function doIteration() {
+                var edge = edges.shift();
+                function nextIteration() {
+                    if (edges.length === 0) {
+                        if (translatedCount === 0 || (edges.length === 0 && edgesNew.length === 0))
+                            dfd.resolve();
+                        else {
+                            edges = edgesNew;
+                            edgesNew = [];
+                            translatedCount = 0;
+                            window.setTimeout(doIteration, 0);
+                        }
+                    }
+                    else
+                        window.setTimeout(doIteration, 0);
+                };
+                //if (edge.sc_addr)
+                //    throw "Edge already have sc-addr";
+                var src = edge.points[0].scAddr;
+                var trg = edge.points[1].scAddr;
+                if (src && trg) {
+                    window.sctpClient.create_arc(edge.scType, src, trg).done(function(r) {
+                        edge.setScAddr(r);
+                        if (addrStruct != null){
+                            window.sctpClient.create_arc(sc_type_arc_pos_const_perm, addrStruct, r).fail(function() {
+                                console.log('Error while create arc from struct ' + addrStruct + " - " + r);
+                            });
+                        }
+                        translatedCount++;
+                        nextIteration();
+                    }).fail(function() {
+                        console.log('Error while create arc');
+                    });
+                } else {
+                    edgesNew.push(edge);
+                    nextIteration();
+                }
+            }
+            if (edges.length > 0)
+                window.setTimeout(doIteration, 0);
+            else
+                dfd.resolve();
+            return dfd.promise();
+        };
+        fQueue.Queue(
+            fQueue.Func(translateStruct),
+            fQueue.Func(translateNodes),
+            fQueue.Func(translateEdges)
+        ).done(fireCallback);
     }
+
 };
 

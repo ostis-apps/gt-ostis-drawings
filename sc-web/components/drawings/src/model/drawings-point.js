@@ -8,6 +8,7 @@ Drawings.Vertex = function Vertex(x, y) {
     this.y = y;
     this.name = '';
     this.className = this.constructor.name;
+    this.scAddr = null;
 };
 
 Drawings.Vertex.prototype.getId = function () {
@@ -45,4 +46,12 @@ Drawings.Vertex.prototype.getName = function () {
 
 Drawings.Vertex.prototype.setName = function (name) {
     this.name = name;
+};
+
+Drawings.Vertex.prototype.getScAddr = function () {
+    return this.scAddr;
+};
+
+Drawings.Vertex.prototype.setScAddr = function (scAddr) {
+    this.scAddr = scAddr;
 };

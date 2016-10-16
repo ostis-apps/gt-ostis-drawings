@@ -5,6 +5,7 @@
 Drawings.Edge = function Edge(point1, point2) {
     Drawings.Edge.superclass.constructor.apply(this, [[point1, point2]]);
     this.length = null;
+    this.scType = sc_type_edge_common | sc_type_const;
 };
 
 extend(Drawings.Edge, Drawings.Shape);

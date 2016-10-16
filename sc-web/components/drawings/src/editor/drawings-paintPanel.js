@@ -237,7 +237,7 @@ Drawings.PaintPanel.prototype = {
     },
 
     _translate: function () {
-        Drawings.ScTranslator.putModel(this.model);
+        Drawings.ScTranslator.translateToSc(this.model);
         // Redraw all (only translated ?) shapes after translation
         //this._redraw(this.model.getModelObjects());
     },
