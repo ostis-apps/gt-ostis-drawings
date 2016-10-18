@@ -1,41 +1,53 @@
 module.exports = function() {
     return  {
         concat: {
-            drawingscmp: {
+            scggcmp: {
                 src: [
-                	"sc-web/components/drawings/src/drawings-common.js",
-        			"sc-web/components/drawings/src/drawings-utils.js",
-
-        			"sc-web/components/drawings/src/model/drawings-shape.js",
-        			"sc-web/components/drawings/src/model/drawings-point.js",
-        			"sc-web/components/drawings/src/model/drawings-arc.js",
-        			"sc-web/components/drawings/src/model/drawings-edge.js",
-        			"sc-web/components/drawings/src/model/drawings-model.js",
-
-        			"sc-web/components/drawings/src/translator/drawings-jsonTranslator.js",
-        			"sc-web/components/drawings/src/translator/drawings-scTranslator.js",
-
-        			"sc-web/components/drawings/src/editor/component/drawings-contextMenu.js",
-
-        			"sc-web/components/drawings/src/editor/drawings-controller.js",
-        			"sc-web/components/drawings/src/editor/drawings-paintPanel.js",
-
-        			"sc-web/components/drawings/src/editor/renderer/drawings-vertexRenderer.js",
-        			"sc-web/components/drawings/src/editor/renderer/drawings-edgeRenderer.js",
-       				"sc-web/components/drawings/src/editor/renderer/drawings-arcRenderer.js",
-
-       				"sc-web/components/drawings/src/editor/controller/drawings-vertexController.js",
-        			"sc-web/components/drawings/src/editor/controller/drawings-arcController.js",
-        			"sc-web/components/drawings/src/editor/controller/drawings-edgeController.js",
-
-                    "sc-web/components/drawings/src/drawings-component.js"],
-                dest: '../sc-web/client/static/components/js/drawings/drawings.js'
+                    'sc-web/components/scgg/src/gwf-file-creater.js',
+                    'sc-web/components/scgg/src/gwf-file-loader.js',
+                    'sc-web/components/scgg/src/gwf-text-loader.js',
+                    'sc-web/components/scgg/src/gwf-model-objects.js',
+                    'sc-web/components/scgg/src/gwf-object-info-reader.js',
+                    'sc-web/components/scgg/src/scgg-object-builder.js',
+                    'sc-web/components/scgg/src/scgg.js',
+                    'sc-web/components/scgg/src/scgg-debug.js',
+                    'sc-web/components/scgg/src/scgg-math.js',
+                    'sc-web/components/scgg/src/scgg-model-objects.js',
+                    'sc-web/components/scgg/src/scgg-alphabet.js',
+                    'sc-web/components/scgg/src/scgg-render.js',
+                    'sc-web/components/scgg/src/scgg-scene.js',
+                    'sc-web/components/scgg/src/scgg-layout.js',
+                    'sc-web/components/scgg/src/scgg-tree.js',
+                    'sc-web/components/scgg/src/scgg-struct.js',
+                    'sc-web/components/scgg/src/scgg-object-creator.js',
+                    'sc-web/components/scgg/src/scgg-component.js',
+                    'sc-web/components/scgg/src/listener/scgg-mode-bus.js',
+                    'sc-web/components/scgg/src/listener/scgg-mode-contour.js',
+                    'sc-web/components/scgg/src/listener/scgg-mode-edge.js',
+                    'sc-web/components/scgg/src/listener/scgg-mode-link.js',
+                    'sc-web/components/scgg/src/listener/scgg-mode-select.js',
+                    'sc-web/components/scgg/src/command/append-object.js',
+                    'sc-web/components/scgg/src/command/command-manager.js',
+                    'sc-web/components/scgg/src/command/create-node.js',
+                    'sc-web/components/scgg/src/command/create-edge.js',
+                    'sc-web/components/scgg/src/command/create-bus.js',
+                    'sc-web/components/scgg/src/command/create-contour.js',
+                    'sc-web/components/scgg/src/command/create-link.js',
+                    'sc-web/components/scgg/src/command/change-idtf.js',
+                    'sc-web/components/scgg/src/command/change-content.js',
+                    'sc-web/components/scgg/src/command/change-type.js',
+                    'sc-web/components/scgg/src/command/delete-objects.js',
+                    'sc-web/components/scgg/src/command/move-object.js',
+                    'sc-web/components/scgg/src/command/move-line-point.js',
+                    'sc-web/components/scgg/src/command/get-node-from-memory.js',
+                    'sc-web/components/scgg/src/command/wrapper-command.js'],
+                dest: '../sc-web/client/static/components/js/scgg/scgg.js'
             }
-        }, 
+        },
         watch: {
-            drawingscmp: {
-                files: 'sc-web/components/drawings/src/**',
-                tasks: ['concat:drawingscmp']
+            scggcmp: {
+                files: 'sc-web/components/scgg/src/**',
+                tasks: ['concat:scggcmp']
             }
         }
     }
