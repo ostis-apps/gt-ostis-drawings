@@ -41,16 +41,17 @@ var KeyCode = {
     Z: 90
 };
 
-var SCggTypeEdgeNow = sc_type_arc_pos_const_perm;
+var SCggTypeEdgeNow = sc_type_arc_common | sc_type_const;
 var SCggTypeNodeNow = sc_type_node | sc_type_const;
 
 SCgg.Scene = function(options) {
 
     this.listener_array = [ new SCggSelectListener(this),
                             new SCggEdgeListener(this),
-                            new SCggBusListener(this),
-                            new SCggContourListener(this),
-                            new SCggLinkListener(this) ];
+        //scg new SCggBusListener(this),
+        //scg new SCggContourListener(this),
+        //scg new SCggLinkListener(this)
+                          ];
     this.listener = this.listener_array[0];
     this.commandManager = new SCggCommandManager();
     this.render = options.render;
@@ -431,20 +432,20 @@ SCgg.Scene.prototype = {
                 this.edit.toolSelect().click()
             } else if (event.which == KeyCode.Key2) {
                 this.edit.toolEdge().click()
-            } else if (event.which == KeyCode.Key3) {
-                this.edit.toolBus().click()
-            } else if (event.which == KeyCode.Key4) {
-                this.edit.toolContour().click()
-            } else if (event.which == KeyCode.Key5) {
-                this.edit.toolLink().click()
+                //scg } else if (event.which == KeyCode.Key3) {
+                //scg     this.edit.toolBus().click()
+                //scg } else if (event.which == KeyCode.Key4) {
+                //scg     this.edit.toolContour().click()
+                //scg } else if (event.which == KeyCode.Key5) {
+                //scg     this.edit.toolLink().click()
             } else if (event.which == KeyCode.Delete) {
                 this.edit.toolDelete().click();
             } else if (event.which == KeyCode.I) {
                 if (!this.edit.toolChangeIdtf().hasClass("hidden"))
                     this.edit.toolChangeIdtf().click();
-            } else if (event.which == KeyCode.C) {
-                if (!this.edit.toolSetContent().hasClass("hidden"))
-                    this.edit.toolSetContent().click();
+                //scg } else if (event.which == KeyCode.C) {
+                //scg      if (!this.edit.toolSetContent().hasClass("hidden"))
+                //scg          this.edit.toolSetContent().click();
             } else if (event.which == KeyCode.T) {
                 if (!this.edit.toolChangeType().hasClass("hidden"))
                     this.edit.toolChangeType().click();
@@ -574,8 +575,8 @@ SCgg.Scene.prototype = {
     isSelectedObjectAllArcsOrAllNodes: function () {
         var objects = this.selected_objects;
         var typeMask = objects[0].sc_type & sc_type_arc_mask ? sc_type_arc_mask :
-            objects[0].sc_type & sc_type_node ?
-                sc_type_node : 0;
+            objects[0].sc_type ;//scg & sc_type_node ?
+        //scg sc_type_node : 0;
         return (objects.every(function (obj) {
             return ((obj.sc_type & typeMask) && !(obj instanceof SCgg.ModelContour) && !(obj instanceof SCgg.ModelBus));
         }))

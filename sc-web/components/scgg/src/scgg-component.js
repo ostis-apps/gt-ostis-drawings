@@ -17,6 +17,10 @@ var scggViewerWindow = function(sandbox) {
 
     this.domContainer = sandbox.container;
     this.sandbox = sandbox;
+    var findStruct = $("#" + this.domContainer + ' .sc-contour > .scs-scn-view-toogle-button').parent().attr('sc_addr');
+    if (findStruct !== undefined){
+        this.sandbox.addr = findStruct;
+    }
     this.tree = new SCgg.Tree();
     this.editor = new SCgg.Editor();
     
@@ -189,7 +193,9 @@ var scggViewerWindow = function(sandbox) {
     this.sandbox.eventApplyTranslation = $.proxy(this.applyTranslation, this);
     this.sandbox.eventStructUpdate = $.proxy(this.eventStructUpdate, this);
 
-    this.sandbox.updateContent();
+    if (findStruct !== undefined){
+        this.sandbox.updateContent();
+    }
 };
 
 
