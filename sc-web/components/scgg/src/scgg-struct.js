@@ -1,4 +1,4 @@
-function ScgFromScImpl(_sandbox, _editor, aMapping) {
+function SCggFromScImpl(_sandbox, _editor, aMapping) {
     
     var self = this,
         arcMapping = aMapping,
@@ -137,7 +137,7 @@ function scggScStructTranslator(_editor, _sandbox) {
     if (!sandbox.is_struct)
         throw "Snadbox must to work with sc-struct";
     
-    var scggFromSc = new ScgFromScImpl(sandbox, editor, arcMapping);
+    var scggFromSc = new SCggFromScImpl(sandbox, editor, arcMapping);
     
     var appendToConstruction = function(obj) {
         var dfd = new jQuery.Deferred();

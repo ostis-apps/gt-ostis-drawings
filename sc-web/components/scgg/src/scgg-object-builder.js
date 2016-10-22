@@ -1,4 +1,4 @@
-ScgObjectBuilder = {
+SCggObjectBuilder = {
     scgg_objects: {},
     gwf_objects: {},
     commandList: [],

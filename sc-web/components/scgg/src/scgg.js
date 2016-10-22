@@ -561,7 +561,7 @@ SCgg.Editor.prototype = {
                     render : self.render});
 
             }
-            ScgObjectBuilder.scene = self.scene;
+            SCggObjectBuilder.scene = self.scene;
             var result = open_dialog.click();
         });
 

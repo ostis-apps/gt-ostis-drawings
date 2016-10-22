@@ -19,7 +19,7 @@ GwfFileLoader = {
 
         reader.onloadend = function (e) {
             if (is_file_correct != false) {
-                ScgObjectBuilder.buildObjects(GwfObjectInfoReader.objects_info);
+                SCggObjectBuilder.buildObjects(GwfObjectInfoReader.objects_info);
                 args["render"].update();
             } else
                 GwfObjectInfoReader.printErrors();

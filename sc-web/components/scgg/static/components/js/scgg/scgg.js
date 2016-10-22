@@ -199,7 +199,7 @@ GwfFileLoader = {
 
         reader.onloadend = function (e) {
             if (is_file_correct != false) {
-                ScgObjectBuilder.buildObjects(GwfObjectInfoReader.objects_info);
+                SCggObjectBuilder.buildObjects(GwfObjectInfoReader.objects_info);
                 args["render"].update();
             } else
                 GwfObjectInfoReader.printErrors();
@@ -747,7 +747,7 @@ GwfObjectInfoReader = {
 
 
 /* --- src/scgg-object-builder.js --- */
-ScgObjectBuilder = {
+SCggObjectBuilder = {
     scgg_objects: {},
     gwf_objects: {},
     commandList: [],
@@ -1354,7 +1354,7 @@ SCgg.Editor.prototype = {
                     render : self.render});
 
             }
-            ScgObjectBuilder.scene = self.scene;
+            SCggObjectBuilder.scene = self.scene;
             var result = open_dialog.click();
         });
 
@@ -4737,7 +4737,7 @@ SCgg.TreeNode.prototype = {
 
 
 /* --- src/scgg-struct.js --- */
-function ScgFromScImpl(_sandbox, _editor, aMapping) {
+function SCggFromScImpl(_sandbox, _editor, aMapping) {
     
     var self = this,
         arcMapping = aMapping,
@@ -4876,7 +4876,7 @@ function scggScStructTranslator(_editor, _sandbox) {
     if (!sandbox.is_struct)
         throw "Snadbox must to work with sc-struct";
     
-    var scggFromSc = new ScgFromScImpl(sandbox, editor, arcMapping);
+    var scggFromSc = new SCggFromScImpl(sandbox, editor, arcMapping);
     
     var appendToConstruction = function(obj) {
         var dfd = new jQuery.Deferred();
@@ -5284,6 +5284,10 @@ var scggViewerWindow = function(sandbox) {
 
     this.domContainer = sandbox.container;
     this.sandbox = sandbox;
+    var findStruct = $("#" + this.domContainer + ' .sc-contour > .scs-scn-view-toogle-button').parent().attr('sc_addr');
+    if (findStruct !== undefined){
+        this.sandbox.addr = findStruct;
+    }
     this.tree = new SCgg.Tree();
     this.editor = new SCgg.Editor();
     
@@ -5370,8 +5374,7 @@ var scggViewerWindow = function(sandbox) {
     };
 
     this._buildGraph = function(data) {
-        console.log("----------------------------------------------------------");
-        console.log(data);
+        
         var elements = {};
         var edges = new Array();
         for (var i = 0; i < data.length; i++) {
@@ -5457,7 +5460,9 @@ var scggViewerWindow = function(sandbox) {
     this.sandbox.eventApplyTranslation = $.proxy(this.applyTranslation, this);
     this.sandbox.eventStructUpdate = $.proxy(this.eventStructUpdate, this);
 
-    this.sandbox.updateContent();
+    if (findStruct !== undefined){
+        this.sandbox.updateContent();
+    }
 };
 
 
