@@ -1,2 +1,4 @@
 .idea/
 node_modules
+sc-web/client/static*
+sc-web/components/scgg/static/components/js/scgg/scgg.js

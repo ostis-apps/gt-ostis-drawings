@@ -10,9 +10,40 @@ function SCggFromScImpl(_sandbox, _editor, aMapping) {
         sandbox = _sandbox;
     
     function resolveIdtf(addr, obj) {
-        sandbox.getIdentifier(addr, function(idtf) {
-            obj.setText(idtf);
-        });
+        if (obj instanceof SCgg.ModelNode){
+            window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
+                [   addr,
+                    sc_type_arc_common | sc_type_const,
+                    sc_type_link,
+                    sc_type_arc_pos_const_perm,
+                    window.scKeynodes.nrel_gt_idtf
+                ]
+            ).done(function(results) {
+                window.sctpClient.get_link_content(results[0][2],'string').done(function(content) {
+                    obj.setText(content);
+                });
+            }).fail(function(r){
+                console.log("fail nrel_gt_idtf in SCggFromScImpl");
+            });
+        } else if (obj instanceof SCgg.ModelEdge){
+            window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
+                [   addr,
+                    sc_type_arc_common | sc_type_const,
+                    sc_type_link,
+                    sc_type_arc_pos_const_perm,
+                    window.scKeynodes.nrel_weight
+                ]
+            ).done(function(results) {
+                window.sctpClient.get_link_content(results[0][2],'string').done(function(content) {
+                    obj.setText(content);
+                });
+            }).fail(function(r){
+                console.log("fail nrel_weight in SCggFromScImpl");
+            });
+        }
+        //scg sandbox.getIdentifier(addr, function(idtf) {
+        //scg    obj.setText(idtf);
+        //scg });
     }
 
     function randomPos() {
@@ -170,7 +201,21 @@ function scggScStructTranslator(_editor, _sandbox) {
             dfd.reject();
         }
         return dfd.promise();
-    };  
+    };
+
+    var translateGtIdentifier = function (obj) {
+        var dfd = new jQuery.Deferred();
+        window.sctpClient.create_link().done(function (link_addr) {
+            window.sctpClient.set_link_content(link_addr, obj.text).done(function () {
+                window.sctpClient.create_arc(sc_type_arc_common | sc_type_const, obj.sc_addr, link_addr).done(function (arc_addr) {
+                    window.sctpClient.create_arc(sc_type_arc_pos_const_perm, window.scKeynodes.nrel_gt_idtf, arc_addr)
+                        .done(dfd.resolve)
+                        .fail(dfd.reject);
+                }).fail(dfd.reject);
+            }).fail(dfd.reject);
+        }).fail(dfd.reject);
+        return dfd.promise();
+    };
     
     return r = {
         mergedWithMemory: function(obj) {
@@ -231,7 +276,7 @@ function scggScStructTranslator(_editor, _sandbox) {
                             node.setObjectState(SCggObjectState.NewInMemory);
                             objects.push(node);
                             if (node.text) {
-                                translateIdentifier(node)
+                                translateGtIdentifier(node)
                                     .done(dfd.resolve)
                                     .fail(dfd.reject);
                             } else {
@@ -270,7 +315,7 @@ function scggScStructTranslator(_editor, _sandbox) {
                             c.setObjectState(SCggObjectState.NewInMemory);
                             objects.push(c);
                             if (c.text) {
-                                translateIdentifier(c)
+                                translateGtIdentifier(c)
                                     .done(dfd.resolve)
                                     .fail(dfd.reject);
                             } else {
