@@ -62,7 +62,7 @@ var scggViewerWindow = function(sandbox) {
                 return self.scStructTranslator.translateToSc(callback);
             },
             canEdit: this.sandbox.canEdit(),
-            resolveControls: this.sandbox.resolveElementsAddr,
+            resolveControls: this.sandbox.resolveElementsAddr
         }
     );
 
@@ -188,9 +188,9 @@ var scggViewerWindow = function(sandbox) {
             }
         }
         this.editor.render.updateTexts();
+        this.editor.updateGraphName();
     };
-    
-    
+
     this.eventStructUpdate = function() {
         self.scStructTranslator.updateFromSc.apply(self.scStructTranslator, arguments);
     };

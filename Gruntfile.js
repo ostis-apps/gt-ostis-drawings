@@ -6,6 +6,5 @@ module.exports = function(grunt) {
 
     require('load-grunt-tasks')(grunt);
     grunt.registerTask('build', ['concat']);
-    grunt.registerTask('default', ['watch']);
+    grunt.registerTask('default', ['concat', 'watch']);
 };
-
