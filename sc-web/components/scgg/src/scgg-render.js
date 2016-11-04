@@ -504,7 +504,7 @@ SCgg.Render.prototype = {
 
         // remove old points
         drag_line_points = this.d3_dragline.selectAll('use.SCggRemovePoint');
-        points = drag_line_points.data(this.scene.drag_line_points, function(d) { return d.idx; })
+        points = drag_line_points.data(this.scene.drag_line_points, function(d) { return d.idx; });
         points.exit().remove();
 
         points.enter().append('svg:use')
@@ -567,7 +567,7 @@ SCgg.Render.prototype = {
         var oldPoints;
         
         line_points = this.d3_line_points.selectAll('use');
-        points = line_points.data(this.scene.line_points, function(d) { return d.idx; })
+        points = line_points.data(this.scene.line_points, function(d) { return d.idx; });
         points.exit().remove();
         
         if (this.scene.line_points.length == 0)
@@ -714,6 +714,5 @@ SCgg.Render.prototype = {
         var el = document.getElementById(this.containerId);
         return [el.clientWidth, el.clientHeight];
     }
-    
 
-}
+};

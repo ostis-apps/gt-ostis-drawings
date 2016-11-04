@@ -8,7 +8,7 @@ function SCggFromScImpl(_sandbox, _editor, aMapping) {
         tasksLength = 0,
         editor = _editor,
         sandbox = _sandbox;
-    
+
     function resolveIdtf(addr, obj) {
         if (obj instanceof SCgg.ModelNode){
             window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,

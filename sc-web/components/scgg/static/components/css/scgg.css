@@ -322,3 +322,17 @@ path.SCggBusPath {
 .tt-dropdown-menu .tt-dataset-idtf .tt-suggestion:hover {
     background-color: #428bca !important;
 }
+
+/*------------ Graph name input -----------*/
+.input-group {
+    left: 110px;
+    position: absolute;
+}
+
+.input-group .input-group-btn {
+    width: 0;
+}
+
+.input-group input {
+    width: 0;
+}

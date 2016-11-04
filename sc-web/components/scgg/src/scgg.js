@@ -1,14 +1,11 @@
 var SCgg = SCgg || {version: "0.1.0"};
 
 SCgg.Editor = function () {
-
     this.render = null;
     this.scene = null;
 };
 
 SCgg.Editor.prototype = {
-
-
     init: function (params) {
         this.typesMap = {
             'scgg-type-node': sc_type_node,
@@ -52,10 +49,8 @@ SCgg.Editor.prototype = {
         this.render = new SCgg.Render();
         this.scene = new SCgg.Scene( {render: this.render , edit: this} );
         this.scene.init();
-        
         this.render.scene = this.scene;
         this.render.init(params);
-        
         this.containerId = "graph-" + params.containerId;
 
         if (params.autocompletionVariants)
@@ -67,7 +62,6 @@ SCgg.Editor.prototype = {
 
         this.canEdit = params.canEdit ? true : false;
         this.initUI();
-        
     },
     
     /**
@@ -75,9 +69,13 @@ SCgg.Editor.prototype = {
      */
     initUI: function() {
         var self = this;
-        var container = '#' + this.containerId;
-        $(container).prepend('<div id="tools-' + this.containerId + '"></div>');
-        var tools_container = '#tools-' + this.containerId;
+        var container = '#' + self.containerId;
+        var tools_container = '#tools-' + self.containerId;
+        var graph_name = '#graph-name-' + self.containerId;
+
+        $(container).prepend('<div id="tools-' + self.containerId + '"></div>');
+        $(container).prepend('<div id="graph-name-' + self.containerId + '"></div>');
+
         $(tools_container).load('static/components/html/scgg-tools-panel.html', function() {
              $.ajax({
                     url: "static/components/html/scgg-types-panel-nodes.html", 
@@ -114,15 +112,23 @@ SCgg.Editor.prototype = {
                 self.hideTool(self.toolUndo());
                 self.hideTool(self.toolRedo());
             }
+
             if (self.resolveControls)
                 self.resolveControls(tools_container);
         });
+
+        $(graph_name).load('static/components/html/scgg-graph-name-input.html', function() {
+            self.updateGraphName();
+        });
+
         this.scene.event_selection_changed = function() {
             self.onSelectionChanged();
         };
+
         this.scene.event_modal_changed = function() {
             self.onModalChanged();
         };
+
         this.keyboardCallbacks = {
             'onkeydown': function(event) {
                 self.scene.onKeyDown(event)
@@ -131,6 +137,7 @@ SCgg.Editor.prototype = {
                 self.scene.onKeyUp(event);
             }
         };
+
         this.openComponentCallbacks = function () {
             self.render.requestUpdateAll();
         }
@@ -228,12 +235,11 @@ SCgg.Editor.prototype = {
      * Bind events to panel tools
      */
     bindToolEvents: function() {
-        
         var self = this;
         var container = '#' + this.containerId;
         var cont = $(container);
-            
         var select = this.toolSelect();
+
         select.button('toggle');
         
         // handle clicks on mode change
@@ -286,13 +292,16 @@ SCgg.Editor.prototype = {
         //scg         stop_modal();
         //scg     });
         //scg });
+
         this.toolEdge().click(function() {
             self.scene.setEditMode(SCggEditMode.SCggModeEdge);
         });
+
         this.toolEdge().dblclick(function() {
             self.scene.setModal(SCggModalMode.SCggModalType);
             self.onModalChanged();
             var tool = $(this);
+
             function stop_modal() {
                 tool.popover('destroy');
                 self.scene.setEditMode(SCggEditMode.SCggModeEdge);
@@ -306,6 +315,8 @@ SCgg.Editor.prototype = {
                 html: true,
                 delay: {show: 500, hide: 100}
             }).popover('show');
+
+
             cont.find('.popover-title').append('<button id="scgg-type-close" type="button" class="close">&times;</button>');
             $(container + ' #scgg-type-close').click(function() {
                 stop_modal();
@@ -315,6 +326,7 @@ SCgg.Editor.prototype = {
                 stop_modal();
             });   
         });
+
         //scg this.toolBus().click(function() {
         //scg     self.scene.setEditMode(SCggEditMode.SCggModeBus);
         //scg });
@@ -324,14 +336,17 @@ SCgg.Editor.prototype = {
         //scg this.toolLink().click(function() {
         //scg     self.scene.setEditMode(SCggEditMode.SCggModeLink);
         //scg });
+
         this.toolUndo().click(function() {
             self.scene.commandManager.undo();
             self.scene.updateRender();
         });
+
         this.toolRedo().click(function() {
             self.scene.commandManager.redo();
             self.scene.updateRender();
         });
+
         this.toolChangeIdtf().click(function() {
             self.scene.setModal(SCggModalMode.SCggModalIdtf);
             $(this).popover({container: container});
@@ -353,19 +368,19 @@ SCgg.Editor.prototype = {
             setTimeout(function(){
                 input.focus();
             }, 1);
+
             input.keypress(function (e) {
                 if (e.keyCode == KeyCode.Enter || e.keyCode == KeyCode.Escape) {
-                    
                     if (e.keyCode == KeyCode.Enter) {
                         var obj = self.scene.selected_objects[0];
+
                         if (obj.text != input.val()){
                             self.scene.commandManager.execute(new SCggCommandChangeIdtf(obj, input.val()));
                         }
                     }
                     stop_modal();
                     e.preventDefault();
-                } 
-                
+                }
             });
 
             if (self.autocompletionVariants) {
@@ -412,9 +427,11 @@ SCgg.Editor.prototype = {
             // process controls
             $(container + ' #scgg-change-idtf-apply').click(function() {
                 var obj = self.scene.selected_objects[0];
+
                 if (obj.text != input.val() && !self._idtf_item) {
                     self.scene.commandManager.execute(new SCggCommandChangeIdtf(obj, input.val()));
                 }
+
                 if (self._idtf_item) {
                     window.sctpClient.get_element_type(self._idtf_item.addr).done(function (t) {
                         self.scene.commandManager.execute(new SCggCommandGetNodeFromMemory(obj,
@@ -434,10 +451,10 @@ SCgg.Editor.prototype = {
         });
         
         this.toolChangeType().click(function() {
+            var tool = $(this);
+
             self.scene.setModal(SCggModalMode.SCggModalType);
 
-            var tool = $(this);
-            
             function stop_modal() {
                 self.scene.setModal(SCggModalMode.SCggModalNone);
                 tool.popover('destroy');
@@ -446,7 +463,7 @@ SCgg.Editor.prototype = {
             }
             
             var obj = self.scene.selected_objects[0];
-            
+
             el = $(this);
             el.popover({
                     content: (obj instanceof SCgg.ModelEdge) ? self.edge_types_panel_content : self.node_types_panel_content,
@@ -474,7 +491,6 @@ SCgg.Editor.prototype = {
                 stop_modal();
             });
         });
-
 
         //scg this.toolSetContent().click(function() {
         //scg     var tool = $(this);
@@ -560,7 +576,7 @@ SCgg.Editor.prototype = {
                     file: open_dialog.files[0],
                     render : self.render});
 
-            }
+            };
             SCggObjectBuilder.scene = self.scene;
             var result = open_dialog.click();
         });
@@ -668,10 +684,9 @@ SCgg.Editor.prototype = {
 
         var match = function(text){
             var pattern = new RegExp(keyword, 'i');
-            if(text && pattern.test(text))
-                return true;
-            return false;
-        }
+
+            return text && pattern.test(text);
+        };
 
         var contains = function(value, array){
             var len = array.length;
@@ -680,7 +695,8 @@ SCgg.Editor.prototype = {
                     return true
             }
             return false;
-        }
+        };
+
         var matches = [];
         $.each(relative_objs, function(index, item){
             if(match(item['text']))
@@ -720,5 +736,48 @@ SCgg.Editor.prototype = {
      */
     _enableTool: function(tool) {
          tool.removeAttr('disabled');
+    },
+
+    getGraphName: function() {
+        var self = this;
+        var containerId = self.containerId;
+        var inputSelector = '#graph-name-' + containerId + ' input';
+
+        return $(inputSelector).val();
+    },
+
+    updateGraphName: function() {
+        var self = this;
+        var sandboxAddr = self.render.sandbox.addr;
+        var containerId = self.render.containerId;
+        var inputSelector = '#graph-name-' + containerId + ' input';
+
+        SCWeb.core.Server.resolveIdentifiers([sandboxAddr], function (idf) {
+            window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
+                [   sandboxAddr,
+                    sc_type_arc_common | sc_type_const,
+                    sc_type_link,
+                    sc_type_arc_pos_const_perm,
+                    window.scKeynodes.nrel_gt_idtf
+                ]
+            ).done(function(results) {
+                window.sctpClient.get_link_content(results[0][2],'string').done(function(content) {
+                    $(inputSelector).val(content);
+                });
+            }).fail(function(r){
+                $(inputSelector).val('');
+            }).always(function() {
+                self.setPlaceholder(inputSelector);
+            })
+        });
+    },
+
+    setPlaceholder: function(graphNameSelector) {
+        SCWeb.core.Server.resolveScAddr(['ui_graph_name'], function (keynodes) {
+            SCWeb.core.Server.resolveIdentifiers(keynodes, function (idf) {
+                $(graphNameSelector).attr('placeholder', idf[keynodes['ui_graph_name']]);
+            });
+        });
     }
+
 };
