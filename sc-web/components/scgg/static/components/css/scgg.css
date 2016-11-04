@@ -324,15 +324,15 @@ path.SCggBusPath {
 }
 
 /*------------ Graph name input -----------*/
-.input-group {
+.input-group-graph-name {
     left: 110px;
     position: absolute;
 }
 
-.input-group .input-group-btn {
+.input-group-graph-name .input-group-btn {
     width: 0;
 }
 
-.input-group input {
+.input-group-graph-name input {
     width: 0;
 }
