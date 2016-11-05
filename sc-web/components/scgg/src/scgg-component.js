@@ -3,15 +3,114 @@ SCggComponent = {
     formats: ['format_scgg_json'],
     struct_support: true,
     factory: function(sandbox) {
-        return new scggViewerWindow(sandbox);
+        return new Promise(function(resolve, reject){
+            createScggComponent(sandbox, function(load){
+                resolve(new scggViewerWindow(sandbox, load));
+            });
+        });
     }
 };
 
-var scggKeynodesInit = function () {
+
+function loadGraphOrCreateNew(callBackLoad, callBackNew){
+    var keynodes = ['ui_graph_choose_load','ui_graph_choose_new','ui_graph_choose_message']
+    SCWeb.core.Server.resolveScAddr(keynodes, function (keynodes) {
+        SCWeb.core.Server.resolveIdentifiers(keynodes, function (idf) {
+            var confirmMessage = idf[keynodes['ui_graph_choose_message']];
+            var buttonLoad = idf[keynodes['ui_graph_choose_load']];
+            var buttonNew = idf[keynodes['ui_graph_choose_new']];
+            $('#confirmChooseBox').modal({show:true,
+                backdrop:false,
+                keyboard: false
+            });
+            $('#confirmMessage').html(confirmMessage);
+            $('#confirmLoadGraph').html(buttonLoad);
+            $('#confirmCreateNew').html(buttonNew);
+            $('#confirmLoadGraph').click(function(){
+                $('#confirmChooseBox').modal('hide');
+                callBackLoad();
+            });
+            $('#confirmCreateNew').click(function(){
+                $('#confirmChooseBox').modal('hide');
+                callBackNew();
+            });
+        });
+    });
+}
+
+
+
+var createScggComponent = function(sandbox, callback){
+    function findCounterInSCn() {
+        return $("#" + sandbox.container + ' .sc-contour > .scs-scn-view-toogle-button').parent().attr('sc_addr');
+    }
+    function findCurrentVersionGraph(callback) {
+        var keynodes = ['nrel_temporal_decomposition',
+                        'rrel_current_version'];
+        SCWeb.core.Server.resolveScAddr(keynodes, function (keynodes) {
+            var nrel_temporal_decomposition = keynodes['nrel_temporal_decomposition'];
+            var rrel_current_version = keynodes['rrel_current_version'];
+            var rootNode = $("#" + sandbox.container + ' .scs-scn-keyword > .scs-scn-element').attr('sc_addr');
+            // Find node tuple
+            window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5A_A_F_A_F,
+                [   sc_type_node | sc_type_const | sc_type_node_tuple,
+                    sc_type_arc_common | sc_type_const,
+                    rootNode,
+                    sc_type_arc_pos_const_perm,
+                    nrel_temporal_decomposition
+                ]
+            ).done(function (results) {
+                // Find current_version graph
+                window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
+                    [   results[0][0],
+                        sc_type_arc_pos_const_perm,
+                        sc_type_node | sc_type_const | sc_type_node_struct,
+                        sc_type_arc_pos_const_perm,
+                        rrel_current_version
+                    ]
+                ).done(function (results) {
+                    $('#' + sandbox.container).load('static/components/html/scgg-choose-new-or-load.html', function () {
+                        loadGraphOrCreateNew(function () {
+                                sandbox.addr = results[0][2];
+                                callback(true);
+                            }, function () {
+                                callback(false);
+                            });
+                    });
+                }).fail(function () {
+                    //console.log("Not find rrel_current_version");
+                    callback(false);
+                });
+            }).fail(function () {
+                //console.log("Not find nrel_temporal_decomposition");
+                callback(false);
+            });
+        });
+    }
+
+    if (findCounterInSCn() !== undefined){
+        $('#' + sandbox.container).load('static/components/html/scgg-choose-new-or-load.html', function () {
+            loadGraphOrCreateNew(function () {
+                sandbox.addr = findCounterInSCn();
+                scggKeynodesInit(true, callback);
+            }, function () {
+                scggKeynodesInit(false, callback);
+            });
+        });
+    } else {
+        findCurrentVersionGraph(function(load){
+            scggKeynodesInit(load, callback);
+        });
+    }
+
+};
+
+var scggKeynodesInit = function (load, callback) {
     if (window.scKeynodes.need_gt_idtf === undefined){
         SCWeb.core.Server.resolveScAddr(['nrel_gt_idtf', 'nrel_weight'], function (keynodes) {
             window.scKeynodes['nrel_gt_idtf']  = keynodes['nrel_gt_idtf'];
             window.scKeynodes['nrel_weight']  = keynodes['nrel_weight'];
+            callback(load);
         });
     }
 };
@@ -21,14 +120,9 @@ var scggKeynodesInit = function () {
  * @param config
  * @constructor
  */
-var scggViewerWindow = function(sandbox) {
-    scggKeynodesInit();
+var scggViewerWindow = function(sandbox, load) {
     this.domContainer = sandbox.container;
     this.sandbox = sandbox;
-    var findStruct = $("#" + this.domContainer + ' .sc-contour > .scs-scn-view-toogle-button').parent().attr('sc_addr');
-    if (findStruct !== undefined){
-        this.sandbox.addr = findStruct;
-    }
     this.tree = new SCgg.Tree();
     this.editor = new SCgg.Editor();
     
@@ -201,7 +295,7 @@ var scggViewerWindow = function(sandbox) {
     this.sandbox.eventApplyTranslation = $.proxy(this.applyTranslation, this);
     this.sandbox.eventStructUpdate = $.proxy(this.eventStructUpdate, this);
 
-    if (findStruct !== undefined){
+    if (load){
         this.sandbox.updateContent();
     }
 };

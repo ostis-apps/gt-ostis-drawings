@@ -383,46 +383,47 @@ SCgg.Editor.prototype = {
                 }
             });
 
-            if (self.autocompletionVariants) {
-                var types = {
-                    local : function(text){
-                        return "[" + text + "]";
-                    },
-                    remote : function(text){
-                        return "<" + text + ">";
-                    }
 
-                };
-
-                input.typeahead({
-                        minLength: 1,
-                        highlight: true
-                    },
-                    {
-                        name: 'idtf',
-                        source: function(str, callback) {
-                            self._idtf_item = null;
-                            self.autocompletionVariants(str, callback, { editor: self });
-                        },
-                        displayKey: 'name',
-                        templates: {
-                            suggestion : function(item){
-                                var decorator = types[item.type];
-                                if(decorator)
-                                    return decorator(item.name);
-
-                                return item.name;
-                            }
-                        }
-                    }
-                ).bind('typeahead:selected', function(evt, item, dataset) {
-                    if (item && item.addr) {
-                        self._idtf_item = item;
-                    }
-                    evt.stopPropagation();
-                    $('.typeahead').val('');
-                });
-            }
+            //scg if (self.autocompletionVariants) {
+            //scg    var types = {
+            //scg        local : function(text){
+            //scg             return "[" + text + "]";
+            //scg         },
+            //scg         remote : function(text){
+            //scg             return "<" + text + ">";
+            //scg         }
+            //scg
+            //scg     };
+            //scg
+            //scg     input.typeahead({
+            //scg             minLength: 1,
+            //scg             highlight: true
+            //scg         },
+            //scg         {
+            //scg             name: 'idtf',
+            //scg             source: function(str, callback) {
+            //scg                 self._idtf_item = null;
+            //scg                 self.autocompletionVariants(str, callback, { editor: self });
+            //scg             },
+            //scg             displayKey: 'name',
+            //scg             templates: {
+            //scg                 suggestion : function(item){
+            //scg                     var decorator = types[item.type];
+            //scg                     if(decorator)
+            //scg                         return decorator(item.name);
+            //scg
+            //scg                     return item.name;
+            //scg                 }
+            //scg             }
+            //scg         }
+            //scg     ).bind('typeahead:selected', function(evt, item, dataset) {
+            //scg         if (item && item.addr) {
+            //scg             self._idtf_item = item;
+            //scg         }
+            //scg         evt.stopPropagation();
+            //scg         $('.typeahead').val('');
+            //scg     });
+            //scg }
             
             // process controls
             $(container + ' #scgg-change-idtf-apply').click(function() {

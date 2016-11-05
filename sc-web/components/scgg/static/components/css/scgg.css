@@ -336,3 +336,18 @@ path.SCggBusPath {
 .input-group-graph-name input {
     width: 0;
 }
+
+/*------------ Choose new graph or load -----------*/
+#confirmChooseBox{
+    width: 350px;
+    margin: 0 auto;
+    top: 150px;
+}
+
+#confirmLoadGraph{
+    width: 150px;
+}
+
+#confirmCreateNew{
+    width: 150px;
+}

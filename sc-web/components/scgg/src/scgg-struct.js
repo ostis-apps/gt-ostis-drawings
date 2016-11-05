@@ -23,7 +23,11 @@ function SCggFromScImpl(_sandbox, _editor, aMapping) {
                     obj.setText(content);
                 });
             }).fail(function(r){
-                console.log("fail nrel_gt_idtf in SCggFromScImpl");
+                //console.log("not find nrel_gt_idtf in SCggFromScImpl");
+                // Try set nrel_main_idtf
+                sandbox.getIdentifier(addr, function(idtf) {
+                    obj.setText(idtf);
+                });
             });
         } else if (obj instanceof SCgg.ModelEdge){
             window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
@@ -38,12 +42,9 @@ function SCggFromScImpl(_sandbox, _editor, aMapping) {
                     obj.setText(content);
                 });
             }).fail(function(r){
-                console.log("fail nrel_weight in SCggFromScImpl");
+                //console.log("not find nrel_weight in SCggFromScImpl");
             });
         }
-        //scg sandbox.getIdentifier(addr, function(idtf) {
-        //scg    obj.setText(idtf);
-        //scg });
     }
 
     function randomPos() {
