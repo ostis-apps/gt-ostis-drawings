@@ -9,11 +9,11 @@ SCggComponent = {
 
 var scggKeynodesInit = function () {
     if (window.scKeynodes.need_gt_idtf === undefined){
-        SCWeb.core.Server.resolveScAddr(['nrel_gt_idtf', 'nrel_weight', 'rrel_vertex', 'rrel_edge'], function (keynodes) {
+        SCWeb.core.Server.resolveScAddr(['nrel_gt_idtf', 'nrel_weight', 'rrel_vertex', 'rrel_oredge'], function (keynodes) {
             window.scKeynodes['nrel_gt_idtf']  = keynodes['nrel_gt_idtf'];
             window.scKeynodes['nrel_weight']  = keynodes['nrel_weight'];
             window.scKeynodes['rrel_vertex'] = keynodes['rrel_vertex'];
-            window.scKeynodes['rrel_edge'] = keynodes['rrel_edge'];
+            window.scKeynodes['rrel_oredge'] = keynodes['rrel_oredge'];
         });
     }
 };

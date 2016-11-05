@@ -292,7 +292,7 @@ translateToSc: function(callback) {
 
                             node.setScAddr(nodeAddr);
                             window.sctpClient.create_arc(sc_type_arc_pos_const_perm, addrStruct, nodeAddr).done(function (arcSystemIdentifier){
-                                window.sctpClient.create_arc(sc_type_arc_pos_const_perm, window.scKeynodes['rrel_vertex'], arcSystemIdentifier)
+                                window.sctpClient.create_arc(sc_type_arc_pos_const_perm, window.scKeynodes.rrel_vertex, arcSystemIdentifier)
                                 .done(dfdNode.resolve)
                                 .fail(dfdNode.reject);
                                 //add idtf changed 
@@ -305,10 +305,6 @@ translateToSc: function(callback) {
                                 dfdNode.resolve();
                             }
                             
-                            })
-                            //leave it for me right now :D
-                            .fail(function() {
-                                console.log("WTF THIS MISTAKE " + addrStruct + " " + nodeAddr )
                             });
                         });
                         return dfdNode.promise();
@@ -352,24 +348,34 @@ translateToSc: function(callback) {
                     var edge = edges.shift();
 
                     var src = edge.source.sc_addr;
-                    var target = edge.source.sc_addr;
-
-                    if (src && target) {
-                        window.sctpClient.create_arc(edge.sc_type, src, target).done(function(r){
+                    var trg = edge.target.sc_addr;
+                    var createOrEdge = function(stc,target)
+                    {
+                        var dfdEdge = new jQuery.Deferred();
+                        window.sctpClient.create_arc(sc_type_arc_common | sc_type_const, src, trg).done(function(r){
                             window.sctpClient.create_arc(sc_type_arc_pos_const_perm, addrStruct, r).done(function (arcSystemIdentifier){
-                                window.sctpClient.create_arc(sc_type_arc_pos_const_perm, window.scKeynodes['rrel_edge'], arcSystemIdentifier).fail(function() {
-                                    console.log("Error while translating Edge");
-                                });
+                                window.sctpClient.create_arc(sc_type_arc_pos_const_perm, window.scKeynodes.rrel_oredge, arcSystemIdentifier)
+                                .done(dfdEdge.resolve(r));
                             });
+                            
+                        });
+                        return dfdEdge.promise();
+                    }
+                    
+                    if (src && trg) {
+                        if (edge.sc_type === (sc_type_edge_common | sc_type_const)) {                            
+
+                            createOrEdge(trg,src);
+                        }
+                        
+                        createOrEdge(src,trg).done(function (r){
                             edge.setScAddr(r);
                             edge.setObjectState(SCggObjectState.NewInMemory);
 
                             objects.push(edge);
-                            translatedCount++;
                             newxIteration();
-                        }).fail(function(){
-                                console.log('Error while create edge ???');
-                        });
+                            });
+                        
                     }
                     else {
                         edgesNew.push(edge);
