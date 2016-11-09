@@ -9,11 +9,24 @@ SCggComponent = {
 
 var scggKeynodesInit = function () {
     if (window.scKeynodes.need_gt_idtf === undefined){
-        SCWeb.core.Server.resolveScAddr(['nrel_gt_idtf', 'nrel_weight', 'rrel_vertex', 'rrel_oredge'], function (keynodes) {
+        SCWeb.core.Server.resolveScAddr(['nrel_gt_idtf',
+                                         'nrel_weight',
+                                         'rrel_vertex',
+                                         'rrel_oredge',
+                                         'nrel_temporal_decomposition',
+                                         'temporary_entity',
+                                         'rrel_current_version',
+                                         'concept_graph',
+                                         'nrel_next'], function (keynodes) {
             window.scKeynodes['nrel_gt_idtf']  = keynodes['nrel_gt_idtf'];
             window.scKeynodes['nrel_weight']  = keynodes['nrel_weight'];
             window.scKeynodes['rrel_vertex'] = keynodes['rrel_vertex'];
             window.scKeynodes['rrel_oredge'] = keynodes['rrel_oredge'];
+            window.scKeynodes['nrel_temporal_decomposition']  = keynodes['nrel_temporal_decomposition'];
+            window.scKeynodes['temporary_entity'] = keynodes['temporary_entity'];
+            window.scKeynodes['nrel_next'] = keynodes['nrel_next'];
+            window.scKeynodes['rrel_current_version'] = keynodes['rrel_current_version'];
+            window.scKeynodes['concept_graph'] = keynodes['concept_graph'];
         });
     }
 };
