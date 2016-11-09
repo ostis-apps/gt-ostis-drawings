@@ -35,7 +35,7 @@ function SCggFromScImpl(_sandbox, _editor, aMapping) {
                 ]
             ).done(function(results) {
                 window.sctpClient.get_link_content(results[0][2],'string').done(function(content) {
-                    obj.setText(content);
+                        obj.setText(content);
                 });
             }).fail(function(r){
                 console.log("fail nrel_weight in SCggFromScImpl");

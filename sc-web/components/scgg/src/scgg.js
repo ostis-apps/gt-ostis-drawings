@@ -359,7 +359,14 @@ SCgg.Editor.prototype = {
                     if (e.keyCode == KeyCode.Enter) {
                         var obj = self.scene.selected_objects[0];
                         if (obj.text != input.val()){
-                            self.scene.commandManager.execute(new SCggCommandChangeIdtf(obj, input.val()));
+                            if(obj instanceof SCgg.ModelEdge){
+                                if(!isNaN(parseFloat(input.val())) && isFinite(input.val()))
+                                    self.scene.commandManager.execute(new SCggCommandChangeIdtf(obj, input.val()));
+                                else
+                                    self.scene.commandManager.execute(new SCggCommandChangeIdtf(obj, ""));
+                            }
+                            else
+                                self.scene.commandManager.execute(new SCggCommandChangeIdtf(obj, input.val()));
                         }
                     }
                     stop_modal();
@@ -413,7 +420,14 @@ SCgg.Editor.prototype = {
             $(container + ' #scgg-change-idtf-apply').click(function() {
                 var obj = self.scene.selected_objects[0];
                 if (obj.text != input.val() && !self._idtf_item) {
-                    self.scene.commandManager.execute(new SCggCommandChangeIdtf(obj, input.val()));
+                    if(obj instanceof SCgg.ModelEdge){
+                        if(!isNaN(parseFloat(input.val())) && isFinite(input.val()))
+                            self.scene.commandManager.execute(new SCggCommandChangeIdtf(obj, input.val()));
+                        else
+                            self.scene.commandManager.execute(new SCggCommandChangeIdtf(obj, ""));
+                    }
+                    else
+                        self.scene.commandManager.execute(new SCggCommandChangeIdtf(obj, input.val()));
                 }
                 if (self._idtf_item) {
                     window.sctpClient.get_element_type(self._idtf_item.addr).done(function (t) {
@@ -596,9 +610,10 @@ SCgg.Editor.prototype = {
     
     /**
      * Function that process selection changes in scene
-     * It updated UI to current selection
+     // * It updated UI to current selection
      */
     onSelectionChanged: function() {
+
         if (this.canEdit) {
             this.hideTool(this.toolChangeIdtf());
             //scg this.hideTool(this.toolSetContent());
@@ -613,6 +628,7 @@ SCgg.Editor.prototype = {
                     this.showTool(this.toolChangeIdtf());
                     //scg this.showTool(this.toolChangeType());
                 } else if (this.scene.selected_objects[0] instanceof SCgg.ModelEdge) {
+                    this.showTool(this.toolChangeIdtf());
                     this.showTool(this.toolChangeType());
                 }//scg  else if (this.scene.selected_objects[0] instanceof SCgg.ModelContour) {
                  //scg    this.showTool(this.toolChangeIdtf());
@@ -714,7 +730,7 @@ SCgg.Editor.prototype = {
     _disableTool: function(tool) {
         tool.attr('disabled', 'disabled');
     },
-    
+
     /**
      * Change specified tool state to enabled
      */
