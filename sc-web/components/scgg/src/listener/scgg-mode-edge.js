@@ -28,6 +28,8 @@ SCggEdgeListener.prototype = {
     },
 
     onMouseDownObject: function (obj) {
+        if (obj instanceof SCgg.ModelEdge )
+            return false;
         var scene = this.scene;
         if (!scene.edge_data.source) {
             scene.edge_data.source = obj;
