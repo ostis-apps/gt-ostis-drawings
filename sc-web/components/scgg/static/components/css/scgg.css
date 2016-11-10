@@ -351,3 +351,17 @@ path.SCggBusPath {
 #confirmCreateNew{
     width: 150px;
 }
+/*------------- SCs Component -----------------------*/
+.SCggSvg {
+    float: left;
+    display: block;
+    width: 60%;
+    margin: 2px;
+}
+
+.SCggSCc {
+    float: left;
+    display: block;
+    width: 38%;
+    margin: 2px;
+}

@@ -11,6 +11,7 @@ SCggComponent = {
     }
 };
 
+var test777;
 
 function loadGraphOrCreateNew(callBackLoad, callBackNew){
     var keynodes = ['ui_graph_choose_load','ui_graph_choose_new','ui_graph_choose_message']
@@ -107,9 +108,10 @@ var createScggComponent = function(sandbox, callback){
 
 var scggKeynodesInit = function (load, callback) {
     if (window.scKeynodes.need_gt_idtf === undefined){
-        SCWeb.core.Server.resolveScAddr(['nrel_gt_idtf', 'nrel_weight'], function (keynodes) {
+        SCWeb.core.Server.resolveScAddr(['nrel_gt_idtf', 'nrel_weight', 'format_scs_json'], function (keynodes) {
             window.scKeynodes['nrel_gt_idtf']  = keynodes['nrel_gt_idtf'];
             window.scKeynodes['nrel_weight']  = keynodes['nrel_weight'];
+            window.scKeynodes['format_scs_json'] = keynodes['format_scs_json'];
             callback(load);
         });
     }
@@ -298,6 +300,25 @@ var scggViewerWindow = function(sandbox, load) {
     if (load){
         this.sandbox.updateContent();
     }
+
+    $('#graph-' + sandbox.container).append('<div class="SCggSCc" id="graph-scs-' + sandbox.container + '"></div>');
+    var scsContainer = '#graph-scs-' + sandbox.container;
+    this.editor.createSCsBlock = function(addr, id) {
+        SCWeb.core.Main.getTranslatedAnswer
+            (new SCWeb.core.CommandState(SCWeb.core.Main.default_cmd, [addr], window.scKeynodes.format_scs_json))
+            .then(function (answer_addr) {
+                $(scsContainer).append('<div id="graph-scs-' + sandbox.container + '_' + id + '"></div>');
+                var sandboxSCs = new SCWeb.core.ComponentSandbox({
+                    container: 'graph-scs-' + sandbox.container + '_' + id,
+                    addr: answer_addr,
+                    is_struct: false,
+                    format_addr: window.scKeynodes.format_scs_json,
+                    canEdit: true,
+                    keynodes: SCWeb.core.ComponentManager._keynodes
+                });
+                SCsComponent.factory(sandboxSCs);
+            });
+    };
 };
 
 

@@ -29,6 +29,7 @@ function SCggFromScImpl(_sandbox, _editor, aMapping) {
                     obj.setText(idtf);
                 });
             });
+            _editor.createSCsBlock(addr, obj.id);
         } else if (obj instanceof SCgg.ModelEdge){
             window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
                 [   addr,
