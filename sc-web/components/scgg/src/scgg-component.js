@@ -294,6 +294,9 @@ var scggViewerWindow = function(sandbox, load) {
     if (load){
         this.sandbox.updateContent();
     }
+
+    this.window_id = this.domContainer.substring(7) + '_' + this.sandbox.command_state.format;
+    SCWeb.ui.KeyboardHandler.subscribeWindow(this.window_id, this.editor.keyboardCallbacks);
 };
 
 
