@@ -21,6 +21,7 @@ module.exports = function() {
                     'sc-web/components/scgg/src/scgg-struct.js',
                     'sc-web/components/scgg/src/scgg-object-creator.js',
                     'sc-web/components/scgg/src/scgg-component.js',
+                    'sc-web/components/scgg/src/scgg-scs-component.js',
                     'sc-web/components/scgg/src/listener/scgg-mode-bus.js',
                     'sc-web/components/scgg/src/listener/scgg-mode-contour.js',
                     'sc-web/components/scgg/src/listener/scgg-mode-edge.js',

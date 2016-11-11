@@ -11,8 +11,6 @@ SCggComponent = {
     }
 };
 
-var test777;
-
 function loadGraphOrCreateNew(callBackLoad, callBackNew){
     var keynodes = ['ui_graph_choose_load','ui_graph_choose_new','ui_graph_choose_message']
     SCWeb.core.Server.resolveScAddr(keynodes, function (keynodes) {
@@ -38,8 +36,6 @@ function loadGraphOrCreateNew(callBackLoad, callBackNew){
         });
     });
 }
-
-
 
 var createScggComponent = function(sandbox, callback){
     function findCounterInSCn() {
@@ -125,6 +121,7 @@ var scggKeynodesInit = function (load, callback) {
 var scggViewerWindow = function(sandbox, load) {
     this.domContainer = sandbox.container;
     this.sandbox = sandbox;
+    this.sandbox.loadGraph = load;
     this.tree = new SCgg.Tree();
     this.editor = new SCgg.Editor();
     
@@ -300,25 +297,6 @@ var scggViewerWindow = function(sandbox, load) {
     if (load){
         this.sandbox.updateContent();
     }
-
-    $('#graph-' + sandbox.container).append('<div class="SCggSCc" id="graph-scs-' + sandbox.container + '"></div>');
-    var scsContainer = '#graph-scs-' + sandbox.container;
-    this.editor.createSCsBlock = function(addr, id) {
-        SCWeb.core.Main.getTranslatedAnswer
-            (new SCWeb.core.CommandState(SCWeb.core.Main.default_cmd, [addr], window.scKeynodes.format_scs_json))
-            .then(function (answer_addr) {
-                $(scsContainer).append('<div id="graph-scs-' + sandbox.container + '_' + id + '"></div>');
-                var sandboxSCs = new SCWeb.core.ComponentSandbox({
-                    container: 'graph-scs-' + sandbox.container + '_' + id,
-                    addr: answer_addr,
-                    is_struct: false,
-                    format_addr: window.scKeynodes.format_scs_json,
-                    canEdit: true,
-                    keynodes: SCWeb.core.ComponentManager._keynodes
-                });
-                SCsComponent.factory(sandboxSCs);
-            });
-    };
 };
 
 

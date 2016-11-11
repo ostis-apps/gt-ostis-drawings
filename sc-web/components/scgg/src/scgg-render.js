@@ -25,8 +25,6 @@ SCgg.Render.prototype = {
         this.d3_drawer = d3.select('#' + this.containerId)
             .append("svg:svg")
             .attr("pointer-events", "all")
-            .attr("width", "100%")
-            .attr("height", "100%")
             .attr("class", "SCggSvg")
             .on('mousemove', function() {
                 self.onMouseMove(this, self);

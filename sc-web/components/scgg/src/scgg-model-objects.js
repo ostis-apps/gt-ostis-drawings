@@ -5,7 +5,7 @@ var SCggObjectState = {
     FromMemory: 3
 };
 
-var ObjectId = 0;
+var ObjectId = 1;
 
 /**
      * Initialize sc.g-object with specified options.

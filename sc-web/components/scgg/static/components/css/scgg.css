@@ -1,4 +1,5 @@
 .SCggSvg {
+  height: 100%;
   background-color: #fff;
   cursor: default;
   -webkit-user-select: none;
@@ -252,6 +253,7 @@ path.SCggBusPath {
 /* ------------- User interface -------------- */
 .scgg-tools-panel {
     position: absolute;
+    padding: 10px;
 }
 
 .scgg-tools-panel img {
@@ -326,6 +328,7 @@ path.SCggBusPath {
 /*------------ Graph name input -----------*/
 .input-group-graph-name {
     left: 110px;
+    padding: 10px;
     position: absolute;
 }
 
@@ -353,15 +356,15 @@ path.SCggBusPath {
 }
 /*------------- SCs Component -----------------------*/
 .SCggSvg {
+    width: calc(100% - 260px);
     float: left;
     display: block;
-    width: 60%;
-    margin: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.10)
 }
 
 .SCggSCc {
     float: left;
     display: block;
-    width: 38%;
-    margin: 2px;
+    width: 250px;
+    margin: 75px 0px 0px 10px;
 }

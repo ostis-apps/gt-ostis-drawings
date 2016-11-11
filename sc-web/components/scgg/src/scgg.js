@@ -51,8 +51,11 @@ SCgg.Editor.prototype = {
         this.scene.init();
         this.render.scene = this.scene;
         this.render.init(params);
+        this.scsComponent = new SCggSCsComponent(params, this);
         this.containerId = "graph-" + params.containerId;
 
+        if (params.sandbox.loadGraph)
+            this.scsComponent.setGraphActive();
         if (params.autocompletionVariants)
             this.autocompletionVariants = params.autocompletionVariants;
         if (params.translateToSc)
@@ -604,6 +607,7 @@ SCgg.Editor.prototype = {
         });
         
         this.toolIntegrate().click(function() {
+            self.scsComponent.clearStorage();
             self._disableTool(self.toolIntegrate());
             if (self.translateToSc)
                 self.translateToSc(self.scene, function() {
