@@ -16,7 +16,7 @@ function SCggFromScImpl(_sandbox, _editor, aMapping) {
                     sc_type_arc_common | sc_type_const,
                     sc_type_link,
                     sc_type_arc_pos_const_perm,
-                    window.scKeynodes.nrel_gt_idtf
+                    SCggKeynodesHandler.scKeynodes.nrel_gt_idtf
                 ]
             ).done(function(results) {
                 window.sctpClient.get_link_content(results[0][2],'string').done(function(content) {
@@ -35,7 +35,7 @@ function SCggFromScImpl(_sandbox, _editor, aMapping) {
                     sc_type_arc_common | sc_type_const,
                     sc_type_link,
                     sc_type_arc_pos_const_perm,
-                    window.scKeynodes.nrel_weight
+                    SCggKeynodesHandler.scKeynodes.nrel_weight
                 ]
             ).done(function(results) {
                 window.sctpClient.get_link_content(results[0][2],'string').done(function(content) {
@@ -209,7 +209,7 @@ function scggScStructTranslator(_editor, _sandbox) {
         window.sctpClient.create_link().done(function (link_addr) {
             window.sctpClient.set_link_content(link_addr, obj.text).done(function () {
                 window.sctpClient.create_arc(sc_type_arc_common | sc_type_const, obj.sc_addr, link_addr).done(function (arc_addr) {
-                    window.sctpClient.create_arc(sc_type_arc_pos_const_perm, window.scKeynodes.nrel_gt_idtf, arc_addr)
+                    window.sctpClient.create_arc(sc_type_arc_pos_const_perm, SCggKeynodesHandler.scKeynodes.nrel_gt_idtf, arc_addr)
                         .done(dfd.resolve)
                         .fail(dfd.reject);
                 }).fail(dfd.reject);

@@ -8,6 +8,7 @@ module.exports = function() {
                     'sc-web/components/scgg/src/gwf-text-loader.js',
                     'sc-web/components/scgg/src/gwf-model-objects.js',
                     'sc-web/components/scgg/src/gwf-object-info-reader.js',
+                    'sc-web/components/scgg/src/scgg-keynode-handler.js',
                     'sc-web/components/scgg/src/scgg-object-builder.js',
                     'sc-web/components/scgg/src/scgg.js',
                     'sc-web/components/scgg/src/scgg-debug.js',

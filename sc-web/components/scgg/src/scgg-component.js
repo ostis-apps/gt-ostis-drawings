@@ -4,7 +4,7 @@ SCggComponent = {
     struct_support: true,
     factory: function(sandbox) {
         return new Promise(function(resolve, reject){
-            createScggComponent(sandbox, function(load){
+            scggKeynodesInit(sandbox, function(load){
                 resolve(new scggViewerWindow(sandbox, load));
             });
         });
@@ -42,11 +42,6 @@ var createScggComponent = function(sandbox, callback){
         return $("#" + sandbox.container + ' .sc-contour > .scs-scn-view-toogle-button').parent().attr('sc_addr');
     }
     function findCurrentVersionGraph(callback) {
-        var keynodes = ['nrel_temporal_decomposition',
-                        'rrel_current_version'];
-        SCWeb.core.Server.resolveScAddr(keynodes, function (keynodes) {
-            var nrel_temporal_decomposition = keynodes['nrel_temporal_decomposition'];
-            var rrel_current_version = keynodes['rrel_current_version'];
             var rootNode = $("#" + sandbox.container + ' .scs-scn-keyword > .scs-scn-element').attr('sc_addr');
             // Find node tuple
             window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5A_A_F_A_F,
@@ -54,7 +49,7 @@ var createScggComponent = function(sandbox, callback){
                     sc_type_arc_common | sc_type_const,
                     rootNode,
                     sc_type_arc_pos_const_perm,
-                    nrel_temporal_decomposition
+                    SCggKeynodesHandler.scKeynodes.nrel_temporal_decomposition
                 ]
             ).done(function (results) {
                 // Find current_version graph
@@ -63,7 +58,7 @@ var createScggComponent = function(sandbox, callback){
                         sc_type_arc_pos_const_perm,
                         sc_type_node | sc_type_const | sc_type_node_struct,
                         sc_type_arc_pos_const_perm,
-                        rrel_current_version
+                        SCggKeynodesHandler.scKeynodes.rrel_current_version
                     ]
                 ).done(function (results) {
                     $('#' + sandbox.container).load('static/components/html/scgg-choose-new-or-load.html', function () {
@@ -82,32 +77,34 @@ var createScggComponent = function(sandbox, callback){
                 //console.log("Not find nrel_temporal_decomposition");
                 callback(false);
             });
-        });
     }
 
     if (findCounterInSCn() !== undefined){
         $('#' + sandbox.container).load('static/components/html/scgg-choose-new-or-load.html', function () {
             loadGraphOrCreateNew(function () {
                 sandbox.addr = findCounterInSCn();
-                scggKeynodesInit(true, callback);
+                callback(true);
             }, function () {
-                scggKeynodesInit(false, callback);
+                callback(false);
             });
         });
     } else {
         findCurrentVersionGraph(function(load){
-            scggKeynodesInit(load, callback);
+            callback(load);
         });
     }
 
 };
 
-var scggKeynodesInit = function (load, callback) {
-    if (window.scKeynodes.need_gt_idtf === undefined){
-        SCWeb.core.Server.resolveScAddr(['nrel_gt_idtf', 'nrel_weight', 'format_scs_json'], function (keynodes) {
-            window.scKeynodes['nrel_gt_idtf']  = keynodes['nrel_gt_idtf'];
-            window.scKeynodes['nrel_weight']  = keynodes['nrel_weight'];
-            window.scKeynodes['format_scs_json'] = keynodes['format_scs_json'];
+var scggKeynodesInit = function (sandbox, callback) {
+    if (SCggKeynodesHandler.load == false){
+        SCggKeynodesHandler.initSystemIds(function () {
+            createScggComponent(sandbox, function(load){
+                callback(load);
+            });
+        });
+    } else {
+        createScggComponent(sandbox, function(load){
             callback(load);
         });
     }

@@ -4,6 +4,7 @@
         "src/gwf-file-loader.js",
         "src/gwf-model-objects.js",
         "src/gwf-object-info-reader.js",
+        "src/scgg-keynode-handler.js",
         "src/scgg-object-builder.js",
         "src/scgg.js",
         "src/scgg-debug.js",

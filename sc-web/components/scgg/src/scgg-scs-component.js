@@ -74,7 +74,7 @@ SCggSCsComponent.prototype = {
         var self = this;
         // TODO change SCWeb.core.Main.default_cmd on addr aget semantic neighborhood for Vertex
         SCWeb.core.Main.getTranslatedAnswer
-        (new SCWeb.core.CommandState(SCWeb.core.Main.default_cmd, [addr], window.scKeynodes.format_scs_json))
+        (new SCWeb.core.CommandState(SCWeb.core.Main.default_cmd, [addr], SCggKeynodesHandler.scKeynodes.format_scs_json))
             .then(function (answer_addr) {
                 self.createSCsSandBox(answer_addr, id);
             });
@@ -84,7 +84,7 @@ SCggSCsComponent.prototype = {
         var self = this;
         // TODO change SCWeb.core.Main.default_cmd on addr aget semantic neighborhood for Edge
         SCWeb.core.Main.getTranslatedAnswer
-        (new SCWeb.core.CommandState(SCWeb.core.Main.default_cmd, [addr], window.scKeynodes.format_scs_json))
+        (new SCWeb.core.CommandState(SCWeb.core.Main.default_cmd, [addr], SCggKeynodesHandler.scKeynodes.format_scs_json))
             .then(function (answer_addr) {
                 self.createSCsSandBox(answer_addr, id);
             });
@@ -94,7 +94,7 @@ SCggSCsComponent.prototype = {
         var self = this;
         // TODO change SCWeb.core.Main.default_cmd on addr aget semantic neighborhood for Graph
         SCWeb.core.Main.getTranslatedAnswer
-        (new SCWeb.core.CommandState(SCWeb.core.Main.default_cmd, [this.sandbox.addr], window.scKeynodes.format_scs_json))
+        (new SCWeb.core.CommandState(SCWeb.core.Main.default_cmd, [this.sandbox.addr], SCggKeynodesHandler.scKeynodes.format_scs_json))
             .then(function (answer_addr) {
                 self.createSCsSandBox(answer_addr, "graph");
             });
