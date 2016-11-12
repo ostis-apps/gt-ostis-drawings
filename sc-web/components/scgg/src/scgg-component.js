@@ -3,6 +3,9 @@ SCggComponent = {
     formats: ['format_scgg_json'],
     struct_support: true,
     factory: function(sandbox) {
+        sandbox.decompositionNodeAddr = null;
+        sandbox.graphNodeAddr = null;
+
         return new Promise(function(resolve, reject){
             scggKeynodesInit(sandbox, function(load){
                 resolve(new scggViewerWindow(sandbox, load));
@@ -12,7 +15,7 @@ SCggComponent = {
 };
 
 function loadGraphOrCreateNew(callBackLoad, callBackNew){
-    var keynodes = ['ui_graph_choose_load','ui_graph_choose_new','ui_graph_choose_message']
+    var keynodes = ['ui_graph_choose_load','ui_graph_choose_new','ui_graph_choose_message'];
     SCWeb.core.Server.resolveScAddr(keynodes, function (keynodes) {
         SCWeb.core.Server.resolveIdentifiers(keynodes, function (idf) {
             var confirmMessage = idf[keynodes['ui_graph_choose_message']];
@@ -53,6 +56,9 @@ var createScggComponent = function(sandbox, callback){
                 ]
             ).done(function (results) {
                 // Find current_version graph
+                sandbox.decompositionNodeAddr = results[0][0];
+                sandbox.graphNodeAddr = rootNode;
+
                 window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
                     [   results[0][0],
                         sc_type_arc_pos_const_perm,

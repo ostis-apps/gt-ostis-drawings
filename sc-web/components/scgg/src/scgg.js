@@ -769,28 +769,27 @@ SCgg.Editor.prototype = {
 
     updateGraphName: function() {
         var self = this;
-        var sandboxAddr = self.render.sandbox.addr;
+        var sandbox = self.render.sandbox;
         var containerId = self.render.containerId;
         var inputSelector = '#graph-name-' + containerId + ' input';
+        var nameAddr = sandbox.graphNodeAddr ? sandbox.graphNodeAddr : sandbox.addr;
 
-        SCWeb.core.Server.resolveIdentifiers([sandboxAddr], function (idf) {
-            window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
-                [   sandboxAddr,
-                    sc_type_arc_common | sc_type_const,
-                    sc_type_link,
-                    sc_type_arc_pos_const_perm,
-                    window.scKeynodes.nrel_gt_idtf
-                ]
-            ).done(function(results) {
-                window.sctpClient.get_link_content(results[0][2],'string').done(function(content) {
-                    $(inputSelector).val(content);
-                });
-            }).fail(function(r){
-                $(inputSelector).val('');
-            }).always(function() {
-                self.setPlaceholder(inputSelector);
-            })
-        });
+        window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
+            [   nameAddr,
+                sc_type_arc_common | sc_type_const,
+                sc_type_link,
+                sc_type_arc_pos_const_perm,
+                window.scKeynodes.nrel_main_idtf
+            ]
+        ).done(function(results) {
+            window.sctpClient.get_link_content(results[0][2],'string').done(function(content) {
+                $(inputSelector).val(content);
+            });
+        }).fail(function() {
+            $(inputSelector).val('');
+        }).always(function() {
+            self.setPlaceholder(inputSelector);
+        })
     },
 
     setPlaceholder: function(graphNameSelector) {
