@@ -121,6 +121,7 @@ SCgg.Editor.prototype = {
         });
 
         $(graph_name).load('static/components/html/scgg-graph-name-input.html', function() {
+            self.bindGraphNameEvents();
             self.updateGraphName();
         });
 
@@ -233,7 +234,79 @@ SCgg.Editor.prototype = {
     toolZoomOut: function() {
         return this.tool('zoomout');
     },
-    
+
+    bindGraphNameEvents: function() {
+        var self = this;
+        var containerId = self.containerId;
+        var graphNameInput = $('#graph-name-' + containerId + ' input');
+        var graphNameButton = $('#graph-name-' + containerId + ' button');
+        var nameInputHelper = $('#graph-name-' + containerId + ' .input-helper');
+
+        graphNameButton.click(function() {
+            self.showGraphActive();
+
+            if (self.isEditGraphName() && self.checkGraphNameLength()) {
+                self.toggleGraphName(true);
+                self.updateGraphNameBackLight();
+            } else {
+                self.toggleGraphName(false);
+                self.updateGraphNameBackLight();
+            }
+        });
+
+        graphNameInput.keyup(function() {
+            self.updateGraphNameBackLight()
+        });
+
+        nameInputHelper.click(function() {
+            if (!self.isEditGraphName()) {
+                self.showGraphActive();
+            }
+        });
+    },
+
+    showGraphActive: function() {
+        this.scene.clearSelection();
+        if (this.scene.render.sandbox.loadGraph) {
+            this.scsComponent.setGraphActive();
+        }
+    },
+
+    updateGraphNameBackLight: function() {
+        var isNameRight = this.checkGraphNameLength();
+        var containerId = this.containerId;
+        var graphNameInput = $('#graph-name-' + containerId + ' input');
+
+        graphNameInput.toggleClass('correct-name', isNameRight && this.isEditGraphName());
+        graphNameInput.toggleClass('incorrect-name', !isNameRight && this.isEditGraphName());
+    },
+
+    toggleGraphName: function(toggler) {
+        var containerId = this.containerId;
+        var graphNameInput = $('#graph-name-' + containerId + ' input');
+        var nameInputHelper = $('#graph-name-' + containerId + ' .input-helper');
+        var graphNameButton = $('#graph-name-' + containerId + ' button');
+
+        graphNameButton.find('.button-img-edit').prop('hidden', !toggler);
+        graphNameButton.find('.button-img-save').prop('hidden', toggler);
+        graphNameInput.prop('disabled', toggler);
+        nameInputHelper.prop('hidden', !toggler);
+    },
+
+    isEditGraphName: function() {
+        var containerId = this.containerId;
+        var graphNameInput = $('#graph-name-' + containerId + ' input');
+
+        return $(graphNameInput).prop('disabled') == false
+    },
+
+    checkGraphNameLength: function() {
+        var containerId = this.containerId;
+        var graphNameInput = $('#graph-name-' + containerId + ' input');
+
+        return graphNameInput.val().length > 2
+    },
+
     /**
      * Bind events to panel tools
      */
@@ -244,57 +317,10 @@ SCgg.Editor.prototype = {
         var select = this.toolSelect();
 
         select.button('toggle');
-        
-        // handle clicks on mode change
-        //scg this.toolSwitch().click(function() {
-        //scg     self.canEdit = !self.canEdit;
-        //scg     var tools = [self.toolEdge(),
-        //scg                 self.toolContour(),
-        //scg                 self.toolBus(),
-        //scg                 self.toolUndo(),
-        //scg                 self.toolRedo(),
-        //scg                 self.toolDelete(),
-        //scg                 self.toolClear(),
-        //scg                 self.toolOpen(),
-        //scg                 self.toolSave(),
-        //scg                 self.toolIntegrate()];
-        //scg     for (var button = 0 ; button < tools.length ; button++){
-        //scg         self.toggleTool(tools[button]);
-        //scg     }
-        //scg     self.hideTool(self.toolChangeIdtf());
-        //scg     self.hideTool(self.toolSetContent());
-        //scg     self.hideTool(self.toolChangeType());
-        //scg     self.hideTool(self.toolDelete());
-        //scg });
+
         select.click(function() {
             self.scene.setEditMode(SCggEditMode.SCggModeSelect);
         });
-        //scg select.dblclick(function() {
-        //scg     self.scene.setModal(SCggModalMode.SCggModalType);
-        //scg     self.onModalChanged();
-        //scg     var tool = $(this);
-        //scg     function stop_modal() {
-        //scg         tool.popover('destroy');
-        //scg         self.scene.setEditMode(SCggEditMode.SCggModeSelect);
-        //scg         self.scene.setModal(SCggModalMode.SCggModalNone);
-        //scg     }
-        //scg     el = $(this);
-        //scg     el.popover({
-        //scg         content: self.node_types_panel_content,
-        //scg         container: container,
-        //scg         title: 'Change type',
-        //scg         html: true,
-        //scg         delay: {show: 500, hide: 100}
-        //scg     }).popover('show');
-        //scg     cont.find('.popover-title').append('<button id="scgg-type-close" type="button" class="close">&times;</button>');
-        //scg     $(container + ' #scgg-type-close').click(function() {
-        //scg         stop_modal();
-        //scg     });
-        //scg     $(container + ' .popover .btn').click(function() {
-        //scg         SCggTypeNodeNow = self.typesMap[$(this).attr('id')];
-        //scg         stop_modal();
-        //scg     });
-        //scg });
 
         this.toolEdge().click(function() {
             self.scene.setEditMode(SCggEditMode.SCggModeEdge);
@@ -725,7 +751,7 @@ SCgg.Editor.prototype = {
                 var obj = {
                     name: item['text'],
                     type: 'local'
-                }
+                };
                 if(!contains(obj, matches))
                     matches.push(obj);
             }
@@ -799,5 +825,4 @@ SCgg.Editor.prototype = {
             });
         });
     }
-
 };
