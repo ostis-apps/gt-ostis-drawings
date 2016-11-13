@@ -42,7 +42,6 @@ SCgg.LayoutAlgorithmForceBased.prototype.stop = function() {
         delete this.force;
         this.force = null;
     }
-  
 };
 
 SCgg.LayoutAlgorithmForceBased.prototype.start = function() {

@@ -340,6 +340,15 @@ path.SCggBusPath {
     width: 0;
 }
 
+/*------------ Scgg type list -------------*/
+.scgg-type-list {
+    overflow-y: hidden;
+}
+
+#scgg-type-edge-const {
+    margin-bottom: 5px;
+}
+
 /*------------ Choose new graph or load -----------*/
 #confirmChooseBox{
     width: 350px;
