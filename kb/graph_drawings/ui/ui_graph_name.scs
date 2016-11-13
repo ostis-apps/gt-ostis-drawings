@@ -1,5 +1,5 @@
 ui_graph_name
-	<- ui_scg_control; sc_node_not_relation;
+	<- ui_scgg_control; sc_node_not_relation;
 	=> nrel_main_idtf:
 		[Введите имя графа]
 		(* <- lang_ru;; *);
