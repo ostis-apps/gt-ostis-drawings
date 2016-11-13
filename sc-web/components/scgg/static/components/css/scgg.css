@@ -340,6 +340,10 @@ path.SCggBusPath {
     width: 0;
 }
 
+.input-group-graph-name input:read-only {
+    cursor: pointer;
+}
+
 .input-group-graph-name .correct-name {
     box-shadow: inset 0 -4px 5px -3px green;
 }

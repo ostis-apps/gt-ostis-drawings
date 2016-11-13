@@ -254,6 +254,15 @@ SCgg.Editor.prototype = {
         graphNameInput.keyup(function() {
             self.updateGraphNameBackLight()
         });
+
+        graphNameInput.click(function() {
+            if (!self.isEditGraphName()) {
+               self.scene.clearSelection();
+                if (self.scene.render.sandbox.loadGraph) {
+                    self.scsComponent.setGraphActive();
+                }
+            }
+        });
     },
 
     updateGraphNameBackLight: function() {
@@ -272,14 +281,14 @@ SCgg.Editor.prototype = {
 
         graphNameButton.find('.button-img-edit').prop('hidden', !toggler);
         graphNameButton.find('.button-img-save').prop('hidden', toggler);
-        graphNameInput.prop('disabled', toggler);
+        graphNameInput.prop('readonly', toggler);
     },
 
     isEditGraphName: function() {
         var containerId = this.containerId;
         var graphNameInput = $('#graph-name-' + containerId + ' input');
 
-        return $(graphNameInput).prop('disabled') == false
+        return $(graphNameInput).prop('readonly') == false
     },
 
     checkGraphNameLength: function() {
@@ -733,7 +742,7 @@ SCgg.Editor.prototype = {
                 var obj = {
                     name: item['text'],
                     type: 'local'
-                }
+                };
                 if(!contains(obj, matches))
                     matches.push(obj);
             }
