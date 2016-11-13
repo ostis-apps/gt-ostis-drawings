@@ -236,10 +236,10 @@ SCgg.Editor.prototype = {
     },
 
     bindGraphNameEvents: function() {
-        var self = this,
-            containerId = self.render.containerId,
-            graphNameInput = $('#graph-name-' + containerId + ' input'),
-            graphNameButton = $('#graph-name-' + containerId + ' button');
+        var self = this;
+        var containerId = self.containerId;
+        var graphNameInput = $('#graph-name-' + containerId + ' input');
+        var graphNameButton = $('#graph-name-' + containerId + ' button');
 
         graphNameButton.click(function() {
             if (self.isEditGraphName() && self.checkGraphNameLength()) {
@@ -257,18 +257,18 @@ SCgg.Editor.prototype = {
     },
 
     updateGraphNameBackLight: function() {
-        var isNameRight = this.checkGraphNameLength(),
-            containerId = this.render.containerId,
-            graphNameInput = $('#graph-name-' + containerId + ' input');
+        var isNameRight = this.checkGraphNameLength();
+        var containerId = this.containerId;
+        var graphNameInput = $('#graph-name-' + containerId + ' input');
 
         graphNameInput.toggleClass('correct-name', isNameRight && this.isEditGraphName());
         graphNameInput.toggleClass('incorrect-name', !isNameRight && this.isEditGraphName())
     },
 
     toggleGraphName: function(toggler) {
-        var containerId = this.render.containerId,
-            graphNameInput = $('#graph-name-' + containerId + ' input'),
-            graphNameButton = $('#graph-name-' + containerId + ' button');
+        var containerId = this.containerId;
+        var graphNameInput = $('#graph-name-' + containerId + ' input');
+        var graphNameButton = $('#graph-name-' + containerId + ' button');
 
         graphNameButton.find('.button-img-edit').prop('hidden', !toggler);
         graphNameButton.find('.button-img-save').prop('hidden', toggler);
@@ -276,14 +276,14 @@ SCgg.Editor.prototype = {
     },
 
     isEditGraphName: function() {
-        var containerId = this.render.containerId;
+        var containerId = this.containerId;
         var graphNameInput = $('#graph-name-' + containerId + ' input');
 
         return $(graphNameInput).prop('disabled') == false
     },
 
     checkGraphNameLength: function() {
-        var containerId = this.render.containerId;
+        var containerId = this.containerId;
         var graphNameInput = $('#graph-name-' + containerId + ' input');
 
         return graphNameInput.val().length > 3
