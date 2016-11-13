@@ -240,6 +240,7 @@ SCgg.Editor.prototype = {
         var containerId = self.containerId;
         var graphNameInput = $('#graph-name-' + containerId + ' input');
         var graphNameButton = $('#graph-name-' + containerId + ' button');
+        var nameInputHelper = $('#graph-name-' + containerId + ' .input-helper');
 
         graphNameButton.click(function() {
             if (self.isEditGraphName() && self.checkGraphNameLength()) {
@@ -255,7 +256,7 @@ SCgg.Editor.prototype = {
             self.updateGraphNameBackLight()
         });
 
-        graphNameInput.click(function() {
+        nameInputHelper.click(function() {
             if (!self.isEditGraphName()) {
                self.scene.clearSelection();
                 if (self.scene.render.sandbox.loadGraph) {
@@ -271,24 +272,26 @@ SCgg.Editor.prototype = {
         var graphNameInput = $('#graph-name-' + containerId + ' input');
 
         graphNameInput.toggleClass('correct-name', isNameRight && this.isEditGraphName());
-        graphNameInput.toggleClass('incorrect-name', !isNameRight && this.isEditGraphName())
+        graphNameInput.toggleClass('incorrect-name', !isNameRight && this.isEditGraphName());
     },
 
     toggleGraphName: function(toggler) {
         var containerId = this.containerId;
         var graphNameInput = $('#graph-name-' + containerId + ' input');
+        var nameInputHelper = $('#graph-name-' + containerId + ' .input-helper');
         var graphNameButton = $('#graph-name-' + containerId + ' button');
 
         graphNameButton.find('.button-img-edit').prop('hidden', !toggler);
         graphNameButton.find('.button-img-save').prop('hidden', toggler);
-        graphNameInput.prop('readonly', toggler);
+        graphNameInput.prop('disabled', toggler);
+        nameInputHelper.prop('hidden', !toggler);
     },
 
     isEditGraphName: function() {
         var containerId = this.containerId;
         var graphNameInput = $('#graph-name-' + containerId + ' input');
 
-        return $(graphNameInput).prop('readonly') == false
+        return $(graphNameInput).prop('disabled') == false
     },
 
     checkGraphNameLength: function() {
