@@ -3,6 +3,7 @@ SCggKeynodesHandler = {
     systemIds: [
         'format_scs_json',
         'nrel_gt_idtf',
+        'concept_graph',
         'nrel_weight',
         'nrel_temporal_decomposition',
         'rrel_current_version',
