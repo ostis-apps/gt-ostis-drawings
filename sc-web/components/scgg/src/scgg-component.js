@@ -88,12 +88,10 @@ var createScggComponent = function(sandbox, callback){
     function findGraphAndDecomposition(addr, callback) {
         var decompositionNode = null;
 
-        window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5A_A_F_A_F,
+        window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_3A_A_F,
             [   sc_type_node | sc_type_const | sc_type_node_tuple,
                 sc_type_arc_pos_const_perm,
-                addr,
-                sc_type_arc_pos_const_perm,
-                SCggKeynodesHandler.scKeynodes.rrel_current_version
+                addr
             ]
         ).done(function (results) {
             decompositionNode = results[0][0];

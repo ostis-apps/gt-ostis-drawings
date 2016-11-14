@@ -671,10 +671,10 @@ SCgg.Editor.prototype = {
             this.hideTool(this.toolChangeType());
             this.hideTool(this.toolDelete());
             if (this.scene.selected_objects.length > 1) {
-                if (this.scene.isSelectedObjectAllArcsOrAllNodes() && !this.scene.isSelectedObjectAllHaveScAddr()) {
+                if (this.scene.isSelectedObjectAllArcsOrAllNodes() && this.scene.selected_objects[0] instanceof SCgg.ModelEdge) {
                     this.showTool(this.toolChangeType());
                 }
-            } else if (this.scene.selected_objects.length == 1 && !this.scene.selected_objects[0].sc_addr) {
+            } else if (this.scene.selected_objects.length == 1) {
                 if (this.scene.selected_objects[0] instanceof SCgg.ModelNode) {
                     this.showTool(this.toolChangeIdtf());
                     //scg this.showTool(this.toolChangeType());
