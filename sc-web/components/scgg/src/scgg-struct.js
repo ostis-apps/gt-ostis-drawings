@@ -23,7 +23,6 @@ function SCggFromScImpl(_sandbox, _editor, aMapping) {
                     obj.setText(content);
                 });
             }).fail(function(r){
-
                 //console.log("not find nrel_gt_idtf in SCggFromScImpl");
                 // Try set nrel_main_idtf
                 sandbox.getIdentifier(addr, function(idtf) {
@@ -46,9 +45,6 @@ function SCggFromScImpl(_sandbox, _editor, aMapping) {
                 //console.log("not find nrel_weight in SCggFromScImpl");
             });
         }
-        //scg sandbox.getIdentifier(addr, function(idtf) {
-        //scg    obj.setText(idtf);
-        //scg });
     }
 
     function randomPos() {
@@ -263,7 +259,6 @@ translateToSc: function(callback) {
 
             var addrStruct;
             // editor.scene.comandManager.clear();
-            
 
             var nodes = editor.scene.nodes.slice();
             var objects = [];

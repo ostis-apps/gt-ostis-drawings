@@ -3,47 +3,166 @@ SCggComponent = {
     formats: ['format_scgg_json'],
     struct_support: true,
     factory: function(sandbox) {
-        return new scggViewerWindow(sandbox);
-    }
-};
+        sandbox.decompositionNodeAddr = null;
+        sandbox.graphNodeAddr = null;
 
-var scggKeynodesInit = function () {
-    if (window.scKeynodes.need_gt_idtf === undefined){
-        SCWeb.core.Server.resolveScAddr(['nrel_gt_idtf',
-                                         'nrel_weight',
-                                         'rrel_vertex',
-                                         'rrel_oredge',
-                                         'nrel_temporal_decomposition',
-                                         'temporary_entity',
-                                         'rrel_current_version',
-                                         'concept_graph',
-                                         'nrel_next'], function (keynodes) {
-            window.scKeynodes['nrel_gt_idtf']  = keynodes['nrel_gt_idtf'];
-            window.scKeynodes['nrel_weight']  = keynodes['nrel_weight'];
-            window.scKeynodes['rrel_vertex'] = keynodes['rrel_vertex'];
-            window.scKeynodes['rrel_oredge'] = keynodes['rrel_oredge'];
-            window.scKeynodes['nrel_temporal_decomposition']  = keynodes['nrel_temporal_decomposition'];
-            window.scKeynodes['temporary_entity'] = keynodes['temporary_entity'];
-            window.scKeynodes['nrel_next'] = keynodes['nrel_next'];
-            window.scKeynodes['rrel_current_version'] = keynodes['rrel_current_version'];
-            window.scKeynodes['concept_graph'] = keynodes['concept_graph'];
+        return new Promise(function(resolve, reject){
+            scggKeynodesInit(sandbox, function(load){
+                resolve(new scggViewerWindow(sandbox, load));
+            });
         });
     }
 };
+
+function loadGraphOrCreateNew(callBackLoad, callBackNew){
+    var keynodes = ['ui_graph_choose_load','ui_graph_choose_new','ui_graph_choose_message'];
+    SCWeb.core.Server.resolveScAddr(keynodes, function (keynodes) {
+        SCWeb.core.Server.resolveIdentifiers(keynodes, function (idf) {
+            var confirmMessage = idf[keynodes['ui_graph_choose_message']];
+            var buttonLoad = idf[keynodes['ui_graph_choose_load']];
+            var buttonNew = idf[keynodes['ui_graph_choose_new']];
+            $('#confirmChooseBox').modal({show:true,
+                backdrop:false,
+                keyboard: false
+            });
+            $('#confirmMessage').html(confirmMessage);
+            $('#confirmLoadGraph').html(buttonLoad);
+            $('#confirmCreateNew').html(buttonNew);
+            $('#confirmLoadGraph').click(function(){
+                $('#confirmChooseBox').modal('hide');
+                callBackLoad();
+            });
+            $('#confirmCreateNew').click(function(){
+                $('#confirmChooseBox').modal('hide');
+                callBackNew();
+            });
+        });
+    });
+}
+
+var createScggComponent = function(sandbox, callback){
+    function findCounterInSCn() {
+        return $("#" + sandbox.container + ' .sc-contour > .scs-scn-view-toogle-button').parent().attr('sc_addr');
+    }
+    function findCurrentVersionGraph(callback) {
+            var rootNode = $("#" + sandbox.container + ' .scs-scn-keyword > .scs-scn-element').attr('sc_addr');
+            var decompositionNode = null;
+            // Find node tuple
+            window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5A_A_F_A_F,
+                [   sc_type_node | sc_type_const | sc_type_node_tuple,
+                    sc_type_arc_common | sc_type_const,
+                    rootNode,
+                    sc_type_arc_pos_const_perm,
+                    SCggKeynodesHandler.scKeynodes.nrel_temporal_decomposition
+                ]
+            ).done(function (results) {
+                decompositionNode = results[0][0];
+                // Find current_version graph
+                window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
+                    [   results[0][0],
+                        sc_type_arc_pos_const_perm,
+                        sc_type_node | sc_type_const | sc_type_node_struct,
+                        sc_type_arc_pos_const_perm,
+                        SCggKeynodesHandler.scKeynodes.rrel_current_version
+                    ]
+                ).done(function (results) {
+                    $('#' + sandbox.container).load('static/components/html/scgg-choose-new-or-load.html', function () {
+                        loadGraphOrCreateNew(function () {
+                                sandbox.addr = results[0][2];
+                                sandbox.graphNodeAddr = rootNode;
+                                sandbox.decompositionNodeAddr = decompositionNode;
+                                callback(true);
+                            }, function () {
+                                callback(false);
+                            });
+                    });
+                }).fail(function () {
+                    //console.log("Not find rrel_current_version");
+                    callback(false);
+                });
+            }).fail(function () {
+                //console.log("Not find nrel_temporal_decomposition");
+                callback(false);
+            });
+    }
+    function findGraphAndDecomposition(addr, callback) {
+        var decompositionNode = null;
+
+        window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5A_A_F_A_F,
+            [   sc_type_node | sc_type_const | sc_type_node_tuple,
+                sc_type_arc_pos_const_perm,
+                addr,
+                sc_type_arc_pos_const_perm,
+                SCggKeynodesHandler.scKeynodes.rrel_current_version
+            ]
+        ).done(function (results) {
+            decompositionNode = results[0][0];
+            window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
+                [   decompositionNode,
+                    sc_type_arc_common | sc_type_const,
+                    sc_type_node,
+                    sc_type_arc_pos_const_perm,
+                    SCggKeynodesHandler.scKeynodes.nrel_temporal_decomposition
+                ]
+            ).done(function (results) {
+                sandbox.graphNodeAddr = results[0][2];
+                sandbox.decompositionNodeAddr = decompositionNode;
+                callback();
+            }).fail(function () {
+                //console.log("Not find rootNode");
+                callback();
+            });
+        }).fail(function () {
+            //console.log("Not find decompositionNode");
+            callback();
+        });
+    }
+
+    if (findCounterInSCn() !== undefined){
+        $('#' + sandbox.container).load('static/components/html/scgg-choose-new-or-load.html', function () {
+            loadGraphOrCreateNew(function () {
+                sandbox.addr = findCounterInSCn();
+                findGraphAndDecomposition(sandbox.addr, function () {
+                    callback(true);
+                });
+            }, function () {
+                callback(false);
+            });
+        });
+    } else {
+        findCurrentVersionGraph(function(load){
+            callback(load);
+        });
+    }
+
+};
+
+
+var scggKeynodesInit = function (sandbox, callback) {
+    if (SCggKeynodesHandler.load == false){
+        SCggKeynodesHandler.initSystemIds(function () {
+            createScggComponent(sandbox, function(load){
+                callback(load);
+            });
+        });
+    } else {
+        createScggComponent(sandbox, function(load){
+            callback(load);
+        });
+    }
+};
+
 /**
  * scggViewerWindow
  * @param config
  * @constructor
  */
-var scggViewerWindow = function(sandbox) {
 
-    scggKeynodesInit()
+var scggViewerWindow = function(sandbox, load) {
+
     this.domContainer = sandbox.container;
     this.sandbox = sandbox;
-    var findStruct = $("#" + this.domContainer + ' .sc-contour > .scs-scn-view-toogle-button').parent().attr('sc_addr');
-    if (findStruct !== undefined){
-        this.sandbox.addr = findStruct;
-    }
+    this.sandbox.loadGraph = load;
     this.tree = new SCgg.Tree();
     this.editor = new SCgg.Editor();
     
@@ -77,7 +196,7 @@ var scggViewerWindow = function(sandbox) {
                 return self.scStructTranslator.translateToSc(callback);
             },
             canEdit: this.sandbox.canEdit(),
-            resolveControls: this.sandbox.resolveElementsAddr,
+            resolveControls: this.sandbox.resolveElementsAddr
         }
     );
 
@@ -203,9 +322,9 @@ var scggViewerWindow = function(sandbox) {
             }
         }
         this.editor.render.updateTexts();
+        this.editor.updateGraphName();
     };
-    
-    
+
     this.eventStructUpdate = function() {
         self.scStructTranslator.updateFromSc.apply(self.scStructTranslator, arguments);
     };
@@ -216,9 +335,13 @@ var scggViewerWindow = function(sandbox) {
     this.sandbox.eventApplyTranslation = $.proxy(this.applyTranslation, this);
     this.sandbox.eventStructUpdate = $.proxy(this.eventStructUpdate, this);
 
-    if (findStruct !== undefined){
+    if (load){
         this.sandbox.updateContent();
     }
+
+    var startIdIndex = 7;
+    this.window_id = this.domContainer.substring(startIdIndex) + '_' + this.sandbox.command_state.format;
+    SCWeb.ui.KeyboardHandler.subscribeWindow(this.window_id, this.editor.keyboardCallbacks);
 };
 
 

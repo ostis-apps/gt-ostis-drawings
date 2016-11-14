@@ -3,11 +3,11 @@ module.exports = function() {
         concat: {
             scggcmp: {
                 src: [
-                    'sc-web/components/scgg/src/gwf-file-creater.js',
-                    'sc-web/components/scgg/src/gwf-file-loader.js',
-                    'sc-web/components/scgg/src/gwf-text-loader.js',
-                    'sc-web/components/scgg/src/gwf-model-objects.js',
-                    'sc-web/components/scgg/src/gwf-object-info-reader.js',
+                    'sc-web/components/scgg/src/gwfg-file-creater.js',
+                    'sc-web/components/scgg/src/gwfg-file-loader.js',
+                    'sc-web/components/scgg/src/gwfg-model-objects.js',
+                    'sc-web/components/scgg/src/gwfg-object-info-reader.js',
+                    'sc-web/components/scgg/src/scgg-keynode-handler.js',
                     'sc-web/components/scgg/src/scgg-object-builder.js',
                     'sc-web/components/scgg/src/scgg.js',
                     'sc-web/components/scgg/src/scgg-debug.js',
@@ -21,6 +21,7 @@ module.exports = function() {
                     'sc-web/components/scgg/src/scgg-struct.js',
                     'sc-web/components/scgg/src/scgg-object-creator.js',
                     'sc-web/components/scgg/src/scgg-component.js',
+                    'sc-web/components/scgg/src/scgg-scs-component.js',
                     'sc-web/components/scgg/src/listener/scgg-mode-bus.js',
                     'sc-web/components/scgg/src/listener/scgg-mode-contour.js',
                     'sc-web/components/scgg/src/listener/scgg-mode-edge.js',

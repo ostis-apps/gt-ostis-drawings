@@ -25,8 +25,6 @@ SCgg.Render.prototype = {
         this.d3_drawer = d3.select('#' + this.containerId)
             .append("svg:svg")
             .attr("pointer-events", "all")
-            .attr("width", "100%")
-            .attr("height", "100%")
             .attr("class", "SCggSvg")
             .on('mousemove', function() {
                 self.onMouseMove(this, self);
@@ -222,6 +220,11 @@ SCgg.Render.prototype = {
         eventsWrap(g);
         appendNodeVisual(g);
 
+        // g.append('svg:text')
+        //     .attr('class', 'SCggText')
+        //     .attr('x', function(d) { return d.scale.x / 1.3; })
+        //     .attr('y', function(d) { return d.scale.y / 1.3; })
+        //     .text(function(d) { return d.text; });
         g.append('svg:text')
             .attr('class', 'SCggText')
             .attr('x', function(d) { return d.scale.x / 1.3; })
@@ -266,10 +269,16 @@ SCgg.Render.prototype = {
         // add edges that haven't visual
         g = this.d3_edges.enter().append('svg:g')
             .attr('class', function(d) {
+
                 return self.classState(d, 'SCggEdge');
             })
             .attr('pointer-events', 'visibleStroke');
-        
+        g.append('svg:text')
+            .attr('class', 'SCggText')
+            .text(function(d) { return d.text; });
+
+
+
         eventsWrap(g);
         
         this.d3_edges.exit().remove();
@@ -315,6 +324,7 @@ SCgg.Render.prototype = {
     // -------------- update objects --------------------------
     updateObjects: function() {
 
+
         var self = this;
         this.d3_nodes.each(function (d) {
             
@@ -335,10 +345,10 @@ SCgg.Render.prototype = {
                 .attr("sc_addr", function(d) {
                     return d.sc_addr;
                 });
-            
+
             g.selectAll('text').text(function(d) { return d.text; });
         });
-        
+
         this.d3_links.each(function (d) {
             
             if (!d.need_observer_sync && d.contentLoaded) return; // do nothing
@@ -396,22 +406,7 @@ SCgg.Render.prototype = {
             
         });
         
-        this.d3_edges.each(function(d) {
-            
-            if (!d.need_observer_sync) return; // do nothing
-            d.need_observer_sync = false;
-            
-            if (d.need_update)
-                d.update();
-            var d3_edge = d3.select(this);
-            SCggAlphabet.updateEdge(d, d3_edge, self.containerId);
-            d3_edge.attr('class', function(d) {
-                return self.classState(d, 'SCggEdge');
-            })
-            .attr("sc_addr", function(d) {
-                return d.sc_addr;
-            });
-        });
+
         
         this.d3_contours.each(function(d) {
         
@@ -463,6 +458,42 @@ SCgg.Render.prototype = {
             d3_bus.attr('class', function(d) {
                 return self.classState(d, 'SCggBus');
             });
+
+        });
+        this.d3_edges.each(function(d) {
+
+            if (!d.need_observer_sync) return; // do nothing
+            d.need_observer_sync = false;
+
+            if (d.need_update)
+                d.update();
+            var d3_edge = d3.select(this);
+            SCggAlphabet.updateEdge(d, d3_edge, self.containerId);
+            d3_edge.attr('class', function(d) {
+                return self.classState(d, 'SCggEdge');
+            })
+                .attr("sc_addr", function(d) {
+                    return d.sc_addr;
+                });
+
+                if(typeof d.points[0] == 'undefined'){
+                    var foo=0;
+                    if((d.target_pos.clone().y-d.source_pos.clone().y)/(d.target_pos.clone().x-d.source_pos.clone().x)<2&&(d.target_pos.clone().y-d.source_pos.clone().y)/(d.target_pos.clone().x-d.source_pos.clone().x)>0.2)
+                        foo=-20
+                    d3_edge.selectAll('text')
+                        .attr('x', function(d) { return d.source_pos.clone().x+(d.target_pos.clone().x-d.source_pos.clone().x)/3+10; })
+                        .attr('y', function(d) { return d.source_pos.clone().y+(d.target_pos.clone().y-d.source_pos.clone().y)/3+20+foo; })
+                        .text(function(d) { return d.text; });
+                }
+                else{
+                    var foo=0;
+                    if((d.points[0].y-d.source_pos.clone().y)/(d.points[0].x-d.source_pos.clone().x)<2&&(d.points[0].y-d.source_pos.clone().y)/(d.points[0].x-d.source_pos.clone().x)>0.2)
+                        foo=-20
+                    d3_edge.selectAll('text')
+                        .attr('x', function(d) { return d.source_pos.clone().x+(d.points[0].x-d.source_pos.clone().x)/3+10; })
+                        .attr('y', function(d) { return d.source_pos.clone().y+(d.points[0].y-d.source_pos.clone().y)/3+20+foo; })
+                        .text(function(d) { return d.text; });
+                }
         });
 
         this.updateLinePoints();
@@ -504,7 +535,7 @@ SCgg.Render.prototype = {
 
         // remove old points
         drag_line_points = this.d3_dragline.selectAll('use.SCggRemovePoint');
-        points = drag_line_points.data(this.scene.drag_line_points, function(d) { return d.idx; })
+        points = drag_line_points.data(this.scene.drag_line_points, function(d) { return d.idx; });
         points.exit().remove();
 
         points.enter().append('svg:use')
@@ -528,7 +559,9 @@ SCgg.Render.prototype = {
         if (this.scene.edit_mode == SCggEditMode.SCggModeBus || this.scene.edit_mode == SCggEditMode.SCggModeContour) {
             this.d3_accept_point.classed('hidden', this.scene.drag_line_points.length == 0);
             if (this.scene.drag_line_points.length > 0) {
+
                 var pos = this.scene.drag_line_points[0];
+
                 if (this.scene.edit_mode == SCggEditMode.SCggModeBus)
                     pos = this.scene.drag_line_points[this.scene.drag_line_points.length - 1];
                 this.d3_accept_point.attr('transform', 'translate(' + (pos.x + 24) + ',' + pos.y + ')');
@@ -547,7 +580,6 @@ SCgg.Render.prototype = {
             // create path description
             for (idx in this.scene.drag_line_points) {
                 var pt = this.scene.drag_line_points[idx];
-                
                 if (idx == 0) 
                     d_str += 'M';
                 else
@@ -567,7 +599,7 @@ SCgg.Render.prototype = {
         var oldPoints;
         
         line_points = this.d3_line_points.selectAll('use');
-        points = line_points.data(this.scene.line_points, function(d) { return d.idx; })
+        points = line_points.data(this.scene.line_points, function(d) { return d.idx; });
         points.exit().remove();
         
         if (this.scene.line_points.length == 0)
@@ -714,6 +746,5 @@ SCgg.Render.prototype = {
         var el = document.getElementById(this.containerId);
         return [el.clientWidth, el.clientHeight];
     }
-    
 
-}
+};
