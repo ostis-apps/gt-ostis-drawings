@@ -3,11 +3,10 @@ module.exports = function() {
         concat: {
             scggcmp: {
                 src: [
-                    'sc-web/components/scgg/src/gwf-file-creater.js',
-                    'sc-web/components/scgg/src/gwf-file-loader.js',
-                    'sc-web/components/scgg/src/gwf-text-loader.js',
-                    'sc-web/components/scgg/src/gwf-model-objects.js',
-                    'sc-web/components/scgg/src/gwf-object-info-reader.js',
+                    'sc-web/components/scgg/src/gwfg-file-creater.js',
+                    'sc-web/components/scgg/src/gwfg-file-loader.js',
+                    'sc-web/components/scgg/src/gwfg-model-objects.js',
+                    'sc-web/components/scgg/src/gwfg-object-info-reader.js',
                     'sc-web/components/scgg/src/scgg-keynode-handler.js',
                     'sc-web/components/scgg/src/scgg-object-builder.js',
                     'sc-web/components/scgg/src/scgg.js',

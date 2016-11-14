@@ -1,4 +1,4 @@
-var GwfObjectController = {
+var GwfgObjectController = {
     x_offset: 0,
     y_offset: 0,
 
@@ -22,39 +22,39 @@ var GwfObjectController = {
     }
 };
 
-var GwfObject = function (args) {
+var GwfgObject = function (args) {
     this.id = -1;
     this.attributes = {};
     this.required_attrs = [];
 };
 
-GwfObject.prototype = {
-    constructor: GwfObject
+GwfgObject.prototype = {
+    constructor: GwfgObject
 };
 
-GwfObject.prototype.parseObject = function (args) {
-
-};
-
-GwfObject.prototype.buildObject = function (args) {
+GwfgObject.prototype.parseObject = function (args) {
 
 };
 
-GwfObject.prototype.parsePoints = function (args) {
+GwfgObject.prototype.buildObject = function (args) {
 
-    var gwf_object = args.gwf_object;
+};
+
+GwfgObject.prototype.parsePoints = function (args) {
+
+    var gwfg_object = args.gwfg_object;
     var reader = args.reader;
 
-    var points = gwf_object.getElementsByTagName("points")[0].getElementsByTagName("point");
+    var points = gwfg_object.getElementsByTagName("points")[0].getElementsByTagName("point");
     this.attributes.points = [];
     for (var i = 0; i < points.length; i++) {
         var point = reader.fetchAttributes(points[i], ["x", "y"]);
         this.attributes.points.push(point);
-        GwfObjectController.fixOffsetOfPoints({x: point["x"], y: point["y"]});
+        GwfgObjectController.fixOffsetOfPoints({x: point["x"], y: point["y"]});
     }
 };
 
-GwfObject.prototype.fixParent = function (args) {
+GwfgObject.prototype.fixParent = function (args) {
     var parent = this.attributes["parent"];
 
     if (parent != "0") {
@@ -65,16 +65,16 @@ GwfObject.prototype.fixParent = function (args) {
     }
 };
 
-var GwfObjectNode = function (args) {
-    GwfObject.call(this, args);
+var GwfgObjectNode = function (args) {
+    GwfgObject.call(this, args);
     this.required_attrs = ["id", "type", "x", "y", "parent", "idtf"];
 };
 
-GwfObjectNode.prototype = Object.create(GwfObject.prototype);
+GwfgObjectNode.prototype = Object.create(GwfgObject.prototype);
 
 // have to specify node and reader
-GwfObjectNode.prototype.parseObject = function (args) {
-    var node = args.gwf_object;
+GwfgObjectNode.prototype.parseObject = function (args) {
+    var node = args.gwfg_object;
     var reader = args.reader;
 
     this.attributes = reader.fetchAttributes(node, this.required_attrs);
@@ -89,7 +89,7 @@ GwfObjectNode.prototype.parseObject = function (args) {
     this.attributes["y"] = parseFloat(this.attributes["y"]);
 
     //fixing points
-    GwfObjectController.fixOffsetOfPoints({x: this.attributes["x"], y: this.attributes["y"]});
+    GwfgObjectController.fixOffsetOfPoints({x: this.attributes["x"], y: this.attributes["y"]});
 
     this.id = this.attributes["id"];
 
@@ -97,9 +97,9 @@ GwfObjectNode.prototype.parseObject = function (args) {
 };
 
 // have to specify scene,builder
-GwfObjectNode.prototype.buildObject = function (args) {
+GwfgObjectNode.prototype.buildObject = function (args) {
     var scene = args.scene;
-    var node = SCgg.Creator.createNode(this.attributes["type"], new SCgg.Vector3(this.attributes["x"] + GwfObjectController.getXOffset(), this.attributes["y"] + +GwfObjectController.getYOffset(), 0), this.attributes["idtf"]);
+    var node = SCgg.Creator.createNode(this.attributes["type"], new SCgg.Vector3(this.attributes["x"] + GwfgObjectController.getXOffset(), this.attributes["y"] + +GwfgObjectController.getYOffset(), 0), this.attributes["idtf"]);
 
     scene.appendNode(node);
     scene.appendSelection(node);
@@ -112,16 +112,16 @@ GwfObjectNode.prototype.buildObject = function (args) {
 
 ///// pairs
 
-var GwfObjectPair = function (args) {
-    GwfObject.call(this, args);
+var GwfgObjectPair = function (args) {
+    GwfgObject.call(this, args);
     this.required_attrs = ["id", "type", "id_b", "id_e", "dotBBalance", "dotEBalance", "idtf"];
 };
 
-GwfObjectPair.prototype = Object.create(GwfObject.prototype);
+GwfgObjectPair.prototype = Object.create(GwfgObject.prototype);
 
 // have to specify pair and reader
-GwfObjectPair.prototype.parseObject = function (args) {
-    var pair = args.gwf_object;
+GwfgObjectPair.prototype.parseObject = function (args) {
+    var pair = args.gwfg_object;
     var reader = args.reader;
 
     this.attributes = reader.fetchAttributes(pair, this.required_attrs);
@@ -144,7 +144,7 @@ GwfObjectPair.prototype.parseObject = function (args) {
     return this;
 };
 
-GwfObjectPair.prototype.buildObject = function (args) {
+GwfgObjectPair.prototype.buildObject = function (args) {
     var scene = args.scene;
     var builder = args.builder;
     var source = builder.getOrCreate(this.attributes["id_b"]);
@@ -161,7 +161,7 @@ GwfObjectPair.prototype.buildObject = function (args) {
 
     for (var i = 0; i < edge_points.length; i++) {
         var edge_point = edge_points[i];
-        var point = new SCgg.Vector2(parseFloat(edge_point.x) + GwfObjectController.getXOffset(), parseFloat(edge_point.y) + GwfObjectController.getYOffset());
+        var point = new SCgg.Vector2(parseFloat(edge_point.x) + GwfgObjectController.getXOffset(), parseFloat(edge_point.y) + GwfgObjectController.getYOffset());
 
         points.push(point);
     }
@@ -176,15 +176,15 @@ GwfObjectPair.prototype.buildObject = function (args) {
 
 //contour
 
-var GwfObjectContour = function (args) {
-    GwfObject.call(this, args);
+var GwfgObjectContour = function (args) {
+    GwfgObject.call(this, args);
     this.required_attrs = ["id", "parent"];
 };
 
-GwfObjectContour.prototype = Object.create(GwfObject.prototype);
+GwfgObjectContour.prototype = Object.create(GwfgObject.prototype);
 
-GwfObjectContour.prototype.parseObject = function (args) {
-    var contour = args.gwf_object;
+GwfgObjectContour.prototype.parseObject = function (args) {
+    var contour = args.gwfg_object;
     var reader = args.reader;
 
     this.attributes = reader.fetchAttributes(contour, this.required_attrs);
@@ -200,7 +200,7 @@ GwfObjectContour.prototype.parseObject = function (args) {
     return this;
 };
 
-GwfObjectContour.prototype.buildObject = function (args) {
+GwfgObjectContour.prototype.buildObject = function (args) {
     var scene = args.scene;
     var contour_points = this.attributes["points"];
     var verticies = [];
@@ -209,7 +209,7 @@ GwfObjectContour.prototype.buildObject = function (args) {
         var contour_point = contour_points[i];
         var vertex_x = parseFloat(contour_point.x);
         var vertex_y = parseFloat(contour_point.y);
-        var vertex = new SCgg.Vector3(vertex_x + GwfObjectController.getXOffset(), vertex_y + GwfObjectController.getYOffset(), 0);
+        var vertex = new SCgg.Vector3(vertex_x + GwfgObjectController.getXOffset(), vertex_y + GwfgObjectController.getYOffset(), 0);
 
         verticies.push(vertex);
     }
@@ -226,15 +226,15 @@ GwfObjectContour.prototype.buildObject = function (args) {
     return contour;
 };
 
-var GwfObjectBus = function (args) {
-    GwfObject.call(this, args);
+var GwfgObjectBus = function (args) {
+    GwfgObject.call(this, args);
     this.required_attrs = ["id", "parent", "b_x", "b_y", "e_x", "e_y", "owner", "idtf"];
 };
 
-GwfObjectBus.prototype = Object.create(GwfObject.prototype);
+GwfgObjectBus.prototype = Object.create(GwfgObject.prototype);
 
-GwfObjectBus.prototype.parseObject = function (args) {
-    var bus = args.gwf_object;
+GwfgObjectBus.prototype.parseObject = function (args) {
+    var bus = args.gwfg_object;
     var reader = args.reader;
 
     this.attributes = reader.fetchAttributes(bus, this.required_attrs);
@@ -247,7 +247,7 @@ GwfObjectBus.prototype.parseObject = function (args) {
     this.attributes["e_x"] = parseFloat(this.attributes["e_x"]);
     this.attributes["e_y"] = parseFloat(this.attributes["e_y"]);
 
-    GwfObjectController.fixOffsetOfPoints({x: this.attributes["e_x"], y: this.attributes["e_y"]});
+    GwfgObjectController.fixOffsetOfPoints({x: this.attributes["e_x"], y: this.attributes["e_y"]});
 
     this.id = this.attributes['id'];
 
@@ -257,7 +257,7 @@ GwfObjectBus.prototype.parseObject = function (args) {
     return this;
 };
 
-GwfObjectBus.prototype.buildObject = function (args) {
+GwfgObjectBus.prototype.buildObject = function (args) {
     var scene = args.scene;
     var builder = args.builder;
     var bus = SCgg.Creator.createBus(builder.getOrCreate(this.attributes["owner"]));
@@ -269,11 +269,11 @@ GwfObjectBus.prototype.buildObject = function (args) {
 
     for (var i = 0; i < bus_points.length; i++) {
         var bus_point = bus_points[i];
-        var point = new SCgg.Vector2(parseFloat(bus_point.x) + GwfObjectController.getXOffset(), parseFloat(bus_point.y) + GwfObjectController.getYOffset());
+        var point = new SCgg.Vector2(parseFloat(bus_point.x) + GwfgObjectController.getXOffset(), parseFloat(bus_point.y) + GwfgObjectController.getYOffset());
         points.push(point);
     }
 
-    points.push(new SCgg.Vector2(this.attributes["e_x"] + GwfObjectController.getXOffset(), this.attributes["e_y"] + GwfObjectController.getYOffset()));
+    points.push(new SCgg.Vector2(this.attributes["e_x"] + GwfgObjectController.getXOffset(), this.attributes["e_y"] + GwfgObjectController.getYOffset()));
 
     bus.setPoints(points);
     args.scgg_object = bus;
@@ -287,17 +287,17 @@ GwfObjectBus.prototype.buildObject = function (args) {
     return bus;
 };
 
-var GwfObjectLink = function (args) {
-    GwfObject.call(this, args);
+var GwfgObjectLink = function (args) {
+    GwfgObject.call(this, args);
     this.content = null;
     this.type = -1;
     this.requiredAttrs = ["id", "x", "y", "parent"];
 };
 
-GwfObjectLink.prototype = Object.create(GwfObject.prototype);
+GwfgObjectLink.prototype = Object.create(GwfgObject.prototype);
 
-GwfObjectLink.prototype.parseObject = function (args) {
-    var link = args.gwf_object;
+GwfgObjectLink.prototype.parseObject = function (args) {
+    var link = args.gwfg_object;
     var reader = args.reader;
 
     this.attributes = reader.fetchAttributes(link, this.requiredAttrs);
@@ -308,7 +308,7 @@ GwfObjectLink.prototype.parseObject = function (args) {
 
     this.attributes["x"] = parseFloat(this.attributes["x"]);
     this.attributes["y"] = parseFloat(this.attributes["y"]);
-    GwfObjectController.fixOffsetOfPoints({x: this.attributes["x"], y: this.attributes["y"]});
+    GwfgObjectController.fixOffsetOfPoints({x: this.attributes["x"], y: this.attributes["y"]});
     this.id = this.attributes["id"];
 
     var content = link.getElementsByTagName("content")[0];
@@ -319,10 +319,10 @@ GwfObjectLink.prototype.parseObject = function (args) {
     return this;
 };
 
-GwfObjectLink.prototype.buildObject = function (args) {
+GwfgObjectLink.prototype.buildObject = function (args) {
     var scene = args.scene;
-    var vecX = this.attributes["x"] + GwfObjectController.getXOffset();
-    var vecY = this.attributes["y"] + +GwfObjectController.getYOffset();
+    var vecX = this.attributes["x"] + GwfgObjectController.getXOffset();
+    var vecY = this.attributes["y"] + +GwfgObjectController.getYOffset();
     var vecZ = 0;
     var scgVector = new SCgg.Vector3(vecX, vecY, vecZ);
     var link = SCgg.Creator.createLink(scgVector, '');

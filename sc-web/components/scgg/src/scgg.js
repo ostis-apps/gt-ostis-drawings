@@ -616,7 +616,7 @@ SCgg.Editor.prototype = {
             var open_dialog = document.getElementById("scgg-tool-open-dialog");
             self.scene.clearSelection();
             open_dialog.onchange = function(){
-                return GwfFileLoader.load({
+                return GwfgFileLoader.load({
                     file: open_dialog.files[0],
                     render : self.render});
 
@@ -626,7 +626,7 @@ SCgg.Editor.prototype = {
         });
 
         this.toolSave().click(function() {
-            var blob = new Blob([GwfFileCreate.createFile(self.scene)], {
+            var blob = new Blob([GwfgFileCreate.createFile(self.scene)], {
                 type : "text/plain;charset=utf-8"
             });
             saveAs(blob, "new_file.gwf");

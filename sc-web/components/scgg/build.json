@@ -1,9 +1,9 @@
 {
 	"sources": [
-        "src/gwf-file-creater.js",
-        "src/gwf-file-loader.js",
-        "src/gwf-model-objects.js",
-        "src/gwf-object-info-reader.js",
+        "src/gwfg-file-creater.js",
+        "src/gwfg-file-loader.js",
+        "src/gwfg-model-objects.js",
+        "src/gwfg-object-info-reader.js",
         "src/scgg-keynode-handler.js",
         "src/scgg-object-builder.js",
         "src/scgg.js",

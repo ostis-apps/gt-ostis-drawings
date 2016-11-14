@@ -1,4 +1,4 @@
-GwfFileCreate = {
+GwfgFileCreate = {
 
     scene: null,
     fileString: null,
@@ -117,8 +117,8 @@ GwfFileCreate = {
     },
 
     getTypeObject: function (object) {
-        for (var key in GwfObjectInfoReader.gwf_type_to_scgg_type) {
-            if (GwfObjectInfoReader.gwf_type_to_scgg_type[key] == object.sc_type) {
+        for (var key in GwfgObjectInfoReader.gwfg_type_to_scgg_type) {
+            if (GwfgObjectInfoReader.gwfg_type_to_scgg_type[key] == object.sc_type) {
                 return key
             }
         }
