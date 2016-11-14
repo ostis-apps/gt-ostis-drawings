@@ -123,6 +123,10 @@ SCgg.Editor.prototype = {
         $(graph_name).load('static/components/html/scgg-graph-name-input.html', function() {
             self.bindGraphNameEvents();
             self.updateGraphName();
+
+            if (self.resolveControls){
+                self.resolveControls(graph_name);
+            }
         });
 
         this.scene.event_selection_changed = function() {
@@ -800,22 +804,27 @@ SCgg.Editor.prototype = {
         var inputSelector = '#graph-name-' + containerId + ' input';
         var nameAddr = sandbox.graphNodeAddr ? sandbox.graphNodeAddr : sandbox.addr;
 
-        window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
-            [   nameAddr,
-                sc_type_arc_common | sc_type_const,
-                sc_type_link,
-                sc_type_arc_pos_const_perm,
-                window.scKeynodes.nrel_main_idtf
-            ]
-        ).done(function(results) {
-            window.sctpClient.get_link_content(results[0][2],'string').done(function(content) {
-                $(inputSelector).val(content);
-            });
-        }).fail(function() {
-            $(inputSelector).val('');
-        }).always(function() {
+        if (sandbox.loadGraph){
+            window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
+                [   nameAddr,
+                    sc_type_arc_common | sc_type_const,
+                    sc_type_link,
+                    sc_type_arc_pos_const_perm,
+                    window.scKeynodes.nrel_main_idtf
+                ]
+            ).done(function(results) {
+                window.sctpClient.get_link_content(results[0][2],'string').done(function(content) {
+                    $(inputSelector).val(content);
+                });
+            }).fail(function() {
+                // console.log("not find nrel_main_idtf");
+                $(inputSelector).val('');
+            }).always(function() {
+                self.setPlaceholder(inputSelector);
+            })
+        } else {
             self.setPlaceholder(inputSelector);
-        })
+        }
     },
 
     setPlaceholder: function(graphNameSelector) {

@@ -46,6 +46,7 @@ var createScggComponent = function(sandbox, callback){
     }
     function findCurrentVersionGraph(callback) {
             var rootNode = $("#" + sandbox.container + ' .scs-scn-keyword > .scs-scn-element').attr('sc_addr');
+            var decompositionNode = null;
             // Find node tuple
             window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5A_A_F_A_F,
                 [   sc_type_node | sc_type_const | sc_type_node_tuple,
@@ -55,10 +56,8 @@ var createScggComponent = function(sandbox, callback){
                     SCggKeynodesHandler.scKeynodes.nrel_temporal_decomposition
                 ]
             ).done(function (results) {
+                decompositionNode = results[0][0];
                 // Find current_version graph
-                sandbox.decompositionNodeAddr = results[0][0];
-                sandbox.graphNodeAddr = rootNode;
-
                 window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
                     [   results[0][0],
                         sc_type_arc_pos_const_perm,
@@ -70,6 +69,8 @@ var createScggComponent = function(sandbox, callback){
                     $('#' + sandbox.container).load('static/components/html/scgg-choose-new-or-load.html', function () {
                         loadGraphOrCreateNew(function () {
                                 sandbox.addr = results[0][2];
+                                sandbox.graphNodeAddr = rootNode;
+                                sandbox.decompositionNodeAddr = decompositionNode;
                                 callback(true);
                             }, function () {
                                 callback(false);
@@ -84,12 +85,46 @@ var createScggComponent = function(sandbox, callback){
                 callback(false);
             });
     }
+    function findGraphAndDecomposition(addr, callback) {
+        var decompositionNode = null;
+
+        window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5A_A_F_A_F,
+            [   sc_type_node | sc_type_const | sc_type_node_tuple,
+                sc_type_arc_pos_const_perm,
+                addr,
+                sc_type_arc_pos_const_perm,
+                SCggKeynodesHandler.scKeynodes.rrel_current_version
+            ]
+        ).done(function (results) {
+            decompositionNode = results[0][0];
+            window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
+                [   decompositionNode,
+                    sc_type_arc_common | sc_type_const,
+                    sc_type_node,
+                    sc_type_arc_pos_const_perm,
+                    SCggKeynodesHandler.scKeynodes.nrel_temporal_decomposition
+                ]
+            ).done(function (results) {
+                sandbox.graphNodeAddr = results[0][2];
+                sandbox.decompositionNodeAddr = decompositionNode;
+                callback();
+            }).fail(function () {
+                //console.log("Not find rootNode");
+                callback();
+            });
+        }).fail(function () {
+            //console.log("Not find decompositionNode");
+            callback();
+        });
+    }
 
     if (findCounterInSCn() !== undefined){
         $('#' + sandbox.container).load('static/components/html/scgg-choose-new-or-load.html', function () {
             loadGraphOrCreateNew(function () {
                 sandbox.addr = findCounterInSCn();
-                callback(true);
+                findGraphAndDecomposition(sandbox.addr, function () {
+                    callback(true);
+                });
             }, function () {
                 callback(false);
             });
@@ -301,7 +336,8 @@ var scggViewerWindow = function(sandbox, load) {
         this.sandbox.updateContent();
     }
 
-    this.window_id = this.domContainer.substring(7) + '_' + this.sandbox.command_state.format;
+    var startIdIndex = 7;
+    this.window_id = this.domContainer.substring(startIdIndex) + '_' + this.sandbox.command_state.format;
     SCWeb.ui.KeyboardHandler.subscribeWindow(this.window_id, this.editor.keyboardCallbacks);
 };
 
