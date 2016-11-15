@@ -296,17 +296,26 @@ function scggScStructTranslator(_editor, _sandbox) {
                                 editor.render.sandbox.addr
                             ]).done(function (results) {
                             //could be a prob with prev iterator...
-                            window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
-                                [results[0][0],
-                                    sc_type_arc_common | sc_type_const,
-                                    sc_type_node | sc_type_const,
-                                    sc_type_arc_pos_const_perm,
-                                    SCggKeynodesHandler.scKeynodes.nrel_temporal_decomposition
-                                ]).done(function (results) {
-                                editor.render.sandbox.decompositionNodeAddr = results[0][0];
-                                editor.render.sandbox.graphNodeAddr = results[0][2];
-                                dfdFind.resolve();
-                            }).fail(dfdFind.reject);
+                            var forFail = true;
+                            for (var i = 0; i < results.length; ++i) {
+                                window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
+                                    [results[i][0],
+                                        sc_type_arc_common | sc_type_const,
+                                        sc_type_node | sc_type_const,
+                                        sc_type_arc_pos_const_perm,
+                                        SCggKeynodesHandler.scKeynodes.nrel_temporal_decomposition
+                                    ]).done(function (results) {
+                                    editor.render.sandbox.decompositionNodeAddr = results[0][0];
+                                    editor.render.sandbox.graphNodeAddr = results[0][2];
+                                    dfdFind.resolve();
+                                    forFail = false;
+                                });
+                                if (!forFail) break;
+                            }
+                            if (forFail) {
+                                dfdFind.reject();
+                            }
+
                         }).fail(dfdFind.reject);
 
 
@@ -367,9 +376,6 @@ function scggScStructTranslator(_editor, _sandbox) {
                                 window.sctpClient.create_arc(sc_type_arc_pos_const_perm, SCggKeynodesHandler.scKeynodes.sc_garbage, results[0][3])
                                     .done(dfdDeleteCurrent.resolve)
                                     .fail(dfdDeleteCurrent.reject);
-                                // window.sctpClient.erase_element(results[0][3])
-                                //     .done(dfdDeleteCurrent.resolve)
-                                //     .fail(dfdDeleteCurrent.reject);
                             }).fail(dfdDeleteCurrent.resolve);
 
                             return dfdDeleteCurrent.promise();
@@ -405,29 +411,23 @@ function scggScStructTranslator(_editor, _sandbox) {
                     }
                     else {
                         if (editor.render.sandbox.graphNodeAddr === null) {
-                            findDecomposition().done(function () {
-                                addCurrentGraph(addrStruct).done(dfdTranslateDecomposition.resolve)
-                                    .fail(dfdTranslateDecomposition.reject);
-                            }).fail(function () {
-                                window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
-                                    [editor.render.sandbox.addr,
-                                        sc_type_arc_common | sc_type_const,
-                                        sc_type_link,
-                                        sc_type_arc_pos_const_perm,
-                                        window.scKeynodes.nrel_main_idtf
-                                    ]).done(function (results) {
-                                    window.sctpClient.create_arc(sc_type_arc_pos_const_perm, SCggKeynodesHandler.scKeynodes.sc_garbage, results[0][1])
-                                        .done(function () {
-                                            createDecomposition().done(function () {
-                                                addCurrentGraph(editor.render.sandbox.addr).done(function () {
-                                                    addCurrentGraph(addrStruct).done(dfdTranslateDecomposition.resolve)
-                                                    .fail(dfdTranslateDecomposition.reject)
-                                                }).fail(dfdTranslateDecomposition.reject)
-                                            })
-                                        })
-                                        .fail(dfdTranslateDecomposition.reject);
-                                    }).fail(dfdTranslateDecomposition.reject);
-                            });
+                            window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
+                                [editor.render.sandbox.addr,
+                                    sc_type_arc_common | sc_type_const,
+                                    sc_type_link,
+                                    sc_type_arc_pos_const_perm,
+                                    window.scKeynodes.nrel_main_idtf
+                                ]).done(function (results) {
+                                for (var i = 0; i < results.length; ++i) {
+                                    window.sctpClient.create_arc(sc_type_arc_pos_const_perm, SCggKeynodesHandler.scKeynodes.sc_garbage, results[i][1]);
+                                };
+                                createDecomposition().done(function () {
+                                    addCurrentGraph(editor.render.sandbox.addr).done(function () {
+                                        addCurrentGraph(addrStruct).done(dfdTranslateDecomposition.resolve)
+                                            .fail(dfdTranslateDecomposition.reject)
+                                    }).fail(dfdTranslateDecomposition.reject)
+                                })
+                            }).fail(dfdTranslateDecomposition.reject);
                         }
                         else {
                             addCurrentGraph(addrStruct).done(dfdTranslateDecomposition.resolve)
