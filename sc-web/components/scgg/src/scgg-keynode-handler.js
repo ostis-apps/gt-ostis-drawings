@@ -5,6 +5,7 @@ SCggKeynodesHandler = {
         'nrel_gt_idtf',
         'concept_graph',
         'nrel_weight',
+        'sc_garbage',
         'nrel_temporal_decomposition',
         'rrel_current_version',
         'rrel_vertex',

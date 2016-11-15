@@ -1,47 +1,47 @@
 function SCggFromScImpl(_sandbox, _editor, aMapping) {
-    
+
     var self = this,
         arcMapping = aMapping,
         tasks = [],
-        timeout = 0, 
+        timeout = 0,
         batch = null,
         tasksLength = 0,
         editor = _editor,
         sandbox = _sandbox;
 
     function resolveIdtf(addr, obj) {
-        if (obj instanceof SCgg.ModelNode){
+        if (obj instanceof SCgg.ModelNode) {
             window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
-                [   addr,
+                [addr,
                     sc_type_arc_common | sc_type_const,
                     sc_type_link,
                     sc_type_arc_pos_const_perm,
                     SCggKeynodesHandler.scKeynodes.nrel_gt_idtf
                 ]
-            ).done(function(results) {
-                window.sctpClient.get_link_content(results[0][2],'string').done(function(content) {
+            ).done(function (results) {
+                window.sctpClient.get_link_content(results[0][2], 'string').done(function (content) {
                     obj.setText(content);
                 });
-            }).fail(function(r){
+            }).fail(function (r) {
                 //console.log("not find nrel_gt_idtf in SCggFromScImpl");
                 // Try set nrel_main_idtf
-                sandbox.getIdentifier(addr, function(idtf) {
+                sandbox.getIdentifier(addr, function (idtf) {
                     obj.setText(idtf);
                 });
             });
-        } else if (obj instanceof SCgg.ModelEdge){
+        } else if (obj instanceof SCgg.ModelEdge) {
             window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
-                [   addr,
+                [addr,
                     sc_type_arc_common | sc_type_const,
                     sc_type_link,
                     sc_type_arc_pos_const_perm,
                     SCggKeynodesHandler.scKeynodes.nrel_weight
                 ]
-            ).done(function(results) {
-                window.sctpClient.get_link_content(results[0][2],'string').done(function(content) {
-                        obj.setText(content);
+            ).done(function (results) {
+                window.sctpClient.get_link_content(results[0][2], 'string').done(function (content) {
+                    obj.setText(content);
                 });
-            }).fail(function(r){
+            }).fail(function (r) {
                 //console.log("not find nrel_weight in SCggFromScImpl");
             });
         }
@@ -50,9 +50,9 @@ function SCggFromScImpl(_sandbox, _editor, aMapping) {
     function randomPos() {
         return new SCgg.Vector3(100 * Math.random(), 100 * Math.random(), 0);
     }
-    
-    var doBatch = function() {
-        
+
+    var doBatch = function () {
+
         if (!batch) {
             if (!tasks.length || tasksLength === tasks.length) {
                 window.clearInterval(self.timeout);
@@ -94,51 +94,52 @@ function SCggFromScImpl(_sandbox, _editor, aMapping) {
                         resolveIdtf(addr, model_edge);
                     }
                 } else if (type & sc_type_link) {
-                    var containerId = 'scgg-window-' + sandbox.addr + '-' + addr + '-' + new Date().getUTCMilliseconds();;
+                    var containerId = 'scgg-window-' + sandbox.addr + '-' + addr + '-' + new Date().getUTCMilliseconds();
+                    ;
                     var model_link = SCgg.Creator.createLink(randomPos(), containerId);
                     editor.scene.appendLink(model_link);
                     editor.scene.objects[addr] = model_link;
                     model_link.setScAddr(addr);
                     model_link.setObjectState(SCggObjectState.FromMemory);
                 }
-                
+
             }
 
             editor.render.update();
             editor.scene.layout();
-            
+
             batch = null;
         }
     };
-    
-    var addTask = function(args) {
+
+    var addTask = function (args) {
         tasks.push(args);
         if (!self.timeout) {
             self.timeout = window.setInterval(doBatch, 10);
         }
         doBatch();
     };
-    
-    var removeElement = function(addr) {
+
+    var removeElement = function (addr) {
         var obj = editor.scene.getObjectByScAddr(addr);
         if (obj)
             editor.scene.deleteObjects([obj]);
         editor.render.update();
         editor.scene.layout();
     };
-    
+
     return {
-        update: function(added, element, arc) {
-            
+        update: function (added, element, arc) {
+
             if (added) {
                 window.sctpClient.get_arc(arc).done(function (r) {
                     var el = r[1];
-                    window.sctpClient.get_element_type(el).done(function(t) {
+                    window.sctpClient.get_element_type(el).done(function (t) {
                         arcMapping[arc] = el;
                         if (t & (sc_type_node | sc_type_link)) {
                             addTask([el, t]);
                         } else if (t & sc_type_arc_mask) {
-                            window.sctpClient.get_arc(el).done(function(r) {
+                            window.sctpClient.get_arc(el).done(function (r) {
                                 addTask([el, t, r[0], r[1]]);
                             });
                         } else
@@ -152,7 +153,7 @@ function SCggFromScImpl(_sandbox, _editor, aMapping) {
             }
         }
     };
-    
+
 };
 
 // ----------------------------------------------------------------------
@@ -165,31 +166,31 @@ function scggScStructTranslator(_editor, _sandbox) {
         processBatch = false,
         taskDoneCount = 0,
         arcMapping = {};
-    
+
     if (!sandbox.is_struct)
         throw "Snadbox must to work with sc-struct";
-    
+
     var scggFromSc = new SCggFromScImpl(sandbox, editor, arcMapping);
-    
-    var appendToConstruction = function(obj) {
+
+    var appendToConstruction = function (obj) {
         var dfd = new jQuery.Deferred();
-        window.sctpClient.create_arc(sc_type_arc_pos_const_perm, sandbox.addr, obj.sc_addr).done(function(addr) {
+        window.sctpClient.create_arc(sc_type_arc_pos_const_perm, sandbox.addr, obj.sc_addr).done(function (addr) {
             arcMapping[addr] = obj;
             dfd.resolve();
-        }).fail(function() {
+        }).fail(function () {
             dfd.reject();
         });
         return dfd.promise();
     };
-    
+
     var currentLanguage = sandbox.getCurrentLanguage();
-    var translateIdentifier = function(obj) {
+    var translateIdentifier = function (obj) {
         var dfd = new jQuery.Deferred();
         if (currentLanguage) {
-            window.sctpClient.create_link().done(function(link_addr) {
+            window.sctpClient.create_link().done(function (link_addr) {
                 window.sctpClient.set_link_content(link_addr, obj.text).done(function () {
-                    window.sctpClient.create_arc(sc_type_arc_common | sc_type_const, obj.sc_addr, link_addr).done(function(arc_addr) {
-                        window.sctpClient.create_arc(sc_type_arc_pos_const_perm, currentLanguage, link_addr).done(function() {
+                    window.sctpClient.create_arc(sc_type_arc_common | sc_type_const, obj.sc_addr, link_addr).done(function (arc_addr) {
+                        window.sctpClient.create_arc(sc_type_arc_pos_const_perm, currentLanguage, link_addr).done(function () {
                             window.sctpClient.create_arc(sc_type_arc_pos_const_perm, window.scKeynodes.nrel_main_idtf, arc_addr)
                                 .done(dfd.resolve)
                                 .fail(dfd.reject);
@@ -197,7 +198,7 @@ function scggScStructTranslator(_editor, _sandbox) {
                     }).fail(dfd.reject);
                 }).fail(dfd.reject);
             }).fail(dfd.reject);
-            
+
         } else {
             dfd.reject();
         }
@@ -217,36 +218,35 @@ function scggScStructTranslator(_editor, _sandbox) {
         }).fail(dfd.reject);
         return dfd.promise();
     };
-    
+
     return r = {
-        mergedWithMemory: function(obj) {
+        mergedWithMemory: function (obj) {
             if (!obj.sc_addr)
                 throw "Invalid parameter";
-            
+
             window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_3F_A_F,
-                                               [sandbox.addr, sc_type_arc_pos_const_perm, obj.sc_addr]).done(function(r) {
+                [sandbox.addr, sc_type_arc_pos_const_perm, obj.sc_addr]).done(function (r) {
                 if (r.length == 0) {
                     appendToConstruction(obj);
                 }
             });
         },
-        updateFromSc: function(added, element, arc) {
+        updateFromSc: function (added, element, arc) {
             scggFromSc.update(added, element, arc);
         },
 
-translateToSc: function(callback) {
-                       //wtf
+        translateToSc: function (callback) {
             if (!sandbox.is_struct)
                 throw "Invalid state. Trying translate sc-link into sc-memory";
 
-            var addrStruct = undefined;
-            
-            var appendObjects = function() {
-                $.when.apply($, objects.map(function(obj) {
+            var addrStruct;
+
+            var appendObjects = function () {
+                $.when.apply($, objects.map(function (obj) {
                     return appendToConstruction(obj);
-                })).done(function() {
+                })).done(function () {
                     callback(true);
-                }).fail(function() {
+                }).fail(function () {
                     callback(false);
                 });
             };
@@ -264,234 +264,240 @@ translateToSc: function(callback) {
             var objects = [];
 
 
-            var translateStruct = function() {
+            var translateStruct = function () {
                 console.log("translateStruct");
                 var dfd = new jQuery.Deferred();
-                var createNodeGraph = function() {
+                var createNodeGraph = function () {
                     var dfdAddrStruct = new jQuery.Deferred();
 
-                    window.sctpClient.create_node(sc_type_node | sc_type_const | sc_type_node_struct).done(function (nodeNewGraph){
+                    window.sctpClient.create_node(sc_type_node | sc_type_const | sc_type_node_struct).done(function (nodeNewGraph) {
                         addrStruct = nodeNewGraph;
 
                         window.sctpClient.create_arc(sc_type_arc_pos_const_perm, SCggKeynodesHandler.scKeynodes.concept_graph, nodeNewGraph)
-                        .done(dfdAddrStruct.resolve)
-                        .fail(dfdAddrStruct.reject);;
+                            .done(dfdAddrStruct.resolve)
+                            .fail(dfdAddrStruct.reject);
 
                     });
-                        return dfdAddrStruct.promise();
+                    return dfdAddrStruct.promise();
                 };
 
-                var translateTemporalDecomposition = function() {
+                var translateTemporalDecomposition = function () {
                     var dfdTranslateDecomposition = new jQuery.Deferred();
                     var graphName = editor.getGraphName();
-                    var graphNameAddr = editor.render.sandbox.addr;
-
-                    var graphDecomposition =  new SCgg.ModelNode({
-                                text: graphName
-                                // sc_addr: graphDecompositionAddr
-                            });
 
                     // var temporary_entity;
-                    
-                        var findDecomposition = function(){
-                            var dfdFind = new jQuery.Deferred();
 
-                            window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_3A_A_F,
-                            [   sc_type_node | sc_type_const | sc_type_node_tuple,
+                    var findDecomposition = function () {
+                        var dfdFind = new jQuery.Deferred();
+
+                        window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_3A_A_F,
+                            [sc_type_node | sc_type_const | sc_type_node_tuple,
                                 sc_type_arc_pos_const_perm,
-                                editor.render.sandbox.addr,
-                            ]).done(function(results){
-                                //could be a prob with prev iterator...
-                                window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
-                                [   results[0][0],
+                                editor.render.sandbox.addr
+                            ]).done(function (results) {
+                            //could be a prob with prev iterator...
+                            window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
+                                [results[0][0],
                                     sc_type_arc_common | sc_type_const,
                                     sc_type_node | sc_type_const,
                                     sc_type_arc_pos_const_perm,
                                     SCggKeynodesHandler.scKeynodes.nrel_temporal_decomposition
-                                ]).done(function(results){
-                                    editor.render.sandbox.decompositionNodeAddr = results[0][0];
-                                    editor.render.sandbox.graphNodeAddr = results[0][2];
-                                    dfdFind.resolve();
-                                }).fail(dfdFind.reject);
+                                ]).done(function (results) {
+                                editor.render.sandbox.decompositionNodeAddr = results[0][0];
+                                editor.render.sandbox.graphNodeAddr = results[0][2];
+                                dfdFind.resolve();
                             }).fail(dfdFind.reject);
+                        }).fail(dfdFind.reject);
 
-                            
-                            return dfdFind.promise();                        
-                        };
 
-                        var createDecomposition = function() {
-                            editor.render.sandbox.loadGraph = true; //?
+                        return dfdFind.promise();
+                    };
 
-                            var dfdCreate = new jQuery.Deferred();
+                    var createDecomposition = function () {
+                        editor.render.sandbox.loadGraph = true;
 
-                            window.sctpClient.create_node(sc_type_node | sc_type_const).done(function (graphDecompositionAddr) {
-                            
-                                graphDecomposition.sc_addr = graphDecompositionAddr;
-                                window.sctpClient.create_arc(sc_type_arc_pos_const_perm, SCggKeynodesHandler.scKeynodes.concept_graph, graphDecompositionAddr);
-                            
-                                    window.sctpClient.create_node(sc_type_node | sc_type_const | sc_type_node_tuple).done(function (graphDecompositionTupleAddr) {
-                                        editor.render.sandbox.decompositionNodeAddr = graphDecompositionTupleAddr;
-                                        editor.render.sandbox.graphNodeAddr = graphDecompositionAddr;
-                                        window.sctpClient.create_arc(sc_type_arc_common | sc_type_const, graphDecompositionTupleAddr, graphDecomposition.sc_addr).done(function(arcTemporalDecomposition) {
-                                            window.sctpClient.create_arc(sc_type_arc_pos_const_perm, SCggKeynodesHandler.scKeynodes.nrel_temporal_decomposition, arcTemporalDecomposition).done(function(){
-                                                        if ((graphDecomposition.text !== '') && (graphDecomposition.text !== null)) {
-                                                        // translateIdentifier(graphDecomposition)
-                                                            window.sctpClient.create_link().done(function (link_addr) {
-                                                                window.sctpClient.set_link_content(link_addr, graphDecomposition.text).done(function () {
-                                                                    window.sctpClient.create_arc(sc_type_arc_common | sc_type_const, graphDecomposition.sc_addr, link_addr).done(function (arc_addr) {
-                                                                        window.sctpClient.create_arc(sc_type_arc_pos_const_perm, window.scKeynodes.nrel_main_idtf, arc_addr)
-                                                                        .done(dfdCreate.resolve)
-                                                                        .fail(dfdCreate.reject);
-                                                                    }).fail(dfdCreate.reject);
-                                                                }).fail(dfdCreate.reject);
-                                                            }).fail(dfdCreate.reject);
-                                                            }
-                                                        else {
-                                                            dfdCreate.resolve();
-                                                            }
-                                                        })
-                                                    .fail(dfdCreate.reject);
-                                        }).fail(dfdCreate.reject);
-                                    }).fail(dfdCreate.reject);
+                        var dfdCreate = new jQuery.Deferred();
+
+                        window.sctpClient.create_node(sc_type_node | sc_type_const).done(function (graphDecompositionAddr) {
+
+                            window.sctpClient.create_arc(sc_type_arc_pos_const_perm, SCggKeynodesHandler.scKeynodes.concept_graph, graphDecompositionAddr);
+
+                            window.sctpClient.create_node(sc_type_node | sc_type_const | sc_type_node_tuple).done(function (graphDecompositionTupleAddr) {
+                                editor.render.sandbox.decompositionNodeAddr = graphDecompositionTupleAddr;
+                                editor.render.sandbox.graphNodeAddr = graphDecompositionAddr;
+                                window.sctpClient.create_arc(sc_type_arc_common | sc_type_const, graphDecompositionTupleAddr, graphDecompositionAddr).done(function (arcTemporalDecomposition) {
+                                    window.sctpClient.create_arc(sc_type_arc_pos_const_perm, SCggKeynodesHandler.scKeynodes.nrel_temporal_decomposition, arcTemporalDecomposition).done(function () {
+                                        if ((graphName !== '') && (graphName !== null)) {
+                                            window.sctpClient.create_link().done(function (link_addr) {
+                                                window.sctpClient.set_link_content(link_addr, graphName).done(function () {
+                                                    window.sctpClient.create_arc(sc_type_arc_common | sc_type_const, graphDecompositionAddr, link_addr).done(function (arc_addr) {
+                                                        window.sctpClient.create_arc(sc_type_arc_pos_const_perm, window.scKeynodes.nrel_main_idtf, arc_addr)
+                                                            .done(dfdCreate.resolve)
+                                                            .fail(dfdCreate.reject);
+                                                    }).fail(dfdCreate.reject);
+                                                }).fail(dfdCreate.reject);
+                                            }).fail(dfdCreate.reject);
+                                        }
+                                        else {
+                                            dfdCreate.resolve();
+                                        }
+                                    })
+                                        .fail(dfdCreate.reject);
+                                }).fail(dfdCreate.reject);
                             }).fail(dfdCreate.reject);
-                            
-                             return dfdCreate.promise();
+                        }).fail(dfdCreate.reject);
+
+                        return dfdCreate.promise();
+                    };
+
+
+                    var addCurrentGraph = function (graphAddr) {
+                        var dfdAddCurrentGraph = new jQuery.Deferred();
+
+                        var deleteCurrent = function () {
+                            var dfdDeleteCurrent = new jQuery.Deferred();
+
+                            window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
+                                [editor.render.sandbox.decompositionNodeAddr,
+                                    sc_type_arc_pos_const_perm,
+                                    sc_type_node | sc_type_const,
+                                    sc_type_arc_pos_const_perm,
+                                    SCggKeynodesHandler.scKeynodes.rrel_current_version
+                                ]).done(function (results) {
+                                window.sctpClient.create_arc(sc_type_arc_pos_const_perm, SCggKeynodesHandler.scKeynodes.sc_garbage, results[0][3])
+                                    .done(dfdDeleteCurrent.resolve)
+                                    .fail(dfdDeleteCurrent.reject);
+                                // window.sctpClient.erase_element(results[0][3])
+                                //     .done(dfdDeleteCurrent.resolve)
+                                //     .fail(dfdDeleteCurrent.reject);
+                            }).fail(dfdDeleteCurrent.resolve);
+
+                            return dfdDeleteCurrent.promise();
                         };
-                    
 
-                            var addCurrentGraph = function() {
-                                var dfdAddCurrentGraph = new jQuery.Deferred();
+                        var addCurrent = function () {
+                            var addCurrent = new jQuery.Deferred();
 
-                                var deleteCurrent = function (){
-                                    var dfdDeleteCurrent = new jQuery.Deferred();
+                            window.sctpClient.create_arc(sc_type_arc_pos_const_perm, editor.render.sandbox.decompositionNodeAddr, graphAddr).done(function (arcSysIdtf) {
+                                window.sctpClient.create_arc(sc_type_arc_pos_const_perm, SCggKeynodesHandler.scKeynodes.rrel_current_version, arcSysIdtf)
+                                    .done(function () {
+                                        addCurrent.resolve();
+                                    }).fail(addCurrent.reject);
+                            }).fail(addCurrent.reject);
 
-                                    window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
-                                        [   editor.render.sandbox.decompositionNodeAddr,
-                                            sc_type_arc_pos_const_perm,
-                                            sc_type_node | sc_type_const,
-                                            sc_type_arc_pos_const_perm,
-                                            SCggKeynodesHandler.scKeynodes.rrel_current_version
-                                        ]).done(function(results){ 
-                                            SCWeb.core.Server.resolveScAddr(['sc_garbage'], function (keynodes) {     
-                                                window.sctpClient.create_arc(sc_type_arc_pos_const_perm, keynodes.sc_garbage, results[0][3])
-                                                .done(dfdDeleteCurrent.resolve)
-                                                .fail(dfdDeleteCurrent.reject);
-                                            });
-                                            window.sctpClient.erase_element(results[0][2]).done(dfdDeleteCurrent.resolve)
-                                            .fail(dfdDeleteCurrent.reject);
-                                        }).fail(dfdDeleteCurrent.resolve);
+                            return addCurrent.promise();
+                        };
 
-                                    return dfdDeleteCurrent.promise();
-                                }
+                        deleteCurrent().always(function () {
+                            addCurrent()
+                                .done(dfdAddCurrentGraph.resolve)
+                                .fail(dfdAddCurrentGraph.reject);
+                        });
 
-                                var addCurrent = function(){
-                                    var addCurrent = new jQuery.Deferred();
+                        return dfdAddCurrentGraph.promise();
+                    };
 
-                                        window.sctpClient.create_arc(sc_type_arc_pos_const_perm, editor.render.sandbox.decompositionNodeAddr, addrStruct).done(function (arcSysIdtf){
-                                            window.sctpClient.create_arc(sc_type_arc_pos_const_perm, SCggKeynodesHandler.scKeynodes.rrel_current_version, arcSysIdtf)
-                                            .done(function(){
-                                                addCurrent.resolve();
-                                            }).fail(addCurrent.reject);        
-                                        }).fail(addCurrent.reject);
-
-                                    return addCurrent.promise();
-                                }
-
-                                deleteCurrent().always(function(){
-                                    addCurrent()
-                                    .done(dfdAddCurrentGraph.resolve)
-                                    .fail(dfdAddCurrentGraph.reject);
-                                });
-
-                                return dfdAddCurrentGraph.promise();
-                            };
-
-                           
-                       // findOrCreateDecomposition().done(dfdTranslateDecomposition.resolve);
-                        if (!editor.render.sandbox.loadGraph){
-                        createDecomposition().done(function() {
-                            addCurrentGraph().done(dfdTranslateDecomposition.resolve)
-                            .fail(dfdTranslateDecomposition.reject);
-                        }).fail(dfdTranslateDecomposition.reject);
-                       }
-                        else{
-                        if (editor.render.sandbox.graphNodeAddr === null){
-                            findDecomposition().done(function(){
-                                addCurrentGraph().done(dfdTranslateDecomposition.resolve)
+                    if (!editor.render.sandbox.loadGraph) {
+                        createDecomposition().done(function () {
+                            addCurrentGraph(addrStruct).done(dfdTranslateDecomposition.resolve)
                                 .fail(dfdTranslateDecomposition.reject);
                         }).fail(dfdTranslateDecomposition.reject);
-                            }
+                    }
+                    else {
+                        if (editor.render.sandbox.graphNodeAddr === null) {
+                            findDecomposition().done(function () {
+                                addCurrentGraph(addrStruct).done(dfdTranslateDecomposition.resolve)
+                                    .fail(dfdTranslateDecomposition.reject);
+                            }).fail(function () {
+                                window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
+                                    [editor.render.sandbox.addr,
+                                        sc_type_arc_common | sc_type_const,
+                                        sc_type_link,
+                                        sc_type_arc_pos_const_perm,
+                                        window.scKeynodes.nrel_main_idtf
+                                    ]).done(function (results) {
+                                    window.sctpClient.create_arc(sc_type_arc_pos_const_perm, SCggKeynodesHandler.scKeynodes.sc_garbage, results[0][1])
+                                        .done(function () {
+                                            createDecomposition().done(function () {
+                                                addCurrentGraph(editor.render.sandbox.addr).done(function () {
+                                                    addCurrentGraph(addrStruct).done(dfdTranslateDecomposition.resolve)
+                                                    .fail(dfdTranslateDecomposition.reject)
+                                                }).fail(dfdTranslateDecomposition.reject)
+                                            })
+                                        })
+                                        .fail(dfdTranslateDecomposition.reject);
+                                    }).fail(dfdTranslateDecomposition.reject);
+                            });
+                        }
                         else {
-                                addCurrentGraph().done(dfdTranslateDecomposition.resolve)
+                            addCurrentGraph(addrStruct).done(dfdTranslateDecomposition.resolve)
                                 .fail(dfdTranslateDecomposition.reject);
-                            }
-                        }   
-                    
+                        }
+                    }
+
 
                     return dfdTranslateDecomposition.promise();
-                }
+                };
 
-                createNodeGraph().done(function(){
-                            translateTemporalDecomposition()
-                            .done(dfd.resolve)
-                            .fail(dfd.reject)
-                            });
+                createNodeGraph().done(function () {
+                    translateTemporalDecomposition()
+                        .done(dfd.resolve)
+                        .fail(dfd.reject)
+                });
 
                 return dfd.promise();
             };
 
-            var translateNodes = function(){
+            var translateNodes = function () {
                 console.log("translateNodes");
                 var dfd = new jQuery.Deferred();
-                
-                var implFunc = function(node){
-                    var dfdNode = new jQuery.Deferred();
-                        window.sctpClient.create_node(sc_type_node | sc_type_const).done(function (nodeAddr) {
 
-                            node.setScAddr(nodeAddr);
-                            window.sctpClient.create_arc(sc_type_arc_pos_const_perm, addrStruct, nodeAddr).done(function (arcSystemIdentifier){
-                                window.sctpClient.create_arc(sc_type_arc_pos_const_perm, SCggKeynodesHandler.scKeynodes.rrel_vertex, arcSystemIdentifier)
+                var implFunc = function (node) {
+                    var dfdNode = new jQuery.Deferred();
+                    window.sctpClient.create_node(sc_type_node | sc_type_const).done(function (nodeAddr) {
+
+                        node.setScAddr(nodeAddr);
+                        window.sctpClient.create_arc(sc_type_arc_pos_const_perm, addrStruct, nodeAddr).done(function (arcSystemIdentifier) {
+                            window.sctpClient.create_arc(sc_type_arc_pos_const_perm, SCggKeynodesHandler.scKeynodes.rrel_vertex, arcSystemIdentifier)
                                 .done(dfdNode.resolve)
                                 .fail(dfdNode.reject);
-                                //add idtf changed 
+                            //add idtf changed
                             if ((node.text !== '') && (node.text !== null) && (node.text !== undefined)) {
                                 translateGtIdentifier(node)
-                                .done(dfdNode.resolve)
-                                .fail(dfdNode.reject);
+                                    .done(dfdNode.resolve)
+                                    .fail(dfdNode.reject);
                             }
                             else {
                                 dfdNode.resolve();
 
                             }
-                            
-                            })
-                            //leave it for me right now :D
-                            .fail(function() {
-                                console.log("WTF THIS MISTAKE " + addrStruct + " " + nodeAddr )
-                            });
-                        });
-                        return dfdNode.promise();
-                }
+
+                        })
+                            .fail(dfdNode.reject);
+                    });
+                    return dfdNode.promise();
+                };
 
                 var funcs = [];
-                for (var i = 0; i < nodes.length; ++i){
-                    funcs.push(fQueue.Func(implFunc, [ nodes[i] ]));
+                for (var i = 0; i < nodes.length; ++i) {
+                    funcs.push(fQueue.Func(implFunc, [nodes[i]]));
                 }
                 fQueue.Queue.apply(this, funcs).done(dfd.resolve).fail(dfd.reject);
 
                 return dfd.promise();
-            }
-            
+            };
 
-            var translateEdges = function(){
+
+            var translateEdges = function () {
                 console.log("translateEdges");
                 var dfd = new jQuery.Deferred();
                 var edges = editor.scene.edges.slice();
-                
+
                 var edgesNew = [];
                 var translatedCount = 0;
-                function doIteration(){
-                    
+
+                function doIteration() {
+
 
                     function newxIteration() {
                         if (edges.length === 0) {
@@ -504,7 +510,7 @@ translateToSc: function(callback) {
                                 window.setTimeout(doIteration, 0);
                             }
                         }
-                        else 
+                        else
                             window.setTimeout(doIteration, 0);
                     }
 
@@ -512,33 +518,32 @@ translateToSc: function(callback) {
 
                     var src = edge.source.sc_addr;
                     var trg = edge.target.sc_addr;
-                    var createOrEdge = function(src,target)
-                    {
+                    var createOrEdge = function (src, target) {
                         var dfdEdge = new jQuery.Deferred();
-                        window.sctpClient.create_arc(sc_type_arc_common | sc_type_const, src, target).done(function(r){
+                        window.sctpClient.create_arc(sc_type_arc_common | sc_type_const, src, target).done(function (r) {
                             edge.setScAddr(r);
-                            window.sctpClient.create_arc(sc_type_arc_pos_const_perm, addrStruct, r).done(function (arcSystemIdentifier){
+                            window.sctpClient.create_arc(sc_type_arc_pos_const_perm, addrStruct, r).done(function (arcSystemIdentifier) {
                                 window.sctpClient.create_arc(sc_type_arc_pos_const_perm, SCggKeynodesHandler.scKeynodes.rrel_oredge, arcSystemIdentifier)
-                                .done(dfdEdge.resolve(r));
+                                    .done(dfdEdge.resolve(r));
                             });
-                            
+
                         });
                         return dfdEdge.promise();
-                    }
+                    };
 
-                    var translateWeight = function(edge){
+                    var translateWeight = function (edge) {
                         var dfdWeight = new jQuery.Deferred();
 
                         if ((edge.text !== '') && (edge.text !== null) && (edge.text !== undefined)) {
-                                window.sctpClient.create_link().done(function (link_addr) {
-                                    window.sctpClient.set_link_content(link_addr, edge.text).done(function () {
-                                        window.sctpClient.create_arc(sc_type_arc_common | sc_type_const, edge.sc_addr, link_addr).done(function (arc_addr) {
-                                            window.sctpClient.create_arc(sc_type_arc_pos_const_perm, SCggKeynodesHandler.scKeynodes.nrel_weight, arc_addr)
+                            window.sctpClient.create_link().done(function (link_addr) {
+                                window.sctpClient.set_link_content(link_addr, edge.text).done(function () {
+                                    window.sctpClient.create_arc(sc_type_arc_common | sc_type_const, edge.sc_addr, link_addr).done(function (arc_addr) {
+                                        window.sctpClient.create_arc(sc_type_arc_pos_const_perm, SCggKeynodesHandler.scKeynodes.nrel_weight, arc_addr)
                                             .done(dfdWeight.resolve)
                                             .fail(dfdWeight.reject);
-                                        }).fail(dfdWeight.reject);
                                     }).fail(dfdWeight.reject);
-                                }).fail(dfdWeight.reject);                                
+                                }).fail(dfdWeight.reject);
+                            }).fail(dfdWeight.reject);
                         }
                         else {
                             dfdWeight.resolve();
@@ -546,30 +551,29 @@ translateToSc: function(callback) {
 
 
                         return dfdWeight.promise();
-                    }
+                    };
 
                     if (src && trg) {
-                        if (edge.sc_type === (sc_type_edge_common | sc_type_const)) {                            
-                            createOrEdge(trg,src)
-                            .done(function(){
-                                translateWeight(edge).done(function(){
-                                    createOrEdge(src,trg).done(function (r){
-                                    translateWeight(edge);
-                                    edge.setObjectState(SCggObjectState.NewInMemory);
+                        if (edge.sc_type === (sc_type_edge_common | sc_type_const)) {
+                            createOrEdge(trg, src)
+                                .done(function () {
+                                    translateWeight(edge).done(function () {
+                                        createOrEdge(src, trg).done(function (r) {
+                                            translateWeight(edge);
 
-                                    objects.push(edge);
-                                    newxIteration();
-                                    });
-                                }) 
-                            });
+                                            objects.push(edge);
+                                            newxIteration();
+                                        });
+                                    })
+                                });
                         }
                         else {
-                        createOrEdge(src,trg).done(function (r){
-                            translateWeight(edge);
-                            edge.setObjectState(SCggObjectState.NewInMemory);
+                            createOrEdge(src, trg).done(function (r) {
+                                translateWeight(edge);
+                                edge.setObjectState(SCggObjectState.NewInMemory);
 
-                            objects.push(edge);
-                            newxIteration();
+                                objects.push(edge);
+                                newxIteration();
                             });
                         }
                     }
@@ -584,19 +588,17 @@ translateToSc: function(callback) {
                     window.setTimeout(doIteration, 0);
                 else
                     dfd.resolve();
-                
+
                 return dfd.promise();
-            }
+            };
 
-
-            
 
             fQueue.Queue(
-                    fQueue.Func(translateStruct),
-                    fQueue.Func(translateNodes),
-                    fQueue.Func(translateEdges)
-                ).done(fireCallback);
-                
+                fQueue.Func(translateStruct),
+                fQueue.Func(translateNodes),
+                fQueue.Func(translateEdges)
+            ).done(fireCallback);
+
         }
 
     };
