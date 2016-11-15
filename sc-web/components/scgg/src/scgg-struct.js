@@ -184,12 +184,12 @@ function scggScStructTranslator(_editor, _sandbox) {
     };
 
     var currentLanguage = sandbox.getCurrentLanguage();
-    var translateIdentifier = function (obj) {
+    var translateIdentifier = function (identifier, scAddr) {
         var dfd = new jQuery.Deferred();
         if (currentLanguage) {
             window.sctpClient.create_link().done(function (link_addr) {
-                window.sctpClient.set_link_content(link_addr, obj.text).done(function () {
-                    window.sctpClient.create_arc(sc_type_arc_common | sc_type_const, obj.sc_addr, link_addr).done(function (arc_addr) {
+                window.sctpClient.set_link_content(link_addr, identifier).done(function () {
+                    window.sctpClient.create_arc(sc_type_arc_common | sc_type_const, scAddr, link_addr).done(function (arc_addr) {
                         window.sctpClient.create_arc(sc_type_arc_pos_const_perm, currentLanguage, link_addr).done(function () {
                             window.sctpClient.create_arc(sc_type_arc_pos_const_perm, window.scKeynodes.nrel_main_idtf, arc_addr)
                                 .done(dfd.resolve)
@@ -238,8 +238,6 @@ function scggScStructTranslator(_editor, _sandbox) {
         translateToSc: function (callback) {
             if (!sandbox.is_struct)
                 throw "Invalid state. Trying translate sc-link into sc-memory";
-
-            var addrStruct;
 
             var appendObjects = function () {
                 $.when.apply($, objects.map(function (obj) {
@@ -400,7 +398,6 @@ function scggScStructTranslator(_editor, _sandbox) {
                         }
                     }
 
-
                     return dfdTranslateDecomposition.promise();
                 };
 
@@ -525,7 +522,6 @@ function scggScStructTranslator(_editor, _sandbox) {
                                     translateWeight(edge).done(function () {
                                         createOrEdge(src, trg).done(function (r) {
                                             translateWeight(edge);
-
                                             objects.push(edge);
                                             newxIteration();
                                         });
@@ -535,8 +531,6 @@ function scggScStructTranslator(_editor, _sandbox) {
                         else {
                             createOrEdge(src, trg).done(function (r) {
                                 translateWeight(edge);
-                                edge.setObjectState(SCggObjectState.NewInMemory);
-
                                 objects.push(edge);
                                 newxIteration();
                             });
@@ -567,4 +561,4 @@ function scggScStructTranslator(_editor, _sandbox) {
         }
 
     };
-};
+}
