@@ -287,41 +287,6 @@ function scggScStructTranslator(_editor, _sandbox) {
 
                     // var temporary_entity;
 
-                    var findDecomposition = function () {
-                        var dfdFind = new jQuery.Deferred();
-
-                        window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_3A_A_F,
-                            [sc_type_node | sc_type_const | sc_type_node_tuple,
-                                sc_type_arc_pos_const_perm,
-                                editor.render.sandbox.addr
-                            ]).done(function (results) {
-                            //could be a prob with prev iterator...
-                            var forFail = true;
-                            for (var i = 0; i < results.length; ++i) {
-                                window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
-                                    [results[i][0],
-                                        sc_type_arc_common | sc_type_const,
-                                        sc_type_node | sc_type_const,
-                                        sc_type_arc_pos_const_perm,
-                                        SCggKeynodesHandler.scKeynodes.nrel_temporal_decomposition
-                                    ]).done(function (results) {
-                                    editor.render.sandbox.decompositionNodeAddr = results[0][0];
-                                    editor.render.sandbox.graphNodeAddr = results[0][2];
-                                    dfdFind.resolve();
-                                    forFail = false;
-                                });
-                                if (!forFail) break;
-                            }
-                            if (forFail) {
-                                dfdFind.reject();
-                            }
-
-                        }).fail(dfdFind.reject);
-
-
-                        return dfdFind.promise();
-                    };
-
                     var createDecomposition = function () {
                         editor.render.sandbox.loadGraph = true;
 
@@ -358,7 +323,7 @@ function scggScStructTranslator(_editor, _sandbox) {
 
                         return dfdCreate.promise();
                     };
-
+                    
 
                     var addCurrentGraph = function (graphAddr) {
                         var dfdAddCurrentGraph = new jQuery.Deferred();
