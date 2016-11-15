@@ -135,6 +135,7 @@ var createScggComponent = function(sandbox, callback){
 
 };
 
+
 var scggKeynodesInit = function (sandbox, callback) {
     if (SCggKeynodesHandler.load == false){
         SCggKeynodesHandler.initSystemIds(function () {
@@ -154,7 +155,9 @@ var scggKeynodesInit = function (sandbox, callback) {
  * @param config
  * @constructor
  */
+
 var scggViewerWindow = function(sandbox, load) {
+
     this.domContainer = sandbox.container;
     this.sandbox = sandbox;
     this.sandbox.loadGraph = load;
