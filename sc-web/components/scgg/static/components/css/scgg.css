@@ -11,7 +11,7 @@
 
 .SCggText {
     fill: #00a;
-    font-family: "Arial";
+    font-family: "Arial", sans-serif;
     font-style: italic;
     font-weight: bold;
     font-size: 14px;
@@ -36,7 +36,7 @@
 
 .SCggLinkContainer {
     display: block; 
-    padding: 5px 0px 5px 5px;
+    padding: 5px 0 5px 5px;
     min-width: 25px;
     min-height: 25px;
     
@@ -120,7 +120,6 @@
     stroke-width: 10px;
 }
 
-/* TODO */
 .SCggEdgeFuzDash {
     stroke-dasharray: 0, 20, 2, 6;
     stroke-width: 10px;
@@ -409,65 +408,55 @@ path.SCggBusPath {
     margin: 75px 0 0 10px;
 }
 
-/*----------- Scgg random graph panel -----------*/
-.nodes-count {
-    border: solid 1px green;
-    border-radius: 10px;
-    margin-bottom: 4px;
-    padding: 4px;
+/*--------------- popover styles -----------------*/
+.popover-title {
+    background-color: #337ab7;
+    color: #fff;
 }
 
-.nodes-count-label {
-    margin-bottom: 0;
-    display: inline-block;
-    width: 78%;
+.popover-title .close {
+    position: absolute;
+    right: 11px;
+    top: 5px;
+    padding: 0;
 }
 
-input.label {
-    color:  black;
-    width: 33px;
-    height: 15%;
-    display: inline-block;
-    margin-left: 5px;
-    border: solid red 1px;
+/*--------------- Scgg random graph panel -----------------*/
+.scgg-random-graph-panel .panel {
+    margin-bottom: 5px;
 }
 
-.slider-block {
-    border: solid green 1px;
-    border-radius:  10px;
+.scgg-random-graph-panel .panel:last-of-type {
+    margin-bottom: 10px;
+}
+
+.scgg-random-graph-panel .panel-heading {
+    padding-left: 5px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+}
+
+.scgg-random-graph-panel .panel-body {
     padding: 5px;
 }
 
-.probability {
+.scgg-random-graph-panel .slider-input {
     float: left;
-    margin-bottom: 0;
+    width: 81%;
+    margin: 3px 5px;
 }
 
-.slider {
-    display: inline-block;
-    width: 100%;
-}
-
-.slider-input {
-    float: left;
-}
-
-.slider.label {
-    color:  black;
-    width: 33px;
-    height: 15%;
-    display: inline-block;
-    margin-left: 5px;
-    border: solid red 1px;
-}
-
-.create-graph {
-    outline: none;
-    width: 100%;
-    display: block;
-    border-radius: 10px;
-    background-color: green;
-    margin-top: 5px;
-    height: 30px;
+.scgg-random-graph-panel .form-control {
+    width: 27px;
+    height: 27px;
     text-align: center;
+    padding: 2px;
+}
+
+.scgg-random-graph-panel .btn {
+    width: 100%;
+}
+
+.scgg-random-graph-panel .edge-probability .form-control {
+   width: 30px;
 }

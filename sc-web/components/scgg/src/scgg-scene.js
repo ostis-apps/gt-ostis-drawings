@@ -254,7 +254,6 @@ SCgg.Scene.prototype = {
 
     // --------- layout --------
     layout: function() {
-        debugger;
        this.layout_manager.doLayout();
        this.render.update();
     },

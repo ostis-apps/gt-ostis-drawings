@@ -66,7 +66,7 @@ SCgg.Editor.prototype = {
         this.canEdit = params.canEdit ? true : false;
         this.initUI();
     },
-    
+
     /**
      * Initialize user interface
      */
@@ -81,7 +81,7 @@ SCgg.Editor.prototype = {
 
         $(tools_container).load('static/components/html/scgg-tools-panel.html', function() {
              $.ajax({
-                    url: "static/components/html/scgg-types-panel-nodes.html", 
+                    url: "static/components/html/scgg-types-panel-nodes.html",
                     dataType: 'html',
                     success: function(response) {
                            self.node_types_panel_content = response;
@@ -91,7 +91,7 @@ SCgg.Editor.prototype = {
                     },
                     complete: function() {
                         $.ajax({
-                                url: "static/components/html/scgg-types-panel-edges.html", 
+                                url: "static/components/html/scgg-types-panel-edges.html",
                                 dataType: 'html',
                                 success: function(response) {
                                        self.edge_types_panel_content = response;
@@ -100,11 +100,24 @@ SCgg.Editor.prototype = {
                                         SCggDebug.error("Error to get edges type change panel");
                                 },
                                 complete: function() {
-                                    self.bindToolEvents();
+                                    $.ajax({
+                                        url: "static/components/html/scgg-random-graph-panel.html",
+                                        dataType: 'html',
+                                        success: function(response) {
+                                            self.random_graph_panel_content = response;
+                                        },
+                                        error: function() {
+                                            SCggDebug.error("Error to get random graph panel");
+                                        },
+                                        complete: function() {
+                                            self.bindToolEvents();
+                                        }
+                                    });
                                 }
                             });
                     }
-                });
+             });
+
             if (!self.canEdit) {
                 self.hideTool(self.toolEdge());
                 self.hideTool(self.toolOpen());
@@ -149,11 +162,11 @@ SCgg.Editor.prototype = {
             self.render.requestUpdateAll();
         }
     },
-    
+
     hideTool: function(tool) {
         tool.addClass('hidden');
     },
-    
+
     showTool: function(tool) {
         tool.removeClass('hidden');
     },
@@ -161,15 +174,15 @@ SCgg.Editor.prototype = {
     toggleTool: function(tool) {
         tool.toggleClass('hidden');
     },
-    
+
     tool: function(name) {
         return $('#' + this.containerId).find('#scgg-tool-' + name);
     },
-    
+
     toolSelect: function() {
         return this.tool('select');
     },
-    
+
     toolEdge: function() {
         return this.tool('edge');
     },
@@ -181,15 +194,19 @@ SCgg.Editor.prototype = {
     toolRedo: function() {
         return this.tool('redo');
     },
-    
+
     toolChangeIdtf: function() {
         return this.tool('change-idtf');
     },
-    
+
     toolChangeType: function() {
         return this.tool('change-type');
     },
-    
+
+    toolRandomGraph: function() {
+        return this.tool('random-graph');
+    },
+
     toolDelete: function() {
         return this.tool('delete');
     },
@@ -197,11 +214,11 @@ SCgg.Editor.prototype = {
     toolClear: function() {
         return this.tool('clear');
     },
-    
+
     toolIntegrate: function() {
         return this.tool('integrate');
     },
-    
+
     toolOpen: function() {
         return this.tool('open');
     },
@@ -209,11 +226,11 @@ SCgg.Editor.prototype = {
     toolSave: function() {
         return this.tool('save');
     },
-    
+
     toolZoomIn: function() {
         return this.tool('zoomin');
     },
-    
+
     toolZoomOut: function() {
         return this.tool('zoomout');
     },
@@ -323,19 +340,20 @@ SCgg.Editor.prototype = {
             el.popover({
                 content: self.edge_types_panel_content,
                 container: container,
-                title: 'Change type',
+                title: 'Сгенерировать граф',
                 html: true,
                 delay: {show: 500, hide: 100}
             }).popover('show');
 
             cont.find('.popover-title').append('<button id="scgg-type-close" type="button" class="close">&times;</button>');
+
             $(container + ' #scgg-type-close').click(function() {
                 stop_modal();
             });
             $(container + ' .popover .btn').click(function() {
                 SCggTypeEdgeNow = self.typesMap[$(this).attr('id')];
                 stop_modal();
-            });   
+            });
         });
 
         this.toolUndo().click(function() {
@@ -352,19 +370,19 @@ SCgg.Editor.prototype = {
             self.scene.setModal(SCggModalMode.SCggModalIdtf);
             $(this).popover({container: container});
             $(this).popover('show');
-            
+
             var tool = $(this);
-            
+
             function stop_modal() {
                 self.scene.setModal(SCggModalMode.SCggModalNone);
                 tool.popover('destroy');
                 self.scene.updateObjectsVisual();
             }
-            
+
             var input = $(container + ' #scgg-change-idtf-input');
             // setup initial value
             input.val(self.scene.selected_objects[0].text);
-            
+
             // Fix for chrome: http://stackoverflow.com/questions/17384464/jquery-focus-not-working-in-chrome
             setTimeout(function(){
                 input.focus();
@@ -421,9 +439,9 @@ SCgg.Editor.prototype = {
             $(container + ' #scgg-change-idtf-cancel').click(function() {
                 stop_modal();
             });
-            
+
         });
-        
+
         this.toolChangeType().click(function() {
             var tool = $(this);
 
@@ -435,7 +453,7 @@ SCgg.Editor.prototype = {
                 self.scene.event_selection_changed();
                 self.scene.updateObjectsVisual();
             }
-            
+
             var obj = self.scene.selected_objects[0];
 
             el = $(this);
@@ -446,9 +464,9 @@ SCgg.Editor.prototype = {
                     html: true,
                     delay: {show: 500, hide: 100}
                   }).popover('show');
-                  
+
             cont.find('.popover-title').append('<button id="scgg-type-close" type="button" class="close">&times;</button>');
-                  
+
             $(container + ' #scgg-type-close').click(function() {
                 stop_modal();
             });
@@ -466,13 +484,116 @@ SCgg.Editor.prototype = {
             });
         });
 
+        this.toolRandomGraph().click(function() {
+            var tool = $(this);
+
+            self.scene.setModal(SCggModalMode.SCggModalType);
+
+            tool.popover({
+                content: self.random_graph_panel_content,
+                container: container,
+                title: 'Сгенерировать граф',
+                html: true,
+                delay: {show: 500, hide: 100}
+            }).popover('show');
+            cont.find('.popover-title').append('<button id="scgg-type-close" type="button" class="close">&times;</button>');
+
+            var vertexCountSlider = $(container + ' .scgg-random-graph-panel .vertex-count .slider-input');
+            var vertexCountInput = $(container + ' .scgg-random-graph-panel .vertex-count .form-control');
+            var edgeProbabilitySlider = $(container + ' .scgg-random-graph-panel .edge-probability .slider-input');
+            var edgeProbabilityInput = $(container + ' .scgg-random-graph-panel .edge-probability .form-control');
+            var createGraphButton = $(container + ' .popover .create-graph');
+            var popoverCloseButton = $(container + ' #scgg-type-close');
+
+            vertexCountInput.on('input', function() {
+                if (checkCount(+vertexCountInput.val(), 0, 16)) {
+                    toggleSuccess(vertexCountInput, true);
+                    vertexCountSlider.val(vertexCountInput.val())
+                } else {
+                    toggleSuccess(vertexCountInput, false)
+                }
+            });
+
+            edgeProbabilityInput.on('input', function() {
+                if (checkCount(edgeProbabilityInput.val(), -1, 101)) {
+                    toggleSuccess(edgeProbabilityInput, true);
+                    edgeProbabilitySlider.val(edgeProbabilityInput.val())
+                } else {
+                    toggleSuccess(edgeProbabilityInput, false)
+                }
+            });
+
+            vertexCountSlider.on('input', function() {
+               vertexCountInput.val(vertexCountSlider.val());
+            });
+
+            edgeProbabilitySlider.on('input', function() {
+               edgeProbabilityInput.val(edgeProbabilitySlider.val());
+            });
+
+            popoverCloseButton.click(function() {
+                stop_modal();
+            });
+
+            createGraphButton.click(function() {
+                var vertexCount = +vertexCountInput.val();
+                var edgeProbability = +edgeProbabilityInput.val();
+
+                if (checkCount(vertexCount, 0, 16) && checkCount(edgeProbability, -1, 101)) {
+                    var translate = self.scene.render.translate;
+                    var scale = self.scene.render.scale;
+                    var x0 = -translate[0] / scale;
+                    var y0 = -translate[1] / scale;
+                    var deltaX = $(container + ' .SCggSvg').width() / scale + x0;
+                    var deltaY = $(container + ' .SCggSvg').height() / scale + y0;
+                    var tempNodes = [];
+
+                    for (var i = 0; i < vertexCount; i++) {
+                        var position = new SCgg.Vector3(Math.random() * deltaX + x0, Math.random() * deltaY + y0, 0);
+                        var node = SCgg.Creator.createNode(SCggTypeNodeNow, position, '');
+
+                        self.scene.appendNode(node);
+                        tempNodes.push(node);
+                    }
+
+                    for (var nodeI = 0; nodeI < tempNodes.length - 1; nodeI++) {
+                        for (var nodeJ = nodeI + 1; nodeJ < tempNodes.length; nodeJ++) {
+                            if (Math.random() * 100 < edgeProbability) {
+                                var edge = SCgg.Creator.createEdge(tempNodes[nodeI], tempNodes[nodeJ], SCggTypeEdgeNow);
+                                self.scene.appendEdge(edge);
+                            }
+                        }
+                    }
+
+                    self.scene.layout();
+                    self.render.update();
+                }
+            });
+
+            function stop_modal() {
+                self.scene.setModal(SCggModalMode.SCggModalNone);
+                tool.popover('destroy');
+                self.scene.event_selection_changed();
+                self.scene.updateObjectsVisual();
+            }
+
+            function checkCount(value, min, max) {
+               return /^\d+$/.test(value) && +value > min && +value < max;
+            }
+
+            function toggleSuccess(element, toggle) {
+                element.parent().toggleClass('has-error', !toggle);
+                element.parent().toggleClass('has-success', toggle);
+            }
+        });
+
         this.toolDelete().click(function() {
             if (self.scene.selected_objects.length > 0){
                 self.scene.deleteObjects(self.scene.selected_objects.slice(0, self.scene.selected_objects.length));
                 self.scene.clearSelection();
             }
         });
-        
+
         this.toolClear().click(function() {
             self.scene.selectAll();
             self.toolDelete().click();
@@ -498,7 +619,7 @@ SCgg.Editor.prototype = {
             });
             saveAs(blob, "new_file.gwf");
         });
-        
+
         this.toolIntegrate().click(function() {
             self.scsComponent.clearStorage();
             self._disableTool(self.toolIntegrate());
@@ -507,11 +628,11 @@ SCgg.Editor.prototype = {
                     self._enableTool(self.toolIntegrate());
                 });
         });
-        
+
         this.toolZoomIn().click(function() {
             self.render.changeScale(1.1);
         });
-        
+
         this.toolZoomOut().click(function() {
             self.render.changeScale(0.9);
         });
@@ -520,13 +641,12 @@ SCgg.Editor.prototype = {
         self.onModalChanged();
         self.onSelectionChanged();
     },
-    
+
     /**
      * Function that process selection changes in scene
      // * It updated UI to current selection
      */
     onSelectionChanged: function() {
-
         if (this.canEdit) {
             this.hideTool(this.toolChangeIdtf());
             //scg this.hideTool(this.toolSetContent());

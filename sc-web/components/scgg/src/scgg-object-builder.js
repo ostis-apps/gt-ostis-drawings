@@ -39,4 +39,4 @@ SCggObjectBuilder = {
         this.scgg_objects = {};
         this.commandList = [];
     }
-}
+};
