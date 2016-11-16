@@ -45,7 +45,7 @@ SCgg.Editor.prototype = {
             'scgg-type-arc-var-temp-neg-access': sc_type_arc_access | sc_type_var | sc_type_arc_neg | sc_type_arc_temp,
             'scgg-type-arc-var-temp-fuz-access': sc_type_arc_access | sc_type_var | sc_type_arc_fuz | sc_type_arc_temp
         };
-        
+
         this.render = new SCgg.Render();
         this.scene = new SCgg.Scene( {render: this.render , edit: this} );
         this.scene.init();
@@ -107,8 +107,6 @@ SCgg.Editor.prototype = {
                 });
             if (!self.canEdit) {
                 self.hideTool(self.toolEdge());
-                //scg self.hideTool(self.toolBus());
-                //scg self.hideTool(self.toolContour());
                 self.hideTool(self.toolOpen());
                 self.hideTool(self.toolSave());
                 self.hideTool(self.toolIntegrate());
@@ -116,8 +114,9 @@ SCgg.Editor.prototype = {
                 self.hideTool(self.toolRedo());
             }
 
-            if (self.resolveControls)
+            if (self.resolveControls) {
                 self.resolveControls(tools_container);
+            }
         });
 
         $(graph_name).load('static/components/html/scgg-graph-name-input.html', function() {
@@ -166,10 +165,6 @@ SCgg.Editor.prototype = {
     tool: function(name) {
         return $('#' + this.containerId).find('#scgg-tool-' + name);
     },
-
-    //scg toolSwitch: function() {
-    //scg    return this.tool('switch');
-    //scg },
     
     toolSelect: function() {
         return this.tool('select');
@@ -178,18 +173,6 @@ SCgg.Editor.prototype = {
     toolEdge: function() {
         return this.tool('edge');
     },
-
-    //scg toolBus: function() {
-    //scg     return this.tool('bus');
-    //scg },
-    //scg
-    //scg toolContour: function() {
-    //scg     return this.tool('contour');
-    //scg },
-    //scg
-    //scg toolLink: function() {
-    //scg     return this.tool('link');
-    //scg },
 
     toolUndo: function() {
         return this.tool('undo');
@@ -206,10 +189,6 @@ SCgg.Editor.prototype = {
     toolChangeType: function() {
         return this.tool('change-type');
     },
-
-    //scg toolSetContent: function() {
-    //scg     return this.tool('set-content');
-    //scg },
     
     toolDelete: function() {
         return this.tool('delete');
@@ -349,7 +328,6 @@ SCgg.Editor.prototype = {
                 delay: {show: 500, hide: 100}
             }).popover('show');
 
-
             cont.find('.popover-title').append('<button id="scgg-type-close" type="button" class="close">&times;</button>');
             $(container + ' #scgg-type-close').click(function() {
                 stop_modal();
@@ -359,16 +337,6 @@ SCgg.Editor.prototype = {
                 stop_modal();
             });   
         });
-
-        //scg this.toolBus().click(function() {
-        //scg     self.scene.setEditMode(SCggEditMode.SCggModeBus);
-        //scg });
-        //scg this.toolContour().click(function() {
-        //scg    self.scene.setEditMode(SCggEditMode.SCggModeContour);
-        //scg });
-        //scg this.toolLink().click(function() {
-        //scg     self.scene.setEditMode(SCggEditMode.SCggModeLink);
-        //scg });
 
         this.toolUndo().click(function() {
             self.scene.commandManager.undo();
@@ -423,48 +391,6 @@ SCgg.Editor.prototype = {
                 }
             });
 
-
-            //scg if (self.autocompletionVariants) {
-            //scg    var types = {
-            //scg        local : function(text){
-            //scg             return "[" + text + "]";
-            //scg         },
-            //scg         remote : function(text){
-            //scg             return "<" + text + ">";
-            //scg         }
-            //scg
-            //scg     };
-            //scg
-            //scg     input.typeahead({
-            //scg             minLength: 1,
-            //scg             highlight: true
-            //scg         },
-            //scg         {
-            //scg             name: 'idtf',
-            //scg             source: function(str, callback) {
-            //scg                 self._idtf_item = null;
-            //scg                 self.autocompletionVariants(str, callback, { editor: self });
-            //scg             },
-            //scg             displayKey: 'name',
-            //scg             templates: {
-            //scg                 suggestion : function(item){
-            //scg                     var decorator = types[item.type];
-            //scg                     if(decorator)
-            //scg                         return decorator(item.name);
-            //scg
-            //scg                     return item.name;
-            //scg                 }
-            //scg             }
-            //scg         }
-            //scg     ).bind('typeahead:selected', function(evt, item, dataset) {
-            //scg         if (item && item.addr) {
-            //scg             self._idtf_item = item;
-            //scg         }
-            //scg         evt.stopPropagation();
-            //scg         $('.typeahead').val('');
-            //scg     });
-            //scg }
-            
             // process controls
             $(container + ' #scgg-change-idtf-apply').click(function() {
                 var obj = self.scene.selected_objects[0];
@@ -540,69 +466,6 @@ SCgg.Editor.prototype = {
             });
         });
 
-        //scg this.toolSetContent().click(function() {
-        //scg     var tool = $(this);
-        //scg     function stop_modal() {
-        //scg         self.scene.setModal(SCggModalMode.SCggModalNone);
-        //scg         tool.popover('destroy');
-        //scg         self.scene.updateObjectsVisual();
-        //scg     }
-        //scg
-        //scg     self.scene.setModal(SCggModalMode.SCggModalIdtf);
-        //scg     $(this).popover({container: container});
-        //scg     $(this).popover('show');
-        //scg
-        //scg     var input = $(container + ' #scgg-set-content-input');
-        //scg     var input_content = $(container + " input#content[type='file']");
-        //scg     var input_content_type = $(container + " #scgg-set-content-type");
-        //scg     input.val(self.scene.selected_objects[0].content);
-        //scg     input_content_type.val(self.scene.selected_objects[0].contentType);
-        //scg     setTimeout(function(){
-        //scg         input.focus();
-        //scg     }, 1);
-        //scg     input.keypress(function (e) {
-        //scg         if (e.keyCode == KeyCode.Enter || e.keyCode == KeyCode.Escape) {
-        //scg             if (e.keyCode == KeyCode.Enter) {
-        //scg                 var obj = self.scene.selected_objects[0];
-        //scg                 if (obj.content != input.val() || obj.contentType != input_content_type.val()) {
-        //scg                     self.scene.commandManager.execute(new SCggCommandChangeContent(obj,
-        //scg                         input.val(),
-        //scg                         input_content_type.val()));
-        //scg                 }
-        //scg             }
-        //scg             stop_modal();
-        //scg             e.preventDefault();
-        //scg         }
-        //scg     });
-        //scg     // process controls
-        //scg     $(container + ' #scgg-set-content-apply').click(function() {
-        //scg         var obj = self.scene.selected_objects[0];
-        //scg         var file = input_content[0].files[0];
-        //scg         if (file != undefined){
-        //scg             var fileReader = new FileReader();
-        //scg             fileReader.onload = function() {
-        //scg                 if (obj.content != this.result || obj.contentType != 'string') {
-        //scg                     self.scene.commandManager.execute(new SCggCommandChangeContent(obj,
-        //scg                         this.result,
-        //scg                         'string'));
-        //scg                 }
-        //scg                 stop_modal();
-        //scg             };
-        //scg             fileReader.readAsArrayBuffer(file);
-        //scg         } else {
-        //scg             if (obj.content != input.val() || obj.contentType != input_content_type.val()) {
-        //scg                 self.scene.commandManager.execute(new SCggCommandChangeContent(obj,
-        //scg                     input.val(),
-        //scg                     input_content_type.val()));
-        //scg             }
-        //scg             stop_modal();
-        //scg         }
-        //scg     });
-        //scg     $(container + ' #scgg-set-content-cancel').click(function() {
-        //scg         stop_modal();
-        //scg     });
-        //scg });
-
         this.toolDelete().click(function() {
             if (self.scene.selected_objects.length > 0){
                 self.scene.deleteObjects(self.scene.selected_objects.slice(0, self.scene.selected_objects.length));
@@ -626,7 +489,7 @@ SCgg.Editor.prototype = {
 
             };
             SCggObjectBuilder.scene = self.scene;
-            var result = open_dialog.click();
+            open_dialog.click();
         });
 
         this.toolSave().click(function() {
@@ -652,7 +515,6 @@ SCgg.Editor.prototype = {
         this.toolZoomOut().click(function() {
             self.render.changeScale(0.9);
         });
-
 
         // initial update
         self.onModalChanged();
@@ -681,16 +543,11 @@ SCgg.Editor.prototype = {
                 } else if (this.scene.selected_objects[0] instanceof SCgg.ModelEdge) {
                     this.showTool(this.toolChangeIdtf());
                     this.showTool(this.toolChangeType());
-                }//scg  else if (this.scene.selected_objects[0] instanceof SCgg.ModelContour) {
-                 //scg    this.showTool(this.toolChangeIdtf());
-                 //scg }  else if (this.scene.selected_objects[0] instanceof SCgg.ModelLink) {
-                 //scg    this.showTool(this.toolSetContent());
-                 //scg }
+                }
             }
             if (this.scene.selected_objects.length > 0) this.showTool(this.toolDelete());
         }
     },
-
 
     /**
      * Function, that process modal state changes of scene
@@ -703,17 +560,12 @@ SCgg.Editor.prototype = {
             else
                 self._enableTool(tool);
         }
-        //scg update_tool(this.toolSwitch());
         update_tool(this.toolSelect());
         update_tool(this.toolEdge());
-        //scg update_tool(this.toolBus());
-        //scg update_tool(this.toolContour());
-        //scg update_tool(this.toolLink());
         update_tool(this.toolUndo());
         update_tool(this.toolRedo());
         update_tool(this.toolChangeIdtf());
         update_tool(this.toolChangeType());
-        //scg update_tool(this.toolSetContent());
         update_tool(this.toolDelete());
         update_tool(this.toolClear());
         update_tool(this.toolZoomIn());
@@ -749,17 +601,15 @@ SCgg.Editor.prototype = {
         };
 
         var matches = [];
-        $.each(relative_objs, function(index, item){
-            if(match(item['text']))
-            {
-                var obj = {
-                    name: item['text'],
-                    type: 'local'
-                };
-                if(!contains(obj, matches))
-                    matches.push(obj);
-            }
 
+        $.each(relative_objs, function(index, item){
+            if(match(item['text'])) {
+                var obj = {name: item['text'], type: 'local'};
+
+                if(!contains(obj, matches)) {
+                    matches.push(obj);
+                }
+            }
         });
         return matches;
     },
@@ -768,7 +618,6 @@ SCgg.Editor.prototype = {
      * function(keyword, callback, args)
      * here is default implementation
      * */
-
     autocompletionVariants : function(keyword, callback, args){
         var self = this;
         callback(self.collectIdtfs(keyword));

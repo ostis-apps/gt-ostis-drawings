@@ -408,3 +408,66 @@ path.SCggBusPath {
     width: 250px;
     margin: 75px 0 0 10px;
 }
+
+/*----------- Scgg random graph panel -----------*/
+.nodes-count {
+    border: solid 1px green;
+    border-radius: 10px;
+    margin-bottom: 4px;
+    padding: 4px;
+}
+
+.nodes-count-label {
+    margin-bottom: 0;
+    display: inline-block;
+    width: 78%;
+}
+
+input.label {
+    color:  black;
+    width: 33px;
+    height: 15%;
+    display: inline-block;
+    margin-left: 5px;
+    border: solid red 1px;
+}
+
+.slider-block {
+    border: solid green 1px;
+    border-radius:  10px;
+    padding: 5px;
+}
+
+.probability {
+    float: left;
+    margin-bottom: 0;
+}
+
+.slider {
+    display: inline-block;
+    width: 100%;
+}
+
+.slider-input {
+    float: left;
+}
+
+.slider.label {
+    color:  black;
+    width: 33px;
+    height: 15%;
+    display: inline-block;
+    margin-left: 5px;
+    border: solid red 1px;
+}
+
+.create-graph {
+    outline: none;
+    width: 100%;
+    display: block;
+    border-radius: 10px;
+    background-color: green;
+    margin-top: 5px;
+    height: 30px;
+    text-align: center;
+}

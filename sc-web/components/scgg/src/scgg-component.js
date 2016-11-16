@@ -2,6 +2,7 @@ SCggComponent = {
     ext_lang: 'scgg_code',
     formats: ['format_scgg_json'],
     struct_support: true,
+
     factory: function(sandbox) {
         sandbox.decompositionNodeAddr = null;
         sandbox.graphNodeAddr = null;
@@ -16,22 +17,23 @@ SCggComponent = {
 
 function loadGraphOrCreateNew(callBackLoad, callBackNew){
     var keynodes = ['ui_graph_choose_load','ui_graph_choose_new','ui_graph_choose_message'];
+
     SCWeb.core.Server.resolveScAddr(keynodes, function (keynodes) {
         SCWeb.core.Server.resolveIdentifiers(keynodes, function (idf) {
             var confirmMessage = idf[keynodes['ui_graph_choose_message']];
             var buttonLoad = idf[keynodes['ui_graph_choose_load']];
             var buttonNew = idf[keynodes['ui_graph_choose_new']];
-            $('#confirmChooseBox').modal({show:true,
-                backdrop:false,
-                keyboard: false
-            });
+
+            $('#confirmChooseBox').modal({show:true, backdrop:false, keyboard: false});
             $('#confirmMessage').html(confirmMessage);
             $('#confirmLoadGraph').html(buttonLoad);
             $('#confirmCreateNew').html(buttonNew);
+
             $('#confirmLoadGraph').click(function(){
                 $('#confirmChooseBox').modal('hide');
                 callBackLoad();
             });
+
             $('#confirmCreateNew').click(function(){
                 $('#confirmChooseBox').modal('hide');
                 callBackNew();
@@ -247,7 +249,6 @@ var scggViewerWindow = function(sandbox, load) {
     };
 
     this._buildGraph = function(data) {
-        
         var elements = {};
         var edges = new Array();
         for (var i = 0; i < data.length; i++) {
@@ -274,12 +275,14 @@ var scggViewerWindow = function(sandbox, load) {
         
         // create edges
         var founded = true;
+
         while (edges.length > 0 && founded) {
             founded = false;
             for (idx in edges) {
                 var obj = edges[idx];
                 var beginId = obj.begin;
                 var endId = obj.end;
+
                 // try to get begin and end object for arc
                 if (elements.hasOwnProperty(beginId) && elements.hasOwnProperty(endId)) {
                     var beginNode = elements[beginId];
@@ -296,10 +299,10 @@ var scggViewerWindow = function(sandbox, load) {
             }
         }
         
-        if (edges.length > 0)
+        if (edges.length > 0) {
             alert("error");
-        
-        this.editor.render.update();
+        }
+
         this.editor.scene.layout();
     };
 
