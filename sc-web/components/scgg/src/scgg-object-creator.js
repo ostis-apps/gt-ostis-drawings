@@ -2,9 +2,10 @@ SCgg.Creator = {};
 
 /**
  * Create new node
- * @param {Integer} sc_type Type of node
+ *
+ * @param {number} sc_type Type of node
  * @param {SCgg.Vector3} pos Position of node
- * @param {String} text Text assotiated with node
+ * @param {String} text Text associated with node
  *
  * @return SCgg.ModelNode created node
  */
@@ -30,9 +31,10 @@ SCgg.Creator.createLink = function(pos, containerId) {
 
 /**
  * Create edge between two specified objects
+ *
  * @param {SCgg.ModelObject} source Edge source object
  * @param {SCgg.ModelObject} target Edge target object
- * @param {Integer} sc_type SC-type of edge
+ * @param {number} sc_type SC-type of edge
  *
  * @return SCgg.ModelEdge created edge
  */

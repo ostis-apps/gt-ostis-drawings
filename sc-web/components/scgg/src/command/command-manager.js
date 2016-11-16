@@ -11,7 +11,11 @@ SCggCommandManager.prototype = {
         this.destroyObject();
         this.listCommand = this.listCommand.slice(0, this.indexCommand + 1);
         this.listCommand.push(command);
-        if (!noNeedExecute) command.execute();
+
+        if (!noNeedExecute) {
+            node = command.execute();
+        }
+
         this.indexCommand++;
     },
 

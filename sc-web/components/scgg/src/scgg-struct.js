@@ -50,21 +50,21 @@ function SCggFromScImpl(_sandbox, _editor, aMapping) {
     function randomPos() {
         return new SCgg.Vector3(100 * Math.random(), 100 * Math.random(), 0);
     }
-
-    var doBatch = function () {
-
+    
+    var doBatch = function() {
         if (!batch) {
             if (!tasks.length || tasksLength === tasks.length) {
                 window.clearInterval(self.timeout);
                 self.timeout = 0;
                 return;
             }
+
             batch = tasks.splice(0, Math.max(150, tasks.length));
             tasksLength = tasks.length;
         }
         if (batch) {
-
             taskDoneCount = 0;
+
             for (var i = 0; i < batch.length; ++i) {
                 var task = batch[i];
                 var addr = task[0];
@@ -75,6 +75,7 @@ function SCggFromScImpl(_sandbox, _editor, aMapping) {
 
                 if (type & sc_type_node) {
                     var model_node = SCgg.Creator.createNode(type, randomPos(), '');
+
                     editor.scene.appendNode(model_node);
                     editor.scene.objects[addr] = model_node;
                     model_node.setScAddr(addr);
@@ -83,10 +84,12 @@ function SCggFromScImpl(_sandbox, _editor, aMapping) {
                 } else if (type & sc_type_arc_mask) {
                     var bObj = editor.scene.getObjectByScAddr(task[2]);
                     var eObj = editor.scene.getObjectByScAddr(task[3]);
+
                     if (!bObj || !eObj) {
                         tasks.push(task);
                     } else {
                         var model_edge = SCgg.Creator.createEdge(bObj, eObj, type);
+
                         editor.scene.appendEdge(model_edge);
                         editor.scene.objects[addr] = model_edge;
                         model_edge.setScAddr(addr);
@@ -95,51 +98,52 @@ function SCggFromScImpl(_sandbox, _editor, aMapping) {
                     }
                 } else if (type & sc_type_link) {
                     var containerId = 'scgg-window-' + sandbox.addr + '-' + addr + '-' + new Date().getUTCMilliseconds();
-                    ;
                     var model_link = SCgg.Creator.createLink(randomPos(), containerId);
+
                     editor.scene.appendLink(model_link);
                     editor.scene.objects[addr] = model_link;
                     model_link.setScAddr(addr);
                     model_link.setObjectState(SCggObjectState.FromMemory);
                 }
-
             }
 
-            editor.render.update();
             editor.scene.layout();
-
             batch = null;
         }
     };
-
-    var addTask = function (args) {
+    
+    var addTask = function(args) {
         tasks.push(args);
+
         if (!self.timeout) {
             self.timeout = window.setInterval(doBatch, 10);
         }
+
         doBatch();
     };
-
-    var removeElement = function (addr) {
+    
+    var removeElement = function(addr) {
         var obj = editor.scene.getObjectByScAddr(addr);
-        if (obj)
+
+        if (obj) {
             editor.scene.deleteObjects([obj]);
-        editor.render.update();
+        }
+
         editor.scene.layout();
     };
 
     return {
-        update: function (added, element, arc) {
-
+        update: function(added, element, arc) {
+            
             if (added) {
                 window.sctpClient.get_arc(arc).done(function (r) {
                     var el = r[1];
-                    window.sctpClient.get_element_type(el).done(function (t) {
+                    window.sctpClient.get_element_type(el).done(function(t) {
                         arcMapping[arc] = el;
                         if (t & (sc_type_node | sc_type_link)) {
                             addTask([el, t]);
                         } else if (t & sc_type_arc_mask) {
-                            window.sctpClient.get_arc(el).done(function (r) {
+                            window.sctpClient.get_arc(el).done(function(r) {
                                 addTask([el, t, r[0], r[1]]);
                             });
                         } else
@@ -148,13 +152,14 @@ function SCggFromScImpl(_sandbox, _editor, aMapping) {
                 });
             } else {
                 var e = arcMapping[arc];
-                if (e)
+
+                if (e) {
                     removeElement(e);
+                }
             }
         }
     };
-
-};
+}
 
 // ----------------------------------------------------------------------
 
@@ -166,13 +171,13 @@ function scggScStructTranslator(_editor, _sandbox) {
         processBatch = false,
         taskDoneCount = 0,
         arcMapping = {};
-
+    
     if (!sandbox.is_struct)
         throw "Snadbox must to work with sc-struct";
-
+    
     var scggFromSc = new SCggFromScImpl(sandbox, editor, arcMapping);
-
-    var appendToConstruction = function (obj) {
+    
+    var appendToConstruction = function(obj) {
         var dfd = new jQuery.Deferred();
         window.sctpClient.create_arc(sc_type_arc_pos_const_perm, sandbox.addr, obj.sc_addr).done(function (addr) {
             arcMapping[addr] = obj;
@@ -250,7 +255,6 @@ function scggScStructTranslator(_editor, _sandbox) {
             };
 
             function fireCallback() {
-                editor.render.update();
                 editor.scene.layout();
                 appendObjects();
             }
@@ -321,7 +325,7 @@ function scggScStructTranslator(_editor, _sandbox) {
 
                         return dfdCreate.promise();
                     };
-                    
+
 
                     var addCurrentGraph = function (graphAddr) {
                         var dfdAddCurrentGraph = new jQuery.Deferred();

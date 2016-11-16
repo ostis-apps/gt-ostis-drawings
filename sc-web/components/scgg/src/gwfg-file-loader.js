@@ -5,7 +5,6 @@ GwfgFileLoader = {
 
         reader.onload = function (e) {
             var text = e.target.result;
-//          text = text.replace("windows-1251","utf-8");
 
             is_file_correct = GwfgObjectInfoReader.read(text.replace(
                 "<?xml version=\"1.0\" encoding=\"windows-1251\"?>",
@@ -21,7 +20,6 @@ GwfgFileLoader = {
                 GwfgObjectInfoReader.printErrors();
         };
 
-//      reader.readAsText(args["file"], "CP1251");
         reader.readAsText(args["file"]);
         return true;
     }

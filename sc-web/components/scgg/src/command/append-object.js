@@ -7,7 +7,6 @@ SCggCommandAppendObject.prototype = {
 
     constructor: SCggCommandAppendObject,
 
-
     undo: function() {
         if (this.object) {
             var idx = this.scene.selected_objects.indexOf(this.object);
