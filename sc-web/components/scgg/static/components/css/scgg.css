@@ -1,4 +1,5 @@
 .SCggSvg {
+  height: 100%;
   background-color: #fff;
   cursor: default;
   -webkit-user-select: none;
@@ -10,7 +11,7 @@
 
 .SCggText {
     fill: #00a;
-    font-family: "Arial";
+    font-family: "Arial", sans-serif;
     font-style: italic;
     font-weight: bold;
     font-size: 14px;
@@ -35,7 +36,7 @@
 
 .SCggLinkContainer {
     display: block; 
-    padding: 5px 0px 5px 5px;
+    padding: 5px 0 5px 5px;
     min-width: 25px;
     min-height: 25px;
     
@@ -119,7 +120,6 @@
     stroke-width: 10px;
 }
 
-/* TODO */
 .SCggEdgeFuzDash {
     stroke-dasharray: 0, 20, 2, 6;
     stroke-width: 10px;
@@ -252,6 +252,7 @@ path.SCggBusPath {
 /* ------------- User interface -------------- */
 .scgg-tools-panel {
     position: absolute;
+    padding: 10px;
 }
 
 .scgg-tools-panel img {
@@ -326,6 +327,7 @@ path.SCggBusPath {
 /*------------ Graph name input -----------*/
 .input-group-graph-name {
     left: 110px;
+    padding: 10px;
     position: absolute;
 }
 
@@ -333,8 +335,48 @@ path.SCggBusPath {
     width: 0;
 }
 
+.input-group-graph-name .input-helper {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 45px;
+    bottom: 10px;
+    z-index: 3;
+}
+
 .input-group-graph-name input {
     width: 0;
+}
+
+.input-group-graph-name input:read-only {
+    cursor: default;
+}
+
+.input-group-graph-name .correct-name {
+    box-shadow: inset 0 -4px 5px -3px green;
+}
+
+.input-group-graph-name .incorrect-name {
+    box-shadow: inset 0 -4px 5px -3px red;
+}
+
+.input-group-graph-name button {
+    outline: none;
+    padding: 0;
+}
+
+.input-group-graph-name img {
+    width: 34px;
+    height: 32px;
+}
+
+/*------------ Scgg type list -------------*/
+.scgg-type-list {
+    overflow-y: hidden;
+}
+
+#scgg-type-edge-const {
+    margin-bottom: 5px;
 }
 
 /*------------ Choose new graph or load -----------*/
@@ -350,4 +392,71 @@ path.SCggBusPath {
 
 #confirmCreateNew{
     width: 150px;
+}
+/*------------- SCs Component -----------------------*/
+.SCggSvg {
+    width: calc(100% - 260px);
+    float: left;
+    display: block;
+    border: 1px solid rgba(0, 0, 0, 0.10)
+}
+
+.SCggSCc {
+    float: left;
+    display: block;
+    width: 250px;
+    margin: 75px 0 0 10px;
+}
+
+/*--------------- popover styles -----------------*/
+.popover-title {
+    background-color: #337ab7;
+    color: #fff;
+}
+
+.popover-title .close {
+    position: absolute;
+    right: 11px;
+    top: 5px;
+    padding: 0;
+}
+
+/*--------------- Scgg random graph panel -----------------*/
+.scgg-random-graph-panel .panel {
+    margin-bottom: 5px;
+}
+
+.scgg-random-graph-panel .panel:last-of-type {
+    margin-bottom: 10px;
+}
+
+.scgg-random-graph-panel .panel-heading {
+    padding-left: 5px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+}
+
+.scgg-random-graph-panel .panel-body {
+    padding: 5px;
+}
+
+.scgg-random-graph-panel .slider-input {
+    float: left;
+    width: 81%;
+    margin: 3px 5px;
+}
+
+.scgg-random-graph-panel .form-control {
+    width: 27px;
+    height: 27px;
+    text-align: center;
+    padding: 2px;
+}
+
+.scgg-random-graph-panel .btn {
+    width: 100%;
+}
+
+.scgg-random-graph-panel .edge-probability .form-control {
+   width: 30px;
 }

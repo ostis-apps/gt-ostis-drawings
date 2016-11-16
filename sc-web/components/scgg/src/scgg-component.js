@@ -2,34 +2,38 @@ SCggComponent = {
     ext_lang: 'scgg_code',
     formats: ['format_scgg_json'],
     struct_support: true,
+
     factory: function(sandbox) {
+        sandbox.decompositionNodeAddr = null;
+        sandbox.graphNodeAddr = null;
+
         return new Promise(function(resolve, reject){
-            createScggComponent(sandbox, function(load){
+            scggKeynodesInit(sandbox, function(load){
                 resolve(new scggViewerWindow(sandbox, load));
             });
         });
     }
 };
 
-
 function loadGraphOrCreateNew(callBackLoad, callBackNew){
-    var keynodes = ['ui_graph_choose_load','ui_graph_choose_new','ui_graph_choose_message']
+    var keynodes = ['ui_graph_choose_load','ui_graph_choose_new','ui_graph_choose_message'];
+
     SCWeb.core.Server.resolveScAddr(keynodes, function (keynodes) {
         SCWeb.core.Server.resolveIdentifiers(keynodes, function (idf) {
             var confirmMessage = idf[keynodes['ui_graph_choose_message']];
             var buttonLoad = idf[keynodes['ui_graph_choose_load']];
             var buttonNew = idf[keynodes['ui_graph_choose_new']];
-            $('#confirmChooseBox').modal({show:true,
-                backdrop:false,
-                keyboard: false
-            });
+
+            $('#confirmChooseBox').modal({show:true, backdrop:false, keyboard: false});
             $('#confirmMessage').html(confirmMessage);
             $('#confirmLoadGraph').html(buttonLoad);
             $('#confirmCreateNew').html(buttonNew);
+
             $('#confirmLoadGraph').click(function(){
                 $('#confirmChooseBox').modal('hide');
                 callBackLoad();
             });
+
             $('#confirmCreateNew').click(function(){
                 $('#confirmChooseBox').modal('hide');
                 callBackNew();
@@ -38,40 +42,37 @@ function loadGraphOrCreateNew(callBackLoad, callBackNew){
     });
 }
 
-
-
 var createScggComponent = function(sandbox, callback){
     function findCounterInSCn() {
         return $("#" + sandbox.container + ' .sc-contour > .scs-scn-view-toogle-button').parent().attr('sc_addr');
     }
     function findCurrentVersionGraph(callback) {
-        var keynodes = ['nrel_temporal_decomposition',
-                        'rrel_current_version'];
-        SCWeb.core.Server.resolveScAddr(keynodes, function (keynodes) {
-            var nrel_temporal_decomposition = keynodes['nrel_temporal_decomposition'];
-            var rrel_current_version = keynodes['rrel_current_version'];
             var rootNode = $("#" + sandbox.container + ' .scs-scn-keyword > .scs-scn-element').attr('sc_addr');
+            var decompositionNode = null;
             // Find node tuple
             window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5A_A_F_A_F,
                 [   sc_type_node | sc_type_const | sc_type_node_tuple,
                     sc_type_arc_common | sc_type_const,
                     rootNode,
                     sc_type_arc_pos_const_perm,
-                    nrel_temporal_decomposition
+                    SCggKeynodesHandler.scKeynodes.nrel_temporal_decomposition
                 ]
             ).done(function (results) {
+                decompositionNode = results[0][0];
                 // Find current_version graph
                 window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
                     [   results[0][0],
                         sc_type_arc_pos_const_perm,
                         sc_type_node | sc_type_const | sc_type_node_struct,
                         sc_type_arc_pos_const_perm,
-                        rrel_current_version
+                        SCggKeynodesHandler.scKeynodes.rrel_current_version
                     ]
                 ).done(function (results) {
                     $('#' + sandbox.container).load('static/components/html/scgg-choose-new-or-load.html', function () {
                         loadGraphOrCreateNew(function () {
                                 sandbox.addr = results[0][2];
+                                sandbox.graphNodeAddr = rootNode;
+                                sandbox.decompositionNodeAddr = decompositionNode;
                                 callback(true);
                             }, function () {
                                 callback(false);
@@ -85,6 +86,35 @@ var createScggComponent = function(sandbox, callback){
                 //console.log("Not find nrel_temporal_decomposition");
                 callback(false);
             });
+    }
+    function findGraphAndDecomposition(addr, callback) {
+        var decompositionNode = null;
+
+        window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_3A_A_F,
+            [   sc_type_node | sc_type_const | sc_type_node_tuple,
+                sc_type_arc_pos_const_perm,
+                addr
+            ]
+        ).done(function (results) {
+            decompositionNode = results[0][0];
+            window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
+                [   decompositionNode,
+                    sc_type_arc_common | sc_type_const,
+                    sc_type_node,
+                    sc_type_arc_pos_const_perm,
+                    SCggKeynodesHandler.scKeynodes.nrel_temporal_decomposition
+                ]
+            ).done(function (results) {
+                sandbox.graphNodeAddr = results[0][2];
+                sandbox.decompositionNodeAddr = decompositionNode;
+                callback();
+            }).fail(function () {
+                //console.log("Not find rootNode");
+                callback();
+            });
+        }).fail(function () {
+            //console.log("Not find decompositionNode");
+            callback();
         });
     }
 
@@ -92,24 +122,31 @@ var createScggComponent = function(sandbox, callback){
         $('#' + sandbox.container).load('static/components/html/scgg-choose-new-or-load.html', function () {
             loadGraphOrCreateNew(function () {
                 sandbox.addr = findCounterInSCn();
-                scggKeynodesInit(true, callback);
+                findGraphAndDecomposition(sandbox.addr, function () {
+                    callback(true);
+                });
             }, function () {
-                scggKeynodesInit(false, callback);
+                callback(false);
             });
         });
     } else {
         findCurrentVersionGraph(function(load){
-            scggKeynodesInit(load, callback);
+            callback(load);
         });
     }
 
 };
 
-var scggKeynodesInit = function (load, callback) {
-    if (window.scKeynodes.need_gt_idtf === undefined){
-        SCWeb.core.Server.resolveScAddr(['nrel_gt_idtf', 'nrel_weight'], function (keynodes) {
-            window.scKeynodes['nrel_gt_idtf']  = keynodes['nrel_gt_idtf'];
-            window.scKeynodes['nrel_weight']  = keynodes['nrel_weight'];
+
+var scggKeynodesInit = function (sandbox, callback) {
+    if (SCggKeynodesHandler.load == false){
+        SCggKeynodesHandler.initSystemIds(function () {
+            createScggComponent(sandbox, function(load){
+                callback(load);
+            });
+        });
+    } else {
+        createScggComponent(sandbox, function(load){
             callback(load);
         });
     }
@@ -120,9 +157,12 @@ var scggKeynodesInit = function (load, callback) {
  * @param config
  * @constructor
  */
+
 var scggViewerWindow = function(sandbox, load) {
+
     this.domContainer = sandbox.container;
     this.sandbox = sandbox;
+    this.sandbox.loadGraph = load;
     this.tree = new SCgg.Tree();
     this.editor = new SCgg.Editor();
     
@@ -209,7 +249,6 @@ var scggViewerWindow = function(sandbox, load) {
     };
 
     this._buildGraph = function(data) {
-        
         var elements = {};
         var edges = new Array();
         for (var i = 0; i < data.length; i++) {
@@ -236,12 +275,14 @@ var scggViewerWindow = function(sandbox, load) {
         
         // create edges
         var founded = true;
+
         while (edges.length > 0 && founded) {
             founded = false;
             for (idx in edges) {
                 var obj = edges[idx];
                 var beginId = obj.begin;
                 var endId = obj.end;
+
                 // try to get begin and end object for arc
                 if (elements.hasOwnProperty(beginId) && elements.hasOwnProperty(endId)) {
                     var beginNode = elements[beginId];
@@ -258,10 +299,10 @@ var scggViewerWindow = function(sandbox, load) {
             }
         }
         
-        if (edges.length > 0)
+        if (edges.length > 0) {
             alert("error");
-        
-        this.editor.render.update();
+        }
+
         this.editor.scene.layout();
     };
 
@@ -298,6 +339,10 @@ var scggViewerWindow = function(sandbox, load) {
     if (load){
         this.sandbox.updateContent();
     }
+
+    var startIdIndex = 7;
+    this.window_id = this.domContainer.substring(startIdIndex) + '_' + this.sandbox.command_state.format;
+    SCWeb.ui.KeyboardHandler.subscribeWindow(this.window_id, this.editor.keyboardCallbacks);
 };
 
 

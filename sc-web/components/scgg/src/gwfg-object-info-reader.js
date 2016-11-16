@@ -1,9 +1,9 @@
-GwfObjectInfoReader = {
+GwfgObjectInfoReader = {
 
     objects_info: { },
     errors: [],
 
-    gwf_type_to_scgg_type: {
+    gwfg_type_to_scgg_type: {
         "node/-/not_define": sc_type_node,
 
         "node/const/general_node": sc_type_node | sc_type_const,
@@ -112,9 +112,9 @@ GwfObjectInfoReader = {
     },
 
     parseContour: function (contour) {
-        var parsed_contour = new GwfObjectContour(null);
+        var parsed_contour = new GwfgObjectContour(null);
 
-        var result = parsed_contour.parseObject({gwf_object: contour, reader: this});
+        var result = parsed_contour.parseObject({gwfg_object: contour, reader: this});
 
         if (result == false)
             return false;
@@ -124,9 +124,9 @@ GwfObjectInfoReader = {
     },
 
     parsePair: function (pair) {
-        var parsed_pair = new GwfObjectPair(null);
+        var parsed_pair = new GwfgObjectPair(null);
 
-        var result = parsed_pair.parseObject({gwf_object: pair, reader: this});
+        var result = parsed_pair.parseObject({gwfg_object: pair, reader: this});
 
         if (result == false)
             return false;
@@ -139,20 +139,20 @@ GwfObjectInfoReader = {
         var content = node.getElementsByTagName("content");
         var parsed_node;
         if (content[0].textContent == ""){
-            parsed_node = new GwfObjectNode(null);
+            parsed_node = new GwfgObjectNode(null);
         } else {
-            parsed_node = new GwfObjectLink(null);
+            parsed_node = new GwfgObjectLink(null);
         }
-        if (parsed_node.parseObject({gwf_object: node, reader: this}) == false)
+        if (parsed_node.parseObject({gwfg_object: node, reader: this}) == false)
             return false;
         this.objects_info[parsed_node.id] = parsed_node;
 
     },
 
     parseBus: function (bus){
-        var parsed_bus = new GwfObjectBus(null);
+        var parsed_bus = new GwfgObjectBus(null);
 
-        if (parsed_bus.parseObject({gwf_object: bus, reader: this}) == false)
+        if (parsed_bus.parseObject({gwfg_object: bus, reader: this}) == false)
                     return false;
         this.objects_info[parsed_bus.id] = parsed_bus;
     },
@@ -193,6 +193,6 @@ GwfObjectInfoReader = {
     },
 
     getTypeCode: function (gfw_type) {
-        return this.gwf_type_to_scgg_type[gfw_type];
+        return this.gwfg_type_to_scgg_type[gfw_type];
     }
 }

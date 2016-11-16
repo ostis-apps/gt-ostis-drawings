@@ -5,7 +5,7 @@ var SCggObjectState = {
     FromMemory: 3
 };
 
-var ObjectId = 0;
+var ObjectId = 1;
 
 /**
      * Initialize sc.g-object with specified options.
@@ -367,19 +367,19 @@ SCgg.ModelEdge = function(options) {
     this.source = null;
     this.target = null;
 
-    if (options.source)
+    if (options.source) {
         this.setSource(options.source);
-    if (options.target)
+    }
+
+    if (options.target) {
         this.setTarget(options.target);
+    }
 
     this.source_pos = null; // the begin position of egde in world coordinates
     this.target_pos = null; // the end position of edge in world coordinates
     this.points = [];
     this.source_dot = 0.5;
     this.target_dot = 0.5;
-
-    //this.requestUpdate();
-    //this.update();
 };
 
 SCgg.ModelEdge.prototype = Object.create( SCgg.ModelObject.prototype );
@@ -554,7 +554,7 @@ SCgg.ModelEdge.prototype.getConnectionPos = function(from, dotPos) {
     result.multiplyScalar(10).add(l_pt);
     
     return result;
-}
+};
 
 SCgg.ModelEdge.prototype.calculateDotPos = function(pos) {
     

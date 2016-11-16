@@ -32,6 +32,10 @@ SCggSelectListener.prototype = {
     },
 
     onMouseDown: function(x, y) {
+        this.scene.clearSelection();
+        if (this.scene.render.sandbox.loadGraph){
+            this.scene.edit.scsComponent.setGraphActive();
+        }
         return false;
     },
 
@@ -44,6 +48,9 @@ SCggSelectListener.prototype = {
     },
 
     onMouseDownObject: function(obj) {
+        if (obj.sc_addr){
+            this.scene.edit.scsComponent.setNewActive(obj)
+        }
         this.offsetObject = obj;
         this.scene.focused_object = obj;
         this.position = this.scene.focused_object.position.clone();

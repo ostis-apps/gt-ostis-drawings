@@ -1,5 +1,5 @@
 ui_graph_choose_message
-	<- ui_scg_control; sc_node_not_relation;
+	<- ui_scgg_control; sc_node_not_relation;
 	=> nrel_main_idtf:
 		[Загрузить граф или создать новый?]
 		(* <- lang_ru;; *);
@@ -8,7 +8,7 @@ ui_graph_choose_message
 (* <- lang_en;; *);;
 
 ui_graph_choose_load
-	<- ui_scg_control; sc_node_not_relation;
+	<- ui_scgg_control; sc_node_not_relation;
 	=> nrel_main_idtf:
 		[Загрузить граф]
 		(* <- lang_ru;; *);
@@ -18,7 +18,7 @@ ui_graph_choose_load
 
 
 ui_graph_choose_new
-	<- ui_scg_control; sc_node_not_relation;
+	<- ui_scgg_control; sc_node_not_relation;
 	=> nrel_main_idtf:
 		[Новый граф]
 		(* <- lang_ru;; *);
