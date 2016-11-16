@@ -16,14 +16,14 @@ SCggSelectListener.prototype = {
 
     onMouseMove: function(x, y) {
         var self = this;
+        var selectobj = (this.scene.selected_objects.length>1);
         var offset = new SCgg.Vector3(x - this.scene.mouse_pos.x, y - this.scene.mouse_pos.y, 0);
         this.scene.mouse_pos.x = x;
         this.scene.mouse_pos.y = y;
         if (this.scene.focused_object) {
             this.scene.selected_objects.forEach(function (object) {
-                if (!(object.contour != null && self.scene.selected_objects.indexOf(object.contour) > -1)){
-                    object.setPosition(object.position.clone().add(offset));
-                }
+                    if(!(object instanceof SCgg.ModelEdge && object.source==object.target && selectobj))
+                        object.setPosition(object.position.clone().add(offset));
             });
             this.scene.updateObjectsVisual();
             return true;
@@ -68,6 +68,8 @@ SCggSelectListener.prototype = {
             var commands = [];
             var self = this;
             this.scene.selected_objects.forEach(function (object) {
+
+
                 if (!(object.contour != null && self.scene.selected_objects.indexOf(object.contour) > -1)){
                     commands.push(new SCggCommandMoveObject(object, offset));
                 }

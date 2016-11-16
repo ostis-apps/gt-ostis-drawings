@@ -80,6 +80,19 @@ SCgg.ModelObject.prototype.destroy = function() {
  *      New position of object
  */
 SCgg.ModelObject.prototype.setPosition = function(pos) {
+
+    if(this instanceof  SCgg.ModelNode && this.edges.length>0){
+        for(var i=0;i<this.edges.length;i++){
+            if(this.edges[i].source==this.edges[i].target){
+                this.edges[i].points[0].x -=this.position.x -pos.x;
+                this.edges[i].points[0].y -=this.position.y -pos.y;
+                this.edges[i].points[1].x -=this.position.x -pos.x;
+                this.edges[i].points[1].y -=this.position.y -pos.y;
+                i++;
+            }
+        }
+    }
+
     this.position = pos;
     this.need_observer_sync = true;
 
@@ -261,6 +274,8 @@ SCgg.ModelNode = function(options) {
     SCgg.ModelObject.call(this, options);
 };
 
+
+
 SCgg.ModelNode.prototype = Object.create( SCgg.ModelObject.prototype );
 
 SCgg.ModelNode.prototype.getConnectionPos = function(from, dotPos) {
@@ -346,7 +361,7 @@ SCgg.ModelLink.prototype.setContent = function(content, contentType) {
  *      Initial opations of sc.g-arc. 
  */
 SCgg.ModelEdge = function(options) {
-    
+
     SCgg.ModelObject.call(this, options);
 
     this.source = null;

@@ -208,10 +208,10 @@ var SCggAlphabet = {
      * @param d3_group {} Object that represents svg group
      */
     updateEdge: function(edge, d3_group, containerId) {
-        
+
         // first of all we need to determine if edge has an end marker
         var has_marker = edge.hasArrow();
-        
+
         // now calculate target and source positions
         var pos_src = edge.source_pos.clone();
         var pos_trg = edge.target_pos.clone();
@@ -228,21 +228,23 @@ var SCggAlphabet = {
             dv.normalize();
             pos_trg = prev_pos.clone().add(dv.multiplyScalar(len - 10));
         }
-        
+
         // make position path
         var position_path = 'M' + pos_src.x + ',' + pos_src.y;
-        for (idx in edge.points) {
-            position_path += 'L' + edge.points[idx].x + ',' + edge.points[idx].y;
-        }
+
+            for (idx in edge.points) {
+                position_path += 'L' + edge.points[idx].x + ',' + edge.points[idx].y;
+            }
+
         position_path += 'L' + pos_trg.x + ',' + pos_trg.y;
-        
+
         var sc_type_str = edge.sc_type.toString();
         if (d3_group['sc_type'] != sc_type_str) {
             d3_group.attr('sc_type', sc_type_str);
-            
+
             // remove old
             d3_group.selectAll('path').remove();
-            
+
             d3_group.append('svg:path').classed('SCggEdgeSelectBounds', true).attr('d', position_path);
             
             // if it accessory, then append main line
