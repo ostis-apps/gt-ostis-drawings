@@ -32,9 +32,11 @@ SCggSelectListener.prototype = {
     },
 
     onMouseDown: function(x, y) {
-        this.scene.clearSelection();
-        if (this.scene.render.sandbox.loadGraph){
-            this.scene.edit.scsComponent.setGraphActive();
+        if (this.scene.render.line_point_selected == null){
+            this.scene.clearSelection();
+            if (this.scene.render.sandbox.loadGraph){
+                this.scene.edit.scsComponent.setGraphActive();
+            }
         }
         return false;
     },

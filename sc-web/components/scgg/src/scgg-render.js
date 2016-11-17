@@ -67,6 +67,7 @@ SCgg.Render.prototype = {
         this.d3_dragline = this.d3_container.append('svg:g');
         this.d3_line_points = this.d3_container.append('svg:g');
         this.line_point_idx = -1;
+        this.line_point_selected = null;
     },
 
     // -------------- Definitions --------------------
@@ -664,9 +665,11 @@ SCgg.Render.prototype = {
                 return 'translate(' + d.pos.x + ',' + d.pos.y + ')';
             })
             .on('mouseover', function (d) {
+                self.line_point_selected = true;
                 d3.select(this).classed('SCggLinePointHighlighted', true);
             })
             .on('mouseout', function (d) {
+                self.line_point_selected = null;
                 d3.select(this).classed('SCggLinePointHighlighted', false);
             })
             .on('mousedown', function (d) {
