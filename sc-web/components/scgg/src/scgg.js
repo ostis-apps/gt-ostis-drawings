@@ -547,6 +547,7 @@ SCgg.Editor.prototype = {
                     var deltaX = $(container + ' .SCggSvg').width() / scale + x0;
                     var deltaY = $(container + ' .SCggSvg').height() / scale + y0;
                     var tempNodes = [];
+                    var commandList = [];
 
                     for (var i = 0; i < vertexCount; i++) {
                         var position = new SCgg.Vector3(Math.random() * deltaX + x0, Math.random() * deltaY + y0, 0);
@@ -554,6 +555,7 @@ SCgg.Editor.prototype = {
 
                         self.scene.appendNode(node);
                         tempNodes.push(node);
+                        commandList.push(new SCggCommandAppendObject(node, self.scene));
                     }
 
                     for (var nodeI = 0; nodeI < tempNodes.length - 1; nodeI++) {
@@ -561,10 +563,12 @@ SCgg.Editor.prototype = {
                             if (Math.random() * 100 < edgeProbability) {
                                 var edge = SCgg.Creator.createEdge(tempNodes[nodeI], tempNodes[nodeJ], SCggTypeEdgeNow);
                                 self.scene.appendEdge(edge);
+                                commandList.push(new SCggCommandAppendObject(edge, self.scene));
                             }
                         }
                     }
 
+                    self.scene.commandManager.execute(new SCggWrapperCommand(commandList), true);
                     self.scene.layout();
                     self.render.update();
                 }
@@ -692,6 +696,7 @@ SCgg.Editor.prototype = {
         update_tool(this.toolZoomOut());
         update_tool(this.toolIntegrate());
         update_tool(this.toolOpen());
+        update_tool(this.toolRandomGraph());
     },
 
     collectIdtfs : function(keyword){
