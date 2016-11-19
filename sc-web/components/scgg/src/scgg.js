@@ -705,6 +705,7 @@ SCgg.Editor.prototype = {
         update_tool(this.toolZoomOut());
         update_tool(this.toolIntegrate());
         update_tool(this.toolOpen());
+        update_tool(this.toolSave());
         update_tool(this.toolRandomGraph());
         if (self.scene.modal != SCggModalMode.SCggModalEditGraphName) {
             update_tool(this.graphNameButton());

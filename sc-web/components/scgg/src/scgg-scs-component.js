@@ -63,7 +63,7 @@ SCggSCsComponent.prototype = {
             container: 'graph-scs-' + this.container + '_' + id,
             addr: answer_addr,
             is_struct: false,
-            format_addr: window.scKeynodes.format_scs_json,
+            format_addr: SCggKeynodesHandler.scKeynodes.format_scs_json,
             canEdit: true,
             keynodes: SCWeb.core.ComponentManager._keynodes
         });
