@@ -380,14 +380,22 @@ path.SCggBusPath {
 }
 
 /*------------ Choose new graph or load -----------*/
-#confirmChooseBox{
+#confirmChooseBox {
     display: block;
-    padding-top: 11px;
-    padding-bottom: 11px;
-    max-height: 120px;
-    width: 350px;
+    border: 1px solid rgb(229, 229, 229);
+    border-radius: 20px;
+    padding: 15px;
+    max-height: 103px;
     margin: 0 auto;
-    top: 150px;
+    top: 176px;
+    width: 400px;
+}
+#confirmChooseBox #confirmMessage {
+    margin-bottom: 5px;
+}
+
+#confirmChooseBox .modal-footer {
+    padding: 10px 0 0;
 }
 
 #confirmChooseBox .modal-body {
@@ -395,11 +403,11 @@ path.SCggBusPath {
 }
 
 #confirmChooseBox #confirmCreateNew {
-    width: 67%;
+    width: 31%;
 }
 
 #confirmChooseBox #confirmLoadGraph {
-    width: 29%;
+    width: 66%;
 }
 
 #confirmLoadGraph{
