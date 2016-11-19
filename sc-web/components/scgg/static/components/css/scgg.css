@@ -381,9 +381,25 @@ path.SCggBusPath {
 
 /*------------ Choose new graph or load -----------*/
 #confirmChooseBox{
+    display: block;
+    padding-top: 11px;
+    padding-bottom: 11px;
+    max-height: 120px;
     width: 350px;
     margin: 0 auto;
     top: 150px;
+}
+
+#confirmChooseBox .modal-body {
+    padding: 0;
+}
+
+#confirmChooseBox #confirmCreateNew {
+    width: 67%;
+}
+
+#confirmChooseBox #confirmLoadGraph {
+    width: 29%;
 }
 
 #confirmLoadGraph{

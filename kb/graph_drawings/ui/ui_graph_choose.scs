@@ -10,19 +10,19 @@ ui_graph_choose_message
 ui_graph_choose_load
 	<- ui_scgg_control; sc_node_not_relation;
 	=> nrel_main_idtf:
-		[Загрузить граф]
+		[Загрузить]
 		(* <- lang_ru;; *);
 	=> nrel_main_idtf:
-        [Load graph]
+        [Load]
 (* <- lang_en;; *);;
 
 
 ui_graph_choose_new
 	<- ui_scgg_control; sc_node_not_relation;
 	=> nrel_main_idtf:
-		[Новый граф]
+		[Создать новый]
 		(* <- lang_ru;; *);
 	=> nrel_main_idtf:
-        [New graph]
+        [Create new]
 (* <- lang_en;; *);;
 
