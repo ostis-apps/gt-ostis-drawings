@@ -16,7 +16,10 @@ var SCggEditMode = {
 var SCggModalMode = {
     SCggModalNone: 0,
     SCggModalIdtf: 1,
-    SCggModalType: 2
+    SCggModalType: 2,
+    SCggModalRandomGraph: 3,
+    SCggModalEditGraphName: 4
+
 };
 
 var KeyCode = {

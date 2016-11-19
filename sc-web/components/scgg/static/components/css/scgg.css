@@ -380,10 +380,34 @@ path.SCggBusPath {
 }
 
 /*------------ Choose new graph or load -----------*/
-#confirmChooseBox{
-    width: 350px;
+#confirmChooseBox {
+    display: block;
+    border: 1px solid rgb(229, 229, 229);
+    border-radius: 20px;
+    padding: 15px;
+    max-height: 103px;
     margin: 0 auto;
-    top: 150px;
+    top: 176px;
+    width: 400px;
+}
+#confirmChooseBox #confirmMessage {
+    margin-bottom: 5px;
+}
+
+#confirmChooseBox .modal-footer {
+    padding: 10px 0 0;
+}
+
+#confirmChooseBox .modal-body {
+    padding: 0;
+}
+
+#confirmChooseBox #confirmCreateNew {
+    width: 31%;
+}
+
+#confirmChooseBox #confirmLoadGraph {
+    width: 66%;
 }
 
 #confirmLoadGraph{

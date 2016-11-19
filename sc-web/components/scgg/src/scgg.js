@@ -235,6 +235,10 @@ SCgg.Editor.prototype = {
         return this.tool('zoomout');
     },
 
+    graphNameButton: function() {
+        return $('#' + this.containerId + ' .input-group-graph-name').find('button');
+    },
+
     bindGraphNameEvents: function() {
         var self = this;
         var containerId = self.containerId;
@@ -246,9 +250,12 @@ SCgg.Editor.prototype = {
             self.showGraphActive();
 
             if (self.isEditGraphName() && self.checkGraphNameLength()) {
+                self.scene.setModal(SCggModalMode.SCggModalNone);
+                self.onModalChanged();
                 self.toggleGraphName(true);
                 self.updateGraphNameBackLight();
             } else {
+                self.scene.setModal(SCggModalMode.SCggModalEditGraphName);
                 self.toggleGraphName(false);
                 self.updateGraphNameBackLight();
             }
@@ -340,7 +347,7 @@ SCgg.Editor.prototype = {
             el.popover({
                 content: self.edge_types_panel_content,
                 container: container,
-                title: 'Сгенерировать граф',
+                title: 'Change type',
                 html: true,
                 delay: {show: 500, hide: 100}
             }).popover('show');
@@ -487,12 +494,13 @@ SCgg.Editor.prototype = {
         this.toolRandomGraph().click(function() {
             var tool = $(this);
 
-            self.scene.setModal(SCggModalMode.SCggModalType);
+            self.scene.setModal(SCggModalMode.SCggModalRandomGraph);
+            self.onModalChanged();
 
             tool.popover({
                 content: self.random_graph_panel_content,
                 container: container,
-                title: 'Сгенерировать граф',
+                title: 'Generate graph',
                 html: true,
                 delay: {show: 500, hide: 100}
             }).popover('show');
@@ -547,24 +555,29 @@ SCgg.Editor.prototype = {
                     var deltaX = $(container + ' .SCggSvg').width() / scale + x0;
                     var deltaY = $(container + ' .SCggSvg').height() / scale + y0;
                     var tempNodes = [];
+                    var commandList = [];
+
+                    stop_modal();
 
                     for (var i = 0; i < vertexCount; i++) {
                         var position = new SCgg.Vector3(Math.random() * deltaX + x0, Math.random() * deltaY + y0, 0);
                         var node = SCgg.Creator.createNode(SCggTypeNodeNow, position, '');
 
-                        self.scene.appendNode(node);
                         tempNodes.push(node);
+                        commandList.push(new SCggCommandAppendObject(node, self.scene));
                     }
 
                     for (var nodeI = 0; nodeI < tempNodes.length - 1; nodeI++) {
                         for (var nodeJ = nodeI + 1; nodeJ < tempNodes.length; nodeJ++) {
                             if (Math.random() * 100 < edgeProbability) {
                                 var edge = SCgg.Creator.createEdge(tempNodes[nodeI], tempNodes[nodeJ], SCggTypeEdgeNow);
-                                self.scene.appendEdge(edge);
+
+                                commandList.push(new SCggCommandAppendObject(edge, self.scene));
                             }
                         }
                     }
 
+                    self.scene.commandManager.execute(new SCggWrapperCommand(commandList));
                     self.scene.layout();
                     self.render.update();
                 }
@@ -692,6 +705,10 @@ SCgg.Editor.prototype = {
         update_tool(this.toolZoomOut());
         update_tool(this.toolIntegrate());
         update_tool(this.toolOpen());
+        update_tool(this.toolRandomGraph());
+        if (self.scene.modal != SCggModalMode.SCggModalEditGraphName) {
+            update_tool(this.graphNameButton());
+        }
     },
 
     collectIdtfs : function(keyword){
