@@ -287,8 +287,6 @@ function scggScStructTranslator(_editor, _sandbox) {
                     var dfdTranslateDecomposition = new jQuery.Deferred();
                     var graphName = editor.getGraphName();
 
-                    // var temporary_entity;
-
                     var createDecomposition = function () {
                         editor.render.sandbox.loadGraph = true;
 
@@ -297,7 +295,8 @@ function scggScStructTranslator(_editor, _sandbox) {
                         window.sctpClient.create_node(sc_type_node | sc_type_const).done(function (graphDecompositionAddr) {
 
                             window.sctpClient.create_arc(sc_type_arc_pos_const_perm, SCggKeynodesHandler.scKeynodes.concept_graph, graphDecompositionAddr);
-
+                            window.sctpClient.create_arc(sc_type_arc_pos_const_perm,SCggKeynodesHandler.scKeynodes.temporary_entity, graphDecompositionAddr);
+                            
                             window.sctpClient.create_node(sc_type_node | sc_type_const | sc_type_node_tuple).done(function (graphDecompositionTupleAddr) {
                                 editor.render.sandbox.decompositionNodeAddr = graphDecompositionTupleAddr;
                                 editor.render.sandbox.graphNodeAddr = graphDecompositionAddr;
@@ -308,7 +307,18 @@ function scggScStructTranslator(_editor, _sandbox) {
                                                 window.sctpClient.set_link_content(link_addr, graphName).done(function () {
                                                     window.sctpClient.create_arc(sc_type_arc_common | sc_type_const, graphDecompositionAddr, link_addr).done(function (arc_addr) {
                                                         window.sctpClient.create_arc(sc_type_arc_pos_const_perm, window.scKeynodes.nrel_main_idtf, arc_addr)
-                                                            .done(dfdCreate.resolve)
+                                                            .done(function(){
+                                                                if (currentLanguage){
+                                                                    window.sctpClient.create_arc(sc_type_arc_pos_const_perm, currentLanguage, link_addr).done(function () {
+                                                                        dfdCreate.resolve();
+                                                                    })
+                                                                        .fail(dfdCreate.reject);
+                                                                }
+                                                                else {
+                                                                    dfdCreate.resolve();
+                                                                }
+
+                                                            })
                                                             .fail(dfdCreate.reject);
                                                     }).fail(dfdCreate.reject);
                                                 }).fail(dfdCreate.reject);
@@ -328,6 +338,7 @@ function scggScStructTranslator(_editor, _sandbox) {
 
 
                     var addCurrentGraph = function (graphAddr) {
+                        var self = this;
                         var dfdAddCurrentGraph = new jQuery.Deferred();
 
                         var deleteCurrent = function () {
@@ -350,20 +361,25 @@ function scggScStructTranslator(_editor, _sandbox) {
 
                         var addCurrent = function () {
                             var addCurrent = new jQuery.Deferred();
-
-                            window.sctpClient.create_arc(sc_type_arc_pos_const_perm, editor.render.sandbox.decompositionNodeAddr, graphAddr).done(function (arcSysIdtf) {
-                                window.sctpClient.create_arc(sc_type_arc_pos_const_perm, SCggKeynodesHandler.scKeynodes.rrel_current_version, arcSysIdtf)
-                                    .done(function () {
-                                        addCurrent.resolve();
-                                    }).fail(addCurrent.reject);
+                            window.sctpClient.create_arc(sc_type_arc_pos_const_perm,SCggKeynodesHandler.scKeynodes.temporary_entity, graphAddr).done(function(){
+                                window.sctpClient.create_arc(sc_type_arc_pos_const_perm, editor.render.sandbox.decompositionNodeAddr, graphAddr).done(function (arcSysIdtf) {
+                                    window.sctpClient.create_arc(sc_type_arc_pos_const_perm, SCggKeynodesHandler.scKeynodes.rrel_current_version, arcSysIdtf)
+                                        .done(function () {
+                                            addCurrent.resolve();
+                                        }).fail(addCurrent.reject);
+                                }).fail(addCurrent.reject);
                             }).fail(addCurrent.reject);
+
 
                             return addCurrent.promise();
                         };
 
                         deleteCurrent().always(function () {
                             addCurrent()
-                                .done(dfdAddCurrentGraph.resolve)
+                                .done(function(){
+                                    editor.render.sandbox.addr = graphAddr;
+                                    dfdAddCurrentGraph.resolve();
+                                })
                                 .fail(dfdAddCurrentGraph.reject);
                         });
 

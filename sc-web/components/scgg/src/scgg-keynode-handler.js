@@ -9,7 +9,8 @@ SCggKeynodesHandler = {
         'nrel_temporal_decomposition',
         'rrel_current_version',
         'rrel_vertex',
-        'rrel_oredge'
+        'rrel_oredge',
+        'temporary_entity'
     ],
 
     scKeynodes: {},
