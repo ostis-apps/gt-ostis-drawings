@@ -1,0 +1,17 @@
+ui_graph_resolve
+	<- ui_scgg_control; sc_node_not_relation;
+	=> nrel_main_idtf:
+		[Решить задачу]
+		(* <- lang_ru;; *);
+	=> nrel_main_idtf:
+        [Solve task]
+(* <- lang_en;; *);;
+
+ui_graph_resolve_choose
+	<- ui_scgg_control; sc_node_not_relation;
+	=> nrel_main_idtf:
+		[Выбрать условие]
+		(* <- lang_ru;; *);
+	=> nrel_main_idtf:
+        [Select condition]
+(* <- lang_en;; *);;

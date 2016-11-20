@@ -4,18 +4,24 @@ SCggSCsComponent = function (params, editor) {
     this.sandbox = params.sandbox;
     this.container = params.sandbox.container;
     this.editor = editor;
-    this.scsContainer = '#graph-scs-' + this.container;
-    $('#graph-' + this.container).append('<div class="SCggSCc" id="graph-scs-' + this.container + '"></div>');
+    this.scsContainer = null;
 };
 
 SCggSCsComponent.prototype = {
 
     constructor: SCggSCsComponent,
 
+    createUI: function () {
+        this.scsContainer = '#graph-scs-' + this.container;
+        $('#graph-' + this.container).append('<div class="SCggSCs" id="graph-scs-' + this.container + '"></div>');
+    },
+
     clearStorage: function () {
         this.storageSCsComponent = {};
         this.activeSCsComponent = null;
-        $(this.scsContainer).empty();
+        if (this.scsContainer){
+            $(this.scsContainer).empty();
+        }
     },
 
     hideComponent: function() {

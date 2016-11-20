@@ -18,8 +18,8 @@ var SCggModalMode = {
     SCggModalIdtf: 1,
     SCggModalType: 2,
     SCggModalRandomGraph: 3,
-    SCggModalEditGraphName: 4
-
+    SCggModalEditGraphName: 4,
+    SCggModalSolveMode: 5
 };
 
 var KeyCode = {

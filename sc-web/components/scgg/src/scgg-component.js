@@ -324,6 +324,7 @@ var scggViewerWindow = function(sandbox, load) {
         }
         this.editor.render.updateTexts();
         this.editor.updateGraphName();
+        this.editor.resolveComponent.updateIdtf();
     };
 
     this.eventStructUpdate = function() {
@@ -343,6 +344,7 @@ var scggViewerWindow = function(sandbox, load) {
     var startIdIndex = 7;
     this.window_id = this.domContainer.substring(startIdIndex) + '_' + this.sandbox.command_state.format;
     SCWeb.ui.KeyboardHandler.subscribeWindow(this.window_id, this.editor.keyboardCallbacks);
+    SCWeb.ui.OpenComponentHandler.subscribeComponent(this.window_id, this.editor.openComponentCallbacks);
 };
 
 

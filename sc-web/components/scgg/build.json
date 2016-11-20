@@ -22,6 +22,7 @@
         "src/scgg-object-creator.js",
         "src/scgg-component.js",
         "src/scgg-scs-component.js",
+        "src/scgg-resolve-component.js",
         "src/listener/scgg-mode-bus.js",
         "src/listener/scgg-mode-contour.js",
         "src/listener/scgg-mode-edge.js",

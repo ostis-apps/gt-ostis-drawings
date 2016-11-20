@@ -425,11 +425,33 @@ path.SCggBusPath {
     border: 1px solid rgba(0, 0, 0, 0.10)
 }
 
-.SCggSCc {
+.SCggSCs {
+    float: left;
+    display: block;
+    width: 250px;
+    margin: 10px 0 0 10px;
+}
+
+/*------------- Resolve Component -----------------------*/
+.SCggResolve {
     float: left;
     display: block;
     width: 250px;
     margin: 75px 0 0 10px;
+}
+
+#solve-param {
+    width: 100%;
+    margin: 5px;
+}
+
+#tool-resolve {
+    width: 100%;
+    margin: 5px;
+}
+
+#solve-img{
+    margin: 0 10px 0 0;
 }
 
 /*--------------- popover styles -----------------*/

@@ -10,7 +10,8 @@ SCggKeynodesHandler = {
         'rrel_current_version',
         'rrel_vertex',
         'rrel_oredge',
-        'temporary_entity'
+        'temporary_entity',
+        'ui_menu_find_graph_info'
     ],
 
     scKeynodes: {},

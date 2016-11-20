@@ -51,18 +51,24 @@ SCgg.Editor.prototype = {
         this.scene.init();
         this.render.scene = this.scene;
         this.render.init(params);
+        this.resolveComponent = new SCggResolveComponent(params, this);
         this.scsComponent = new SCggSCsComponent(params, this);
         this.containerId = "graph-" + params.containerId;
 
-        if (params.sandbox.loadGraph)
+        if (params.sandbox.loadGraph) {
+            this.resolveComponent.createUI();
+            this.scsComponent.createUI();
             this.scsComponent.setGraphActive();
-        if (params.autocompletionVariants)
+        }
+        if (params.autocompletionVariants) {
             this.autocompletionVariants = params.autocompletionVariants;
-        if (params.translateToSc)
+        }
+        if (params.translateToSc) {
             this.translateToSc = params.translateToSc;
-        if (params.resolveControls)
+        }
+        if (params.resolveControls) {
             this.resolveControls = params.resolveControls;
-
+        }
         this.canEdit = params.canEdit ? true : false;
         this.initUI();
     },
@@ -634,11 +640,19 @@ SCgg.Editor.prototype = {
         });
 
         this.toolIntegrate().click(function() {
+            self.scene.clearSelection();
             self.scsComponent.clearStorage();
             self._disableTool(self.toolIntegrate());
             if (self.translateToSc)
                 self.translateToSc(self.scene, function() {
                     self._enableTool(self.toolIntegrate());
+                    if (!self.resolveComponent.resolveComponent){
+                        self.resolveComponent.createUI();
+                    }
+                    if (!self.scsComponent.scsContainer){
+                        self.scsComponent.createUI();
+                    }
+                    self.scsComponent.setGraphActive();
                 });
         });
 
@@ -707,6 +721,8 @@ SCgg.Editor.prototype = {
         update_tool(this.toolOpen());
         update_tool(this.toolSave());
         update_tool(this.toolRandomGraph());
+        update_tool(this.resolveComponent.toolButtonSolve());
+        update_tool(this.resolveComponent.getInputSolveParam());
         if (self.scene.modal != SCggModalMode.SCggModalEditGraphName) {
             update_tool(this.graphNameButton());
         }
