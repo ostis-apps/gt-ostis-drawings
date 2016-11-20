@@ -39,6 +39,26 @@ SCgg.Creator.createLink = function(pos, containerId) {
  * @return SCgg.ModelEdge created edge
  */
 SCgg.Creator.createEdge = function(source, target, sc_type) {
+    if(source==target){
+        var edge=new SCgg.ModelEdge({
+            source: source,
+            target: target,
+            sc_type: sc_type ? sc_type : sc_type_edge_common
+        });
+        var points=new Array();
+        points.push({
+            x: source.position.x+40,
+            y: source.position.y-40,
+            idx: 1
+        });
+        points.push({
+            x: source.position.x-40,
+            y: source.position.y-40,
+            idx: 2
+        });
+        edge.setPoints(points);
+        return edge;
+    }
     return new SCgg.ModelEdge({
         source: source,
         target: target,

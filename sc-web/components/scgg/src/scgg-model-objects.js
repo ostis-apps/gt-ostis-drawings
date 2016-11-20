@@ -277,6 +277,20 @@ SCgg.ModelNode.prototype.getConnectionPos = function(from, dotPos) {
 
     return result;
 };
+SCgg.ModelNode.prototype.setPosition = function(pos) {
+    if(this.edges.length>0)
+        for(var edge=0;edge<this.edges.length;edge++){
+            if(this.edges[edge].source==this.edges[edge].target){
+                for(var point =0;point<this.edges[edge].points.length;point++){
+                    this.edges[edge].points[point].x -=this.position.x -pos.x;
+                    this.edges[edge].points[point].y -=this.position.y -pos.y;
+                }
+                edge++;
+            }
+        }
+
+    SCgg.ModelObject.prototype.setPosition.call(this, pos);
+};
 
 
 // ---------------- link ----------
