@@ -26,8 +26,14 @@ SCggCommandCreateEdge.prototype = {
             this.edge = SCgg.Creator.createEdge(this.source, this.target, SCggTypeEdgeNow);
             scene.appendEdge(this.edge);
 
-            var mouse_pos = new SCgg.Vector2(scene.mouse_pos.x, scene.mouse_pos.y);
-            var start_pos = new SCgg.Vector2(scene.drag_line_points[0].x, scene.drag_line_points[0].y);
+            if(this.source==this.target){
+                var mouse_pos = new SCgg.Vector2(this.source.position.x, this.source.position.x);
+                var start_pos = new SCgg.Vector2(this.source.position.x, this.source.position.y);
+            }
+            else{
+                var mouse_pos = new SCgg.Vector2(scene.mouse_pos.x, scene.mouse_pos.y);
+                var start_pos = new SCgg.Vector2(scene.drag_line_points[0].x, scene.drag_line_points[0].y);
+            }
 
             this.edge.setSourceDot(this.source.calculateDotPos(start_pos));
             this.edge.setTargetDot(this.target.calculateDotPos(mouse_pos));
@@ -37,8 +43,8 @@ SCggCommandCreateEdge.prototype = {
             }
 
             scene.edge_data.source = scene.edge_data.target = null;
-
             scene.drag_line_points.splice(0, scene.drag_line_points.length);
+
             scene.updateRender();
             scene.render.updateDragLine();
 

@@ -80,6 +80,18 @@ SCgg.ModelObject.prototype.destroy = function() {
  *      New position of object
  */
 SCgg.ModelObject.prototype.setPosition = function(pos) {
+    if(this instanceof  SCgg.ModelNode && this.edges.length>0){
+            for(var i=0;i<this.edges.length;i++){
+                if(this.edges[i].source==this.edges[i].target){
+                    for(var j =0;j<this.edges[i].points.length;j++){
+                        this.edges[i].points[j].x -=this.position.x -pos.x;
+                        this.edges[i].points[j].y -=this.position.y -pos.y;
+                    }
+                    i++;
+                }
+            }
+        }
+
     this.position = pos;
     this.need_observer_sync = true;
 
