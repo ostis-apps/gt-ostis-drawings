@@ -45,18 +45,18 @@ SCgg.Creator.createEdge = function(source, target, sc_type) {
             target: target,
             sc_type: sc_type ? sc_type : sc_type_edge_common
         });
-        var tamp_arr=new Array();
-        tamp_arr.push({
+        var points=new Array();
+        points.push({
             x: source.position.x+40,
             y: source.position.y-40,
             idx: 1
         });
-        tamp_arr.push({
+        points.push({
             x: source.position.x-40,
             y: source.position.y-40,
             idx: 2
         });
-        edge.setPoints(tamp_arr);
+        edge.setPoints(points);
         return edge;
     }
     return new SCgg.ModelEdge({

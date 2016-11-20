@@ -81,15 +81,7 @@ SCgg.ModelObject.prototype.destroy = function() {
  */
 SCgg.ModelObject.prototype.setPosition = function(pos) {
     if(this instanceof  SCgg.ModelNode && this.edges.length>0){
-            for(var i=0;i<this.edges.length;i++){
-                if(this.edges[i].source==this.edges[i].target){
-                    for(var j =0;j<this.edges[i].points.length;j++){
-                        this.edges[i].points[j].x -=this.position.x -pos.x;
-                        this.edges[i].points[j].y -=this.position.y -pos.y;
-                    }
-                    i++;
-                }
-            }
+
         }
 
     this.position = pos;
@@ -288,6 +280,20 @@ SCgg.ModelNode.prototype.getConnectionPos = function(from, dotPos) {
     result.multiplyScalar(radius).add(center);
 
     return result;
+};
+SCgg.ModelNode.prototype.setPosition = function(pos) {
+    if(this.edges.length>0)
+        for(var edge=0;edge<this.edges.length;edge++){
+            if(this.edges[edge].source==this.edges[edge].target){
+                for(var point =0;point<this.edges[edge].points.length;point++){
+                    this.edges[edge].points[point].x -=this.position.x -pos.x;
+                    this.edges[edge].points[point].y -=this.position.y -pos.y;
+                }
+                edge++;
+            }
+        }
+
+    SCgg.ModelObject.prototype.setPosition.call(this, pos);
 };
 
 
