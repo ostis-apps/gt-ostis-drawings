@@ -364,9 +364,8 @@ function scggScStructTranslator(_editor, _sandbox) {
                             window.sctpClient.create_arc(sc_type_arc_pos_const_perm,SCggKeynodesHandler.scKeynodes.temporary_entity, graphAddr).done(function(){
                                 window.sctpClient.create_arc(sc_type_arc_pos_const_perm, editor.render.sandbox.decompositionNodeAddr, graphAddr).done(function (arcSysIdtf) {
                                     window.sctpClient.create_arc(sc_type_arc_pos_const_perm, SCggKeynodesHandler.scKeynodes.rrel_current_version, arcSysIdtf)
-                                        .done(function () {
-                                            addCurrent.resolve();
-                                        }).fail(addCurrent.reject);
+                                        .done(addCurrent.resolve)
+                                        .fail(addCurrent.reject);
                                 }).fail(addCurrent.reject);
                             }).fail(addCurrent.reject);
 
@@ -385,6 +384,18 @@ function scggScStructTranslator(_editor, _sandbox) {
 
                         return dfdAddCurrentGraph.promise();
                     };
+
+                    var translateTemporalInclusion = function (firstGraph, secondGraph) {
+                        var translateInclusion = jQuery.Deferred();
+
+                            window.sctpClient.create_arc(sc_type_arc_common | sc_type_const, firstGraph, secondGraph).done(function(prev_to_cur_arc_idtf) {
+                                window.sctpClient.create_arc(sc_type_arc_pos_const_perm, SCggKeynodesHandler.scKeynodes.nrel_temporal_inclusion, prev_to_cur_arc_idtf).done(function() {
+                                    translateInclusion.resolve();
+                                }).fail(translateInclusion.reject);
+                            }).fail(translateInclusion.reject);
+
+                        return translateInclusion.promise();
+                    }
 
                     if (!editor.render.sandbox.loadGraph) {
                         createDecomposition().done(function () {
@@ -405,16 +416,24 @@ function scggScStructTranslator(_editor, _sandbox) {
                                     window.sctpClient.create_arc(sc_type_arc_pos_const_perm, SCggKeynodesHandler.scKeynodes.sc_garbage, results[i][1]);
                                 };
                                 createDecomposition().done(function () {
+                                    var firstGraph = editor.render.sandbox.addr;
                                     addCurrentGraph(editor.render.sandbox.addr).done(function () {
-                                        addCurrentGraph(addrStruct).done(dfdTranslateDecomposition.resolve)
-                                            .fail(dfdTranslateDecomposition.reject)
+                                        addCurrentGraph(addrStruct).done(function(){
+                                            translateTemporalInclusion(firstGraph, addrStruct).done(function(){
+                                                dfdTranslateDecomposition.resolve();
+                                            }).fail(dfdTranslateDecomposition.reject)
+                                        }).fail(dfdTranslateDecomposition.reject)
                                     }).fail(dfdTranslateDecomposition.reject)
                                 })
                             }).fail(dfdTranslateDecomposition.reject);
                         }
                         else {
-                            addCurrentGraph(addrStruct).done(dfdTranslateDecomposition.resolve)
-                                .fail(dfdTranslateDecomposition.reject);
+                            var firstGraph = editor.render.sandbox.addr;
+                            addCurrentGraph(addrStruct).done(function(){
+                                translateTemporalInclusion(firstGraph, addrStruct).done(function(){
+                                    dfdTranslateDecomposition.resolve();
+                                }).fail(dfdTranslateDecomposition.reject)
+                            }).fail(dfdTranslateDecomposition.reject);
                         }
                     }
 

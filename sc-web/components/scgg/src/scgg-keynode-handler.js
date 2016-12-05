@@ -7,6 +7,7 @@ SCggKeynodesHandler = {
         'nrel_weight',
         'sc_garbage',
         'nrel_temporal_decomposition',
+        'nrel_temporal_inclusion',
         'rrel_current_version',
         'rrel_vertex',
         'rrel_oredge',
