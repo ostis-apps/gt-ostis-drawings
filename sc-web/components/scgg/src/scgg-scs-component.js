@@ -64,9 +64,11 @@ SCggSCsComponent.prototype = {
         $(this.scsContainer).append('<div id="graph-scs-' + this.container + '_' + id + '"></div>');
     },
 
-    createSCsSandBox: function(answer_addr, id) {
+    createSCsSandBox: function(answer_addr, id, commandState) {
         var sandboxSCs = new SCWeb.core.ComponentSandbox({
             container: 'graph-scs-' + this.container + '_' + id,
+            window_id: 'graph-scs-' + this.container + '_' + id,
+            command_state: commandState,
             addr: answer_addr,
             is_struct: false,
             format_addr: SCggKeynodesHandler.scKeynodes.format_scs_json,
@@ -74,35 +76,41 @@ SCggSCsComponent.prototype = {
             keynodes: SCWeb.core.ComponentManager._keynodes
         });
         SCsComponent.factory(sandboxSCs);
+        this.hideSCnEditorButton(id);
+    },
+
+    hideSCnEditorButton: function (id) {
+        $('#graph-scs-' + this.container + '_' + id + "-new-article-btn").hide();
+        $('#graph-scs-' + this.container + '_' + id + "-edit-article-btn").hide();
     },
 
     createSCsBlockForVertex: function (addr, id) {
         var self = this;
         // TODO change SCWeb.core.Main.default_cmd on addr aget semantic neighborhood for Vertex
-        SCWeb.core.Main.getTranslatedAnswer
-        (new SCWeb.core.CommandState(SCWeb.core.Main.default_cmd, [addr], SCggKeynodesHandler.scKeynodes.format_scs_json))
+        var commandState = new SCWeb.core.CommandState(SCWeb.core.Main.default_cmd, [addr], SCggKeynodesHandler.scKeynodes.format_scs_json);
+        SCWeb.core.Main.getTranslatedAnswer(commandState)
             .then(function (answer_addr) {
-                self.createSCsSandBox(answer_addr, id);
+                self.createSCsSandBox(answer_addr, id, commandState);
             });
     },
 
     createSCsBlockForEdge: function (addr, id) {
         var self = this;
         // TODO change SCWeb.core.Main.default_cmd on addr aget semantic neighborhood for Edge
-        SCWeb.core.Main.getTranslatedAnswer
-        (new SCWeb.core.CommandState(SCWeb.core.Main.default_cmd, [addr], SCggKeynodesHandler.scKeynodes.format_scs_json))
+        var commandState = new SCWeb.core.CommandState(SCWeb.core.Main.default_cmd, [addr], SCggKeynodesHandler.scKeynodes.format_scs_json);
+        SCWeb.core.Main.getTranslatedAnswer(commandState)
             .then(function (answer_addr) {
-                self.createSCsSandBox(answer_addr, id);
+                self.createSCsSandBox(answer_addr, id, commandState);
             });
     },
 
     createSCsBlockForGraph: function () {
         var self = this;
         // TODO change SCWeb.core.Main.default_cmd on addr aget semantic neighborhood for Graph
-        SCWeb.core.Main.getTranslatedAnswer
-        (new SCWeb.core.CommandState(SCWeb.core.Main.default_cmd, [this.sandbox.addr], SCggKeynodesHandler.scKeynodes.format_scs_json))
+        var commandState = new SCWeb.core.CommandState(SCWeb.core.Main.default_cmd, [this.sandbox.addr], SCggKeynodesHandler.scKeynodes.format_scs_json);
+        SCWeb.core.Main.getTranslatedAnswer(commandState)
             .then(function (answer_addr) {
-                self.createSCsSandBox(answer_addr, "graph");
+                self.createSCsSandBox(answer_addr, "graph", commandState);
             });
     }
 
