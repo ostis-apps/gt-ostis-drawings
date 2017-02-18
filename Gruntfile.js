@@ -5,6 +5,6 @@ module.exports = function(grunt) {
     grunt.initConfig(tasks);
 
     require('load-grunt-tasks')(grunt);
-    grunt.registerTask('build', ['concat']);
-    grunt.registerTask('default', ['concat', 'watch']);
+    grunt.registerTask('build', ['concat','copy', 'exec:updateCssAndJs']);
+    grunt.registerTask('default', ['concat', 'copy', 'exec:updateCssAndJs', 'watch']);
 };
