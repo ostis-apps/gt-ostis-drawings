@@ -15,3 +15,12 @@ ui_graph_resolve_choose
 	=> nrel_main_idtf:
         [Select condition]
 (* <- lang_en;; *);;
+
+ui_graph_resolve_param
+	<- ui_scgg_control; sc_node_not_relation;
+	=> nrel_main_idtf:
+		[Добавить параметр]
+		(* <- lang_ru;; *);
+	=> nrel_main_idtf:
+        [Add param]
+(* <- lang_en;; *);;

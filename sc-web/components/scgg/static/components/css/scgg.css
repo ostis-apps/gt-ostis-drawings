@@ -440,14 +440,23 @@ path.SCggBusPath {
     margin: 75px 0 0 10px;
 }
 
-#solve-param {
-    width: 100%;
+.solve-param {
+    width: 95%;
     margin: 5px;
 }
 
 #tool-resolve {
-    width: 100%;
+    width: 75%;
     margin: 5px;
+}
+
+#add-param .delete-param{
+    width: 15%;
+    margin: 5px;
+}
+
+.solve-add-param {
+    width: 75% !important;
 }
 
 #solve-img{

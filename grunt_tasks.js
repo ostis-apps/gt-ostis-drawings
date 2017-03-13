@@ -55,20 +55,20 @@ module.exports = function() {
             }
         },
         copy: {
-            setIMG: {
+            scggIMG: {
                 cwd: components + 'static/components/images/scgg',
                 src: ['**'],
                 dest: clientImgDirPath + 'scgg/',
                 expand: true
             },
-            setCSS: {
+            scggCSS: {
                 cwd: components + 'static/components/css/',
                 src: ['scgg.css'],
                 dest: clientCssDirPath,
                 expand: true,
                 flatten: true
             },
-            setHTML: {
+            scggHTML: {
                 cwd: components + 'static/components/html/',
                 src: ['*.html'],
                 dest: clientHtmlDirPath,
@@ -96,11 +96,11 @@ module.exports = function() {
                 tasks: ['copy:scggCSS']
             },
             scggHTML: {
-                files: [components + 'static/components/html/**',],
+                files: [components + 'static/components/html/**'],
                 tasks: ['copy:scggHTML']
             },
             copyKB: {
-                files: [kb + '**',],
+                files: [kb + '**'],
                 tasks: ['copy:kb']
             }
         },
