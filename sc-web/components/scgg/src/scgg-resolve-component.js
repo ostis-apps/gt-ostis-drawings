@@ -1,4 +1,5 @@
 SCggResolveComponent = function (params, editor) {
+    this.paramSizeMax = 5;
     this.sandbox = params.sandbox;
     this.container = params.sandbox.container;
     this.editor = editor;
@@ -29,12 +30,14 @@ SCggResolveComponent.prototype = {
 
     addParam : function() {
         var self = this;
-        this.paramSize++;
-        $(self.getSolveParam()).append($('<div id="param-' + this.paramSize + '">').load('static/components/html/scgg-resolve-param.html', function () {
-            self.setParamListener($(this));
-            self.setDeleteParam($(this));
-            self.chooseForSolveItem["param-" + self.paramSize] = $(this).find('.solve-param');
-        }));
+        if (Object.keys(this.chooseForSolveItem).length < this.paramSizeMax) {
+            this.paramSize++;
+            $(self.getSolveParam()).append($('<div id="param-' + this.paramSize + '">').load('static/components/html/scgg-resolve-param.html', function () {
+                self.setParamListener($(this));
+                self.setDeleteParam($(this));
+                self.chooseForSolveItem["param-" + self.paramSize] = $(this).find('.solve-param');
+            }));
+        }
     },
 
     updateIdtf: function (){
@@ -81,10 +84,8 @@ SCggResolveComponent.prototype = {
         var jQueryDeleteButton = jQueryDiv.find(".delete-param");
 
         jQueryDeleteButton.click(function () {
-            console.log("delete " + jQueryDiv.attr('id'));
             delete self.chooseForSolveItem[jQueryDiv.attr('id')];
             jQueryDiv.remove();
-            console.log(self.chooseForSolveItem);
         })
     },
 
@@ -173,28 +174,92 @@ SCggResolveComponent.prototype = {
         var self = this;
 
         this.toolButtonSolve().click(function () {
-            if(self.chooseForSolveItem){
-                var arg = [];
-                arg.push(self.sandbox.addr);
-                arg.push(self.chooseForSolveItem.addr);
-                var commandState = new SCWeb.core.CommandState(
-                    SCggKeynodesHandler.scKeynodes.ui_menu_find_graph_info,
-                    arg,
-                    SCggKeynodesHandler.scKeynodes.format_scs_json
-                );
-                SCWeb.core.Main.doCommandWithPromise(commandState).then(function (question) {
-                    SCWeb.ui.WindowManager.appendHistoryItem(question, commandState);
-                    setTimeout(function () {
-                        self.editor.scene.clearSelection();
-                        self.editor.scsComponent.clearStorage();
-                        self.editor.scsComponent.setGraphActive();
-                    }, 1000);
+            if(self.validQuestion()){
+                var promis = self.createParamObject();
+                promis.then(function (arg) {
+                    //SCWeb.core.Main.doDefaultCommand(arg); // see set for solver
+                    var commandState = new SCWeb.core.CommandState(
+                        SCggKeynodesHandler.scKeynodes.ui_menu_find_graph_info,
+                        arg,
+                        SCggKeynodesHandler.scKeynodes.format_scs_json
+                    );
+                    SCWeb.core.Main.doCommandWithPromise(commandState).then(function (question) {
+                        SCWeb.ui.WindowManager.appendHistoryItem(question, commandState);
+                        setTimeout(function () {
+                            self.editor.scene.clearSelection();
+                            self.editor.scsComponent.clearStorage();
+                            self.editor.scsComponent.setGraphActive();
+                        }, 1000);
+                    });
                 });
             }
         });
 
         this.toolAddParam().click(function () {
             self.addParam();
+        });
+    },
+
+    validQuestion : function () {
+        for (key in this.chooseForSolveItem){
+            var input = this.chooseForSolveItem[key];
+            if (!input.attr("sc_addr")){
+                alert(input.val());
+                return false;
+            }
+        }
+        return true;
+    },
+
+    createParamObject : function () {
+        var self = this;
+        return new Promise(function(resolve) {
+            var argSet = [];
+            window.sctpClient.create_node(sc_type_node | sc_type_const).done(function (nodeAddr) {
+                argSet.push(nodeAddr);
+                var promises = [];
+                promises.push(new Promise(function(resolve) {
+                    var rrelNo = "rrel_1";
+                    var paramAddr = self.sandbox.addr;
+                    var attrAddr = SCggKeynodesHandler.scKeynodes[rrelNo];
+                    window.sctpClient.create_arc(sc_type_arc_pos_const_perm, nodeAddr, paramAddr).done(function (arc) {
+                        window.sctpClient.create_arc(sc_type_arc_pos_const_perm, attrAddr, arc).done(function () {
+                            resolve();
+                        }).fail(function () {
+                            console.log("Fail in add attr rrel_NO for graph");
+                        });
+                    }).fail(function () {
+                        console.log("Fail in add attr graph in set");
+                    });
+                }));
+                var args = Object.keys(self.chooseForSolveItem);
+                console.log(args);
+                args.forEach(function (param, index) {
+                    var offset = 2;
+                    promises.push(new Promise(function(resolve) {
+                        var rrelNo = "rrel_" + (index + offset);
+                        var paramAddr = self.chooseForSolveItem[param].attr("sc_addr");
+                        var attrAddr = SCggKeynodesHandler.scKeynodes[rrelNo];
+                        console.log(paramAddr);
+                        console.log(attrAddr);
+                        window.sctpClient.create_arc(sc_type_arc_pos_const_perm, nodeAddr, paramAddr).done(function (arc) {
+                            window.sctpClient.create_arc(sc_type_arc_pos_const_perm, attrAddr, arc).done(function () {
+                                resolve();
+                            }).fail(function () {
+                                console.log("Fail in add attr rrel_NO for param");
+                            });
+                        }).fail(function () {
+                            console.log("Fail in add attr param in set");
+                        });
+                    }));
+                });
+                console.log(promises);
+                Promise.all(promises).then(function () {
+                    resolve(argSet);
+                });
+            }).fail(function () {
+                console.log("Fail in create set param");
+            });
         });
     }
 

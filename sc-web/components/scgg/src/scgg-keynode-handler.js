@@ -15,7 +15,13 @@ SCggKeynodesHandler = {
         'ui_menu_find_graph_info',
         'ui_graph_resolve_choose',
         'ui_graph_resolve',
-        'ui_graph_resolve_param'
+        'ui_graph_resolve_param',
+        'rrel_1',
+        'rrel_2',
+        'rrel_3',
+        'rrel_4',
+        'rrel_5',
+        'rrel_6'
     ],
 
     scKeynodes: {},
