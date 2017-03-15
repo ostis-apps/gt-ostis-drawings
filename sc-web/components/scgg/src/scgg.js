@@ -648,6 +648,8 @@ SCgg.Editor.prototype = {
                     self._enableTool(self.toolIntegrate());
                     if (!self.resolveComponent.resolveComponent){
                         self.resolveComponent.createUI();
+                    } else {
+                        self.resolveComponent.updateUI();
                     }
                     if (!self.scsComponent.scsContainer){
                         self.scsComponent.createUI();
@@ -723,6 +725,8 @@ SCgg.Editor.prototype = {
         update_tool(this.toolRandomGraph());
         update_tool(this.resolveComponent.toolButtonSolve());
         update_tool(this.resolveComponent.getInputSolveParam());
+        update_tool(this.resolveComponent.getToolRemoveParam());
+        update_tool(this.resolveComponent.getToolAddParam());
         if (self.scene.modal != SCggModalMode.SCggModalEditGraphName) {
             update_tool(this.graphNameButton());
         }

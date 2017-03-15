@@ -13,10 +13,11 @@ SCggResolveComponent.prototype = {
 
     constructor: SCggSCsComponent,
 
-    createUI: function () {
+    updateUI : function () {
         var self = this;
-        this.resolveComponent = '#graph-resolve-' + this.container;
-        $('#graph-' + this.container).append('<div class="SCggResolve" id="graph-resolve-' + this.container + '"></div>');
+        $(this.resolveComponent).empty();
+        this.paramSize = 0;
+        this.chooseForSolveItem = {};
         $(this.resolveComponent).load('static/components/html/scgg-resolve-component.html', function () {
             if (self.editor.resolveControls) {
                 self.editor.resolveControls(self.resolveComponent);
@@ -26,6 +27,12 @@ SCggResolveComponent.prototype = {
             self.updateIdtf();
             self.createHtmlUi();
         });
+    },
+
+    createUI: function () {
+        this.resolveComponent = '#graph-resolve-' + this.container;
+        $('#graph-' + this.container).append('<div class="SCggResolve" id="graph-resolve-' + this.container + '"></div>');
+        this.updateUI();
     },
 
     addParam : function() {
@@ -79,6 +86,14 @@ SCggResolveComponent.prototype = {
         return $(this.resolveComponent).find('.solve-param');
     },
 
+    getToolRemoveParam: function () {
+        return $(this.resolveComponent).find('.delete-param');
+    },
+
+    getToolAddParam: function () {
+        return $(this.resolveComponent).find('#add-param');
+    },
+
     setDeleteParam: function (jQueryDiv) {
         var self = this;
         var jQueryDeleteButton = jQueryDiv.find(".delete-param");
@@ -99,13 +114,13 @@ SCggResolveComponent.prototype = {
 
             function stop_modal() {
                 jQueryInput.attr("disabled", false);
-                self.scene.setModal(SCgModalMode.SCgModalNone);
+                self.scene.setModal(SCggModalMode.SCggModalNone);
                 tool.popover('destroy');
             }
 
             var tool = $(this);
             jQueryInput.attr("disabled", true);
-            self.scene.setModal(SCgModalMode.SCggModalSolveMode);
+            self.scene.setModal(SCggModalMode.SCggModalSolveMode);
             $(this).popover({container: container});
             $(this).popover('show');
             var input = $(container + ' #solve-change-idtf-input');
@@ -166,6 +181,24 @@ SCggResolveComponent.prototype = {
 
             $(container + ' #solve-change-idtf-cancel').click(function () {
                 stop_modal();
+            });
+
+            $(container + ' #solve-get-scaddr-cliker').click(function () {
+
+                stop_modal();
+                jQueryInput.addClass('solver-wait-addr');
+                self.scene.setModal(SCggModalMode.SCggModalSolveMode);
+
+                var selector = 'body [sc_addr]:not(.sc-window)';
+                $(selector).bind('click.getScAddrForGTSolverEvent', function(e) {
+                    $(selector).unbind( "click.getScAddrForGTSolverEvent" );
+                    var text = $(this).attr('text') || $(this).attr('sc_addr');
+                    jQueryInput.val(text);
+                    jQueryInput.attr("sc_addr", $(this).attr('sc_addr'));
+                    jQueryInput.removeClass('solver-wait-addr');
+                    self.scene.setModal(SCggModalMode.SCggModalNone);
+                    e.stopPropagation();
+                });
             });
         });
     },
@@ -233,15 +266,12 @@ SCggResolveComponent.prototype = {
                     });
                 }));
                 var args = Object.keys(self.chooseForSolveItem);
-                console.log(args);
                 args.forEach(function (param, index) {
                     var offset = 2;
                     promises.push(new Promise(function(resolve) {
                         var rrelNo = "rrel_" + (index + offset);
                         var paramAddr = self.chooseForSolveItem[param].attr("sc_addr");
                         var attrAddr = SCggKeynodesHandler.scKeynodes[rrelNo];
-                        console.log(paramAddr);
-                        console.log(attrAddr);
                         window.sctpClient.create_arc(sc_type_arc_pos_const_perm, nodeAddr, paramAddr).done(function (arc) {
                             window.sctpClient.create_arc(sc_type_arc_pos_const_perm, attrAddr, arc).done(function () {
                                 resolve();
@@ -253,7 +283,6 @@ SCggResolveComponent.prototype = {
                         });
                     }));
                 });
-                console.log(promises);
                 Promise.all(promises).then(function () {
                     resolve(argSet);
                 });

@@ -356,6 +356,9 @@ SCgg.Render.prototype = {
                 })
                 .attr("sc_addr", function (d) {
                     return d.sc_addr;
+                })
+                .attr("text", function (d) {
+                    return d.text;
                 });
 
             g.selectAll('text').text(function (d) {
@@ -496,6 +499,12 @@ SCgg.Render.prototype = {
                 })
                 .attr("sc_addr", function (d) {
                     return d.sc_addr;
+                })
+                .attr("text", function (d) {
+                    var source = d.source.text || "...";
+                    var edge = d.hasArrow ? " => " : " = ";
+                    var target = d.target.text || "...";
+                    return source + edge + target;
                 });
 
             if (typeof d.points[0] == 'undefined') {
