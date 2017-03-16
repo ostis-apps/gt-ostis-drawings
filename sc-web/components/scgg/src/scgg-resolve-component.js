@@ -12,7 +12,6 @@ SCggResolveComponent.prototype = {
     constructor: SCggSCsComponent,
 
     createUI: function () {
-				debugger;
         var self = this;
         this.resolveComponent = '#graph-resolve-' + this.container;
 				$('#graph-' + this.container).append('<div class="right-panel" id="right-panel-' + this.container + '"></div>')
