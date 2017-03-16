@@ -13,7 +13,7 @@ SCggSCsComponent.prototype = {
 
     createUI: function () {
         this.scsContainer = '#graph-scs-' + this.container;
-        $('#graph-' + this.container).append('<div class="SCggSCs" id="graph-scs-' + this.container + '"></div>');
+        $('#right-panel-' + this.container).append('<div class="SCggSCs" id="graph-scs-' + this.container + '"></div>');
     },
 
     clearStorage: function () {
