@@ -256,8 +256,7 @@ path.SCggBusPath {
     bottom: 25px;
     left: 40px;
     z-index: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden;
 }
 
 .scgg-tools-panel img {
@@ -510,11 +509,10 @@ path.SCggBusPath {
 }
 
 .right-panel {
-		box-shadow: inset 0px 16px 29px -22px #ccc, inset 0px -16px 29px -23px #ccc;
+	box-shadow: inset 0px 16px 29px -22px #ccc, inset 0px -16px 29px -23px #ccc;
     float: left;
     width: 250px;
     margin: 100px 0px 0 10px;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden;
     height: calc(100% - 100px);
 }

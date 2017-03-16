@@ -84,9 +84,11 @@ SCgg.Editor.prototype = {
 
         $(container).prepend('<div id="tools-' + self.containerId + '"></div>');
         $(container).prepend('<div id="graph-name-' + self.containerId + '"></div>');
-
+						
         $(tools_container).load('static/components/html/scgg-tools-panel.html', function() {
-             $.ajax({
+			$('#' + self.containerId)[0].addEventListener("wheel", self.onToolsWheel.bind(self));
+             
+			$.ajax({
                     url: "static/components/html/scgg-types-panel-nodes.html",
                     dataType: 'html',
                     success: function(response) {
@@ -167,6 +169,12 @@ SCgg.Editor.prototype = {
         this.openComponentCallbacks = function () {
             self.render.requestUpdateAll();
         }
+    },
+
+	onToolsWheel: function(event) {
+        event = event || window.event;
+
+        $("#tools-" + this.containerId + " .scgg-tools-panel")[0].scrollTop += event.deltaY;
     },
 
     hideTool: function(tool) {

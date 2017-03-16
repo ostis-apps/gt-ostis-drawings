@@ -14,8 +14,13 @@ SCggResolveComponent.prototype = {
     createUI: function () {
         var self = this;
         this.resolveComponent = '#graph-resolve-' + this.container;
-				$('#graph-' + this.container).append('<div class="right-panel" id="right-panel-' + this.container + '"></div>')
+		this.rightPanelConponent = '#right-panel-' + this.container;
+
+		$('#graph-' + this.container).append('<div class="right-panel" id="right-panel-' + this.container + '"></div>')		
         $('#right-panel-' + this.container).append('<div class="SCggResolve" id="graph-resolve-' + this.container + '"></div>');
+
+		$('#graph-' + this.container)[0].addEventListener("wheel", this.onPanelWheel.bind(this));
+
         $(this.resolveComponent).load('static/components/html/scgg-resolve-component.html', function () {
             if (self.editor.resolveControls) {
                 self.editor.resolveControls(self.resolveComponent);
@@ -24,6 +29,12 @@ SCggResolveComponent.prototype = {
             self.createHtmlUi();
         });
     },
+
+	onPanelWheel: function(event) {
+		event = event || window.event;		
+      	
+		$("#right-panel-" + this.container)[0].scrollTop += event.deltaY;	
+	},
 
     updateIdtf: function (){
         var self = this;
