@@ -252,7 +252,11 @@ path.SCggBusPath {
 /* ------------- User interface -------------- */
 .scgg-tools-panel {
     position: absolute;
-    padding: 10px;
+    top: 25px;
+    bottom: 25px;
+    left: 40px;
+    z-index: 1;
+    overflow-y: auto;
 }
 
 .scgg-tools-panel img {
@@ -429,7 +433,6 @@ path.SCggBusPath {
     float: left;
     display: block;
     width: 250px;
-    margin: 10px 0 0 10px;
 }
 
 /*------------- Resolve Component -----------------------*/
@@ -437,17 +440,15 @@ path.SCggBusPath {
     float: left;
     display: block;
     width: 250px;
-    margin: 75px 0 0 10px;
 }
 
 #solve-param {
     width: 100%;
-    margin: 5px;
+    margin-bottom: 10px;
 }
 
 #tool-resolve {
     width: 100%;
-    margin: 5px;
 }
 
 #solve-img{
@@ -505,4 +506,13 @@ path.SCggBusPath {
 
 .scgg-random-graph-panel .edge-probability .form-control {
    width: 30px;
+}
+
+.right-panel {
+		box-shadow: inset 0px 16px 29px -22px #ccc, inset 0px -16px 29px -23px #ccc;
+    float: left;
+    width: 250px;
+    margin: 100px 0px 0 10px;
+    overflow: scroll;
+    height: calc(100% - 100px);
 }

@@ -12,9 +12,11 @@ SCggResolveComponent.prototype = {
     constructor: SCggSCsComponent,
 
     createUI: function () {
+				debugger;
         var self = this;
         this.resolveComponent = '#graph-resolve-' + this.container;
-        $('#graph-' + this.container).append('<div class="SCggResolve" id="graph-resolve-' + this.container + '"></div>');
+				$('#graph-' + this.container).append('<div class="right-panel" id="right-panel-' + this.container + '"></div>')
+        $('#right-panel-' + this.container).append('<div class="SCggResolve" id="graph-resolve-' + this.container + '"></div>');
         $(this.resolveComponent).load('static/components/html/scgg-resolve-component.html', function () {
             if (self.editor.resolveControls) {
                 self.editor.resolveControls(self.resolveComponent);
