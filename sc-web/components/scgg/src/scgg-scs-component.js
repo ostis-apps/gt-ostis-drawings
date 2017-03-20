@@ -14,6 +14,10 @@ SCggSCsComponent.prototype = {
     createUI: function () {
         this.scsContainer = '#graph-scs-' + this.container;
         $('#graph-' + this.container).append('<div class="SCggSCs" id="graph-scs-' + this.container + '"></div>');
+		
+		$("#graph-scs-" + this.container)[0].addEventListener("wheel", function(event) {
+        	event.preventDefault ? event.preventDefault() : (event.returnValue = false);
+        }); 
     },
 
     clearStorage: function () {
