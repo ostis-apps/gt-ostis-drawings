@@ -15,10 +15,17 @@ SCggResolveComponent.prototype = {
         var self = this;
         this.resolveComponent = '#graph-resolve-' + this.container;
         $('#graph-' + this.container).append('<div class="SCggResolve" id="graph-resolve-' + this.container + '"></div>');
-        $(this.resolveComponent).load('static/components/html/scgg-resolve-component.html', function () {
+
+		$('#graph-' + this.container)[0].addEventListener("wheel", function(event) {
+			event = event || window.event;
+        	$("#graph-scs-" + self.container)[0].scrollTop += event.deltaY;
+		});	
+
+		$(this.resolveComponent).load('static/components/html/scgg-resolve-component.html', function () {
             if (self.editor.resolveControls) {
                 self.editor.resolveControls(self.resolveComponent);
             }
+			
             self.updateIdtf();
             self.createHtmlUi();
         });

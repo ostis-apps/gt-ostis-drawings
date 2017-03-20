@@ -2,12 +2,7 @@
   height: 100%;
   background-color: #fff;
   cursor: default;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -o-user-select: none;
   user-select: none;
-  min-height: 700px;
 }
 
 .SCggText {
@@ -257,7 +252,7 @@ path.SCggBusPath {
 }
 
 .scgg-tools-panel img {
-    width: 32px;
+    width: 25px;
 }
 
 #scgg-set-content-input {
@@ -421,34 +416,37 @@ path.SCggBusPath {
 /*------------- SCs Component -----------------------*/
 .SCggSvg {
     width: calc(100% - 260px);
+	height: calc(100vh - 162px);
     float: left;
     display: block;
     border: 1px solid rgba(0, 0, 0, 0.10)
 }
 
 .SCggSCs {
+	height: calc(100vh - 334px);
+	overflow-y: auto;
+	overflow-x: hidden;
     float: left;
     display: block;
-    width: 250px;
-    margin: 10px 0 0 10px;
+    width: 246px;
+    margin: 10px 0 0 14px;
 }
 
 /*------------- Resolve Component -----------------------*/
 .SCggResolve {
     float: left;
     display: block;
-    width: 250px;
-    margin: 75px 0 0 10px;
+    width: 248px;
+    margin: 92px 0 0 12px;
 }
 
 #solve-param {
     width: 100%;
-    margin: 5px;
+    margin-bottom: 10px;
 }
 
 #tool-resolve {
     width: 100%;
-    margin: 5px;
 }
 
 #solve-img{
