@@ -12,7 +12,7 @@ SCggKeynodesHandler = {
         'rrel_vertex',
         'rrel_oredge',
         'temporary_entity',
-        'ui_menu_find_graph_info',
+        'ui_menu_solving_simple_task',
         'ui_graph_resolve_choose',
         'ui_graph_resolve',
         'ui_graph_resolve_param',

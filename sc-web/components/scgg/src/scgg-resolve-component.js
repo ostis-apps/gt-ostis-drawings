@@ -212,7 +212,7 @@ SCggResolveComponent.prototype = {
                 promis.then(function (arg) {
                     //SCWeb.core.Main.doDefaultCommand(arg); // see set for solver
                     var commandState = new SCWeb.core.CommandState(
-                        SCggKeynodesHandler.scKeynodes.ui_menu_find_graph_info,
+                        SCggKeynodesHandler.scKeynodes.ui_menu_solving_simple_task,
                         arg,
                         SCggKeynodesHandler.scKeynodes.format_scs_json
                     );
