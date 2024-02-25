@@ -423,7 +423,7 @@ SCgg.Editor.prototype = {
             });
 
             // process controls
-            $(container + ' #scgg-change-idtf-apply').click(function() {
+            $(container + ' #scgg-change-idtf-apply').click(async () => {
                 var obj = self.scene.selected_objects[0];
 
                 if (obj.text != input.val() && !self._idtf_item) {
@@ -438,16 +438,18 @@ SCgg.Editor.prototype = {
                 }
 
                 if (self._idtf_item) {
-                    window.sctpClient.get_element_type(self._idtf_item.addr).done(function (t) {
-                        self.scene.commandManager.execute(new SCggCommandGetNodeFromMemory(obj,
-                            t,
+                    const [type] = await scClient.checkElements([new sc.ScAddr(self._idtf_item.addr)]);
+                    self.scene.commandManager.execute(
+                        new SCggCommandGetNodeFromMemory(
+                            obj,
+                            type,
                             input.val(),
                             self._idtf_item.addr,
-                            self.scene));
-                        stop_modal();
-                    });
-                } else
-                    stop_modal();
+                            self.scene
+                        )
+                    );
+                }
+                stop_modal();
             });
             $(container + ' #scgg-change-idtf-cancel').click(function() {
                 stop_modal();
@@ -769,11 +771,10 @@ SCgg.Editor.prototype = {
     },
 
     /**
-     * function(keyword, callback, args)
+     * function(keyword, callback)
      * here is default implementation
      * */
-    autocompletionVariants : function(keyword, callback, args){
-        var self = this;
+    autocompletionVariants: function(keyword, callback) {
         callback(self.collectIdtfs(keyword));
     },
 
@@ -800,41 +801,38 @@ SCgg.Editor.prototype = {
         return $(inputSelector).val();
     },
 
-    updateGraphName: function() {
-        var self = this;
-        var sandbox = self.render.sandbox;
-        var containerId = self.render.containerId;
-        var inputSelector = '#graph-name-' + containerId + ' input';
-        var nameAddr = sandbox.graphNodeAddr ? sandbox.graphNodeAddr : sandbox.addr;
+    async updateGraphName() {
+        const sandbox = this.render.sandbox;
+        const containerId = this.render.containerId;
+        const inputSelector = `#graph-name-${containerId} input`;
+        const nameAddr = sandbox.graphNodeAddr ? sandbox.graphNodeAddr : sandbox.addr;
 
-        if (sandbox.loadGraph){
-            window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
-                [   nameAddr,
-                    sc_type_arc_common | sc_type_const,
-                    sc_type_link,
-                    sc_type_arc_pos_const_perm,
-                    window.scKeynodes.nrel_main_idtf
-                ]
-            ).done(function(results) {
-                window.sctpClient.get_link_content(results[0][2],'string').done(function(content) {
-                    $(inputSelector).val(content);
-                });
-            }).fail(function() {
+        if (sandbox.loadGraph) {
+            const linkAlias = '_linkAlias';
+            const results = await scClient.templateSearch(
+                new sc.ScTemplate().tripleWithRelation(
+                    new sc.ScAddr(nameAddr),
+                    sc.ScType.EdgeDCommonVar,
+                    [sc.ScType.LinkVar, linkAlias],
+                    sc.ScType.EdgeAccessVarPosPerm,
+                    new sc.ScAddr(window.scKeynodes.nrel_main_idtf),
+                )
+            );
+            if (results[0]) {
+                const content = await scClient.getLinkContents([results[0].get(linkAlias)]);
+                $(inputSelector).val(content[0].data);
+            }
+            else {
                 // console.log("not find nrel_main_idtf");
                 $(inputSelector).val('');
-            }).always(function() {
-                self.setPlaceholder(inputSelector);
-            })
-        } else {
-            self.setPlaceholder(inputSelector);
+            }    
         }
+        this.setPlaceholder(inputSelector);
     },
 
-    setPlaceholder: function(graphNameSelector) {
-        SCWeb.core.Server.resolveScAddr(['ui_graph_name'], function (keynodes) {
-            SCWeb.core.Server.resolveIdentifiers(keynodes, function (idf) {
-                $(graphNameSelector).attr('placeholder', idf[keynodes['ui_graph_name']]);
-            });
-        });
+    async setPlaceholder(graphNameSelector) {
+        const keynodes = await SCWeb.core.Server.resolveScAddr(['ui_graph_name']);
+        const idf = await SCWeb.core.Server.resolveIdentifiers(keynodes);
+        $(graphNameSelector).attr('placeholder', idf[keynodes['ui_graph_name']]);
     }
 };

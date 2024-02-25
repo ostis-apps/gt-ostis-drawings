@@ -15,30 +15,30 @@ SCggComponent = {
     }
 };
 
-function loadGraphOrCreateNew(callBackLoad, callBackNew){
-    var keynodes = ['ui_graph_choose_load','ui_graph_choose_new','ui_graph_choose_message'];
+async function loadGraphOrCreateNew(callBackLoad, callBackNew) {
+    const systemIds = ['ui_graph_choose_load', 'ui_graph_choose_new', 'ui_graph_choose_message'];
 
-    SCWeb.core.Server.resolveScAddr(keynodes, function (keynodes) {
-        SCWeb.core.Server.resolveIdentifiers(keynodes, function (idf) {
-            var confirmMessage = idf[keynodes['ui_graph_choose_message']];
-            var buttonLoad = idf[keynodes['ui_graph_choose_load']];
-            var buttonNew = idf[keynodes['ui_graph_choose_new']];
+    const keynodes = await SCWeb.core.Server.resolveScAddr(systemIds);
 
-            $('#confirmChooseBox').modal({show:true, backdrop:false, keyboard: false});
-            $('#confirmMessage').html(confirmMessage);
-            $('#confirmLoadGraph').html(buttonLoad);
-            $('#confirmCreateNew').html(buttonNew);
+    const idf = await SCWeb.core.Server.resolveIdentifiers(keynodes)
 
-            $('#confirmLoadGraph').click(function(){
-                $('#confirmChooseBox').modal('hide');
-                callBackLoad();
-            });
+    const confirmMessage = idf[keynodes['ui_graph_choose_message']];
+    const buttonLoad = idf[keynodes['ui_graph_choose_load']];
+    const buttonNew = idf[keynodes['ui_graph_choose_new']];
 
-            $('#confirmCreateNew').click(function(){
-                $('#confirmChooseBox').modal('hide');
-                callBackNew();
-            });
-        });
+    $('#confirmChooseBox').modal({ show: true, backdrop: false, keyboard: false });
+    $('#confirmMessage').html(confirmMessage);
+    $('#confirmLoadGraph').html(buttonLoad);
+    $('#confirmCreateNew').html(buttonNew);
+
+    $('#confirmLoadGraph').click(() => {
+        $('#confirmChooseBox').modal('hide');
+        callBackLoad();
+    });
+
+    $('#confirmCreateNew').click(() => {
+        $('#confirmChooseBox').modal('hide');
+        callBackNew();
     });
 }
 
@@ -46,76 +46,72 @@ var createScggComponent = function(sandbox, callback){
     function findCounterInSCn() {
         return $("#" + sandbox.container + ' .sc-contour > .scs-scn-view-toogle-button').parent().attr('sc_addr');
     }
-    function findCurrentVersionGraph(callback) {
-            var rootNode = $("#" + sandbox.container + ' .scs-scn-keyword > .scs-scn-element').attr('sc_addr');
-            var decompositionNode = null;
-            // Find node tuple
-            window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5A_A_F_A_F,
-                [   sc_type_node | sc_type_const | sc_type_node_tuple,
-                    sc_type_arc_common | sc_type_const,
-                    rootNode,
-                    sc_type_arc_pos_const_perm,
-                    SCggKeynodesHandler.scKeynodes.nrel_temporal_decomposition
-                ]
-            ).done(function (results) {
-                decompositionNode = results[0][0];
-                // Find current_version graph
-                window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
-                    [   results[0][0],
-                        sc_type_arc_pos_const_perm,
-                        sc_type_node | sc_type_const | sc_type_node_struct,
-                        sc_type_arc_pos_const_perm,
-                        SCggKeynodesHandler.scKeynodes.rrel_current_version
-                    ]
-                ).done(function (results) {
-                    $('#' + sandbox.container).load('static/components/html/scgg-choose-new-or-load.html', function () {
-                        loadGraphOrCreateNew(function () {
-                                sandbox.addr = results[0][2];
-                                sandbox.graphNodeAddr = rootNode;
-                                sandbox.decompositionNodeAddr = decompositionNode;
-                                callback(true);
-                            }, function () {
-                                callback(false);
-                            });
-                    });
-                }).fail(function () {
-                    //console.log("Not find rrel_current_version");
-                    callback(false);
-                });
-            }).fail(function () {
-                //console.log("Not find nrel_temporal_decomposition");
-                callback(false);
-            });
-    }
-    function findGraphAndDecomposition(addr, callback) {
-        var decompositionNode = null;
+    const findCurrentVersionGraph = async callback => {
+        const rootNode = $("#" + sandbox.container + ' .scs-scn-keyword > .scs-scn-element').attr('sc_addr');
+        const decompositionNodeAlias = '_decompositionNodeAlias';
+        const versionAlias = '_versionAlias';
+        // Find node tuple
 
-        window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_3A_A_F,
-            [   sc_type_node | sc_type_const | sc_type_node_tuple,
-                sc_type_arc_pos_const_perm,
-                addr
-            ]
-        ).done(function (results) {
-            decompositionNode = results[0][0];
-            window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
-                [   decompositionNode,
-                    sc_type_arc_common | sc_type_const,
-                    sc_type_node,
-                    sc_type_arc_pos_const_perm,
-                    SCggKeynodesHandler.scKeynodes.nrel_temporal_decomposition
-                ]
-            ).done(function (results) {
-                sandbox.graphNodeAddr = results[0][2];
-                sandbox.decompositionNodeAddr = decompositionNode;
-                callback();
-            }).fail(function () {
-                //console.log("Not find rootNode");
-                callback();
-            });
-        }).fail(function () {
-            //console.log("Not find decompositionNode");
-            callback();
+        const results = await scClient.templateSearch(
+            new sc.ScTemplate()
+            .tripleWithRelation(
+                [sc.ScType.NodeVarTuple, decompositionNodeAlias],
+                sc.ScType.EdgeDCommonVar,
+                new sc.ScAddr(rootNode),
+                sc.ScType.EdgeAccessVarPosPerm,
+                new sc.ScAddr(SCggKeynodesHandler.scKeynodes.nrel_temporal_decomposition),
+            )
+            .tripleWithRelation(
+                decompositionNodeAlias,
+                sc.ScType.EdgeAccessVarPosPerm,
+                [sc.ScType.NodeVarStruct, versionAlias],
+                sc.ScType.EdgeAccessVarPosPerm,
+                new sc.ScAddr(SCggKeynodesHandler.scKeynodes.rrel_current_version),
+            )
+        );
+
+        if (!results[0]) {
+            callback(false);
+            return;
+        }
+
+        $('#' + sandbox.container).load('static/components/html/scgg-choose-new-or-load.html', () => {
+            loadGraphOrCreateNew(
+                () => {
+                    sandbox.addr = results[0].get(versionAlias).value;
+                    sandbox.graphNodeAddr = rootNode;
+                    sandbox.decompositionNodeAddr = results[0].get(decompositionNodeAlias).value;
+                    callback(true);
+                },
+                () => {
+                    callback(false);
+                }
+            );
         });
+    }
+    const findGraphAndDecomposition = async (addr, callback) => {
+        const decompositionNodeAlias = '_decompositionNodeAlias';
+        const graphNodeAlias = '_graphNodeAlias';
+
+        const results = await scClient.templateSearch(
+            new sc.ScTemplate()
+            .triple(
+                [sc.ScType.NodeVarTuple, decompositionNodeAlias],
+                sc.ScType.EdgeAccessVarPosPerm,
+                new sc.ScAddr(addr),
+            )
+            .triple(
+                decompositionNodeAlias,
+                sc.ScType.EdgeDCommonVar,
+                [sc.ScType.NodeVar, graphNodeAlias],
+                sc.ScType.EdgeAccessVarPosPerm,
+                new sc.ScAddr(SCggKeynodesHandler.scKeynodes.nrel_temporal_decomposition),
+            )
+        );
+        console.warn(results);
+        sandbox.graphNodeAddr = results[0].get(graphNodeAlias).value;
+        sandbox.decompositionNodeAddr = results[0].get(decompositionNodeAlias).value;
+        callback();
     }
 
     if (findCounterInSCn() !== undefined){
@@ -171,20 +167,15 @@ var scggViewerWindow = function(sandbox, load) {
         this.scStructTranslator = new scggScStructTranslator(this.editor, this.sandbox);
     }
 
-    var autocompletionVariants = function(keyword, callback, self) {
-
-        SCWeb.core.Server.findIdentifiersSubStr(keyword, function(data) {
-            keys = [];
-            for (key in data) {
-                var list = data[key];
-                for (idx in list) {
-                    var value = list[idx]
-                    keys.push({name: value[1], addr: value[0], group: key});
-                }
+    const autocompletionVariants = async keyword => {
+        const [results] = await scClient.getStringsBySubstrings([keyword]);
+        const keys = [];
+        for (const [key, list] of results.entries()) {
+            for (const value of list) {
+                keys.push({ name: value[1], addr: value[0], group: key });
             }
-
-            callback(keys);
-        });
+        }
+        return keys;
     };
     
     this.editor.init(

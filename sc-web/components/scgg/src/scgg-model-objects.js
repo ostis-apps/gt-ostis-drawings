@@ -5,7 +5,7 @@ var SCggObjectState = {
     FromMemory: 3
 };
 
-var ObjectId = 1;
+var ObjectIdg = 1;
 
 /**
      * Initialize sc.g-object with specified options.
@@ -52,7 +52,7 @@ SCgg.ModelObject = function(options) {
         this.text = null;
     }
     
-    this.id = ObjectId++;
+    this.id = ObjectIdg++;
     this.edges = [];    // list of connected edges
     this.need_update = true;    // update flag
     this.state = SCggObjectState.Normal;
