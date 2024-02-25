@@ -24,16 +24,13 @@ SCggResolveComponent.prototype = {
         });
     },
 
-    updateIdtf: function (){
-        var self = this;
-        SCWeb.core.Server.resolveScAddr(['ui_graph_resolve_choose', 'ui_graph_resolve'], function (keynodes) {
-            SCWeb.core.Server.resolveIdentifiers(keynodes, function (idf) {
-                if (!self.chooseForSolveItem){
-                    self.getInputSolveParam().val(idf[keynodes['ui_graph_resolve_choose']]);
-                }
-                self.toolButtonSolve().html(self.getToolButtonImg() + idf[keynodes['ui_graph_resolve']]);
-            });
-        });
+    async updateIdtf() {
+        const keynodes = await SCWeb.core.Server.resolveScAddr(['ui_graph_resolve_choose', 'ui_graph_resolve']);
+        const idf = await SCWeb.core.Server.resolveIdentifiers(keynodes);
+        if (!this.chooseForSolveItem){
+            this.getInputSolveParam().val(idf[keynodes['ui_graph_resolve_choose']]);
+        }
+        this.toolButtonSolve().html(this.getToolButtonImg() + idf[keynodes['ui_graph_resolve']]);
     },
 
     getToolButtonImg: function () {
@@ -96,8 +93,8 @@ SCggResolveComponent.prototype = {
                     },
                     {
                         name: 'idtf',
-                        source: function (str, callback) {
-                            self.editor.autocompletionVariants(str, callback);
+                        source: async function (str, callback) {
+                            callback(await self.editor.autocompletionVariants(str));
                         },
                         displayKey: 'name',
                         templates: {
